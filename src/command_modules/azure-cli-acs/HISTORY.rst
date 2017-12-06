@@ -3,6 +3,15 @@
 Release History
 ===============
 
+2.0.21
+++++++
+* add `az aks install-connector` and `az aks remove-connector` commands
+
+2.0.20
+++++++
+* `acs create`: emit out an actionable error if provisioning application failed for lack of permissions
+* fix `aks get-credentials -f` without fully-qualified path
+
 2.0.19
 ++++++
 * call "agent" a "node" in AKS to match documentation
