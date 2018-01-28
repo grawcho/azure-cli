@@ -8,9 +8,6 @@ from argcomplete.completers import FilesCompleter
 
 from knack.arguments import CLIArgumentType
 
-from azure.mgmt.compute.models import CachingTypes, UpgradeMode
-from azure.mgmt.storage.models import SkuName
-
 from azure.cli.core.profiles import ResourceType
 from azure.cli.core.commands.validators import (
     get_default_location_from_resource_group, validate_file_or_dict)
@@ -24,27 +21,26 @@ from azure.cli.command_modules.vm._validators import (
     validate_nsg_name, validate_vm_nics, validate_vm_nic, validate_vm_disk, validate_asg_names_or_ids)
 
 
-# REUSABLE ARGUMENT DEFINITIONS
-
-name_arg_type = CLIArgumentType(options_list=['--name', '-n'], metavar='NAME')
-multi_ids_type = CLIArgumentType(nargs='+')
-existing_vm_name = CLIArgumentType(overrides=name_arg_type,
-                                   configured_default='vm',
-                                   help="The name of the Virtual Machine. You can configure the default using `az configure --defaults vm=<name>`",
-                                   completer=get_resource_name_completion_list('Microsoft.Compute/virtualMachines'), id_part='name')
-existing_disk_name = CLIArgumentType(overrides=name_arg_type, help='The name of the managed disk', completer=get_resource_name_completion_list('Microsoft.Compute/disks'), id_part='name')
-existing_snapshot_name = CLIArgumentType(overrides=name_arg_type, help='The name of the snapshot', completer=get_resource_name_completion_list('Microsoft.Compute/snapshots'), id_part='name')
-existing_image_name = CLIArgumentType(overrides=name_arg_type, help='The name of the custom image', completer=get_resource_name_completion_list('Microsoft.Compute/images'), id_part='name')
-vmss_name_type = CLIArgumentType(name_arg_type,
-                                 configured_default='vmss',
-                                 completer=get_resource_name_completion_list('Microsoft.Compute/virtualMachineScaleSets'),
-                                 help="Scale set name. You can configure the default using `az configure --defaults vmss=<name>`",
-                                 id_part='name')
-disk_sku = CLIArgumentType(help='Underlying storage SKU.', arg_type=get_enum_type(['Premium_LRS', 'Standard_LRS']))
-
-
 # pylint: disable=too-many-statements
 def load_arguments(self, _):
+    from azure.mgmt.compute.models import CachingTypes, UpgradeMode
+    from azure.mgmt.storage.models import SkuName
+
+    # REUSABLE ARGUMENT DEFINITIONS
+    name_arg_type = CLIArgumentType(options_list=['--name', '-n'], metavar='NAME')
+    multi_ids_type = CLIArgumentType(nargs='+')
+    existing_vm_name = CLIArgumentType(overrides=name_arg_type,
+                                       configured_default='vm',
+                                       help="The name of the Virtual Machine. You can configure the default using `az configure --defaults vm=<name>`",
+                                       completer=get_resource_name_completion_list('Microsoft.Compute/virtualMachines'), id_part='name')
+    existing_disk_name = CLIArgumentType(overrides=name_arg_type, help='The name of the managed disk', completer=get_resource_name_completion_list('Microsoft.Compute/disks'), id_part='name')
+    existing_snapshot_name = CLIArgumentType(overrides=name_arg_type, help='The name of the snapshot', completer=get_resource_name_completion_list('Microsoft.Compute/snapshots'), id_part='name')
+    vmss_name_type = CLIArgumentType(name_arg_type,
+                                     configured_default='vmss',
+                                     completer=get_resource_name_completion_list('Microsoft.Compute/virtualMachineScaleSets'),
+                                     help="Scale set name. You can configure the default using `az configure --defaults vmss=<name>`",
+                                     id_part='name')
+    disk_sku = CLIArgumentType(help='Underlying storage SKU.', arg_type=get_enum_type(['Premium_LRS', 'Standard_LRS']))
 
     # special case for `network nic scale-set list` command alias
     with self.argument_context('network nic scale-set list') as c:
@@ -193,8 +189,12 @@ def load_arguments(self, _):
 
     with self.argument_context('vm image') as c:
         c.argument('publisher_name', options_list=['--publisher', '-p'])
-        c.argument('offer', options_list=['--offer', '-f'])
-        c.argument('sku', options_list=['--sku', '-s'])
+        c.argument('publisher', options_list=['--publisher', '-p'], help='image publisher')
+        c.argument('offer', options_list=['--offer', '-f'], help='image offer')
+        c.argument('plan', help='image billing plan')
+        c.argument('sku', options_list=['--sku', '-s'], help='image sku')
+        c.argument('version', help="image sku's version")
+        c.argument('urn', help="URN, in format of 'publisher:offer:sku:versin'. If specified, other argument values can be omitted")
 
     with self.argument_context('vm image list') as c:
         c.argument('image_location', get_location_type(self.cli_ctx))
@@ -257,6 +257,7 @@ def load_arguments(self, _):
                 c.argument(dest, vmss_name_type, id_part=None)  # due to instance-ids parameter
 
     with self.argument_context('vmss create') as c:
+        VMPriorityTypes = self.get_models('VirtualMachinePriorityTypes', resource_type=ResourceType.MGMT_COMPUTE)
         c.argument('name', name_arg_type)
         c.argument('nat_backend_port', default=None, help='Backend port to open with NAT rules.  Defaults to 22 on Linux and 3389 on Windows.')
         c.argument('single_placement_group', default=None, help="Enable single placement group. This flag will default to True if instance count <=100, and default to False for instance count >100.", arg_type=get_enum_type(['true', 'false']))
@@ -267,6 +268,8 @@ def load_arguments(self, _):
         c.argument('health_probe', help='(Preview) probe name from the existing load balancer, mainly used for rolling upgrade')
         c.argument('vm_sku', help='Size of VMs in the scale set.  See https://azure.microsoft.com/en-us/pricing/details/virtual-machines/ for size info.')
         c.argument('nsg', help='Name or ID of an existing Network Security Group.', arg_group='Network')
+        c.argument('priority', resource_type=ResourceType.MGMT_COMPUTE, min_api='2017-12-01', arg_type=get_enum_type(VMPriorityTypes, default='Regular'),
+                   help="(PREVIEW)Priority. Use 'Low' to run short-lived workloads in a cost-effective way")
 
     with self.argument_context('vmss create', arg_group='Network Balancer') as c:
         LoadBalancerSkuName = self.get_models('LoadBalancerSkuName', resource_type=ResourceType.MGMT_NETWORK)
