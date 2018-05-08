@@ -3,6 +3,20 @@
 Release History
 ===============
 
+2.0.31
+++++++
+* Allow other sources to add additional tab completion choices via event hook
+* `sdist` is now compatible with wheel 0.31.0
+
+2.0.30
+++++++
+* Show message for extensions marked as preview on -h.
+
+2.0.29
+++++++
+* Support Autorest 3.0 based SDKs
+* Support mechanism for a command module to suppress the loading of particular extensions.
+
 2.0.28
 ++++++
 * Fix issue that required extension to use `client_arg_name` keyword argument. This is no longer necessary.

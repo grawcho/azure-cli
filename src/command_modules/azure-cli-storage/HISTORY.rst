@@ -3,6 +3,29 @@
 Release History
 ===============
 
+2.0.31
+++++++
+* Better error message for malformed connection strings.
+* `sdist` is now compatible with wheel 0.31.0
+
+2.0.30
+++++++
+* Fix issue of upload file with size between 195GB and 200GB
+
+2.0.29
+++++++
+* Minor fixes.
+
+2.0.28
+++++++
+* Fix problems with append blob uploads ignoring condition parameters.
+
+2.0.27
+++++++
+* Fix issue of missing endpoint suffix in batch copy command.
+* Blob batch commands no longer throw error upon failed precondition.
+* Support Autorest 3.0 based SDKs
+
 2.0.26
 ++++++
 * Enabled specifying destination-path/prefix to blobs in batch upload and copy commands.

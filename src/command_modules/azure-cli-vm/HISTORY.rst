@@ -2,9 +2,37 @@
 
 Release History
 ===============
+2.0.30
+++++++
+* `vmss create`: support to configure platform fault domain count
+* `vmss create`: default to Standard LB for zonal, large or single-placement-group disabled scale-set
+* BREAKING CHANGE: `vm assign-identity`, `vm remove-identity`: Deprecated commands have been removed.
+* BREAKING CHANGE: `vm format-secret`: Deprecated command has been removed.
+* `vm create`: support configure Public-IP sku
+* `vm create`: support configure Public-IP SKU
+* `vm secret format`: Added extra validation. Added `--keyvault` and `--resource-group` to support scenarios
+                      where the command is unable to resolve the vault ID. [#5718](https://github.com/Azure/azure-cli/issues/5718)
+* `vm/vmss create`: emit out a better error if resource group's location has no zone support
+* `sdist` is now compatible with wheel 0.31.0
+
+2.0.29
+++++++
+* `vmss create`: warn on upcoming breaking changes on default balancer for scaleset with 100+ instances
+* vm snapshot/image: support zone resilient
+* vmss: report better encryption status through disk instance view
+* BC: `az vm extension delete` no longer returns output as expected for a `delete` command.
+
+2.0.28
+++++++
+* vm/vmss create: support to attach unmanaged data disks and configure their caching modes 
+* vm/vmss: author managed identity commands `identity assign/remove/show`, and deprecate `assign-identity/remove-identity`
+* vmss create: default priority to None
+* Support Autorest 3.0 based SDKs
+
 2.0.27
 ++++++
 * vmss instance update: support attach/detach disks on an individual instance
+* Support Autorest 3.0 based SDKs
 
 2.0.26
 ++++++

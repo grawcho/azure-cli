@@ -89,6 +89,7 @@ def load_arguments(self, _):
 
     with self.argument_context('webapp update') as c:
         c.argument('client_affinity_enabled', help="Enables sending session affinity cookies.", arg_type=get_three_state_flag(return_label=True))
+        c.argument('https_only', help="Redirect all traffic made to an app using HTTP to HTTPS.", arg_type=get_three_state_flag(return_label=True))
     with self.argument_context('webapp browse') as c:
         c.argument('logs', options_list=['--logs', '-l'], action='store_true', help='Enable viewing the log stream immediately after launching the web app')
     with self.argument_context('webapp delete') as c:
@@ -135,7 +136,7 @@ def load_arguments(self, _):
             c.argument('slot_swap', arg_group='VSTS CD Provider', help='Name of the slot to be used for deployment and later promote to production. If slot is not available, it will be created. Default: Not configured')
             c.argument('repository_type', help='repository type', arg_type=get_enum_type(['git', 'mercurial', 'vsts', 'github', 'externalgit', 'localgit']))
             c.argument('git_token', help='Git access token required for auto sync')
-        with self.argument_context(scope + ' assign-identity') as c:
+        with self.argument_context(scope + ' identity') as c:
             c.argument('disable_msi', action='store_true', help='disable the identity')
             c.argument('scope', help="The scope the managed identity has access to")
             c.argument('role', help="Role name or id the managed identity will be assigned")

@@ -2,6 +2,20 @@
 
 Release History
 ===============
+2.0.25
+++++++
+* Use new release azure-mgmt-sql 0.8.6 SDK Python package
+* Added az sql elastic-pool op list and az sql elastic-pool op cancel, Support list and cancel azure sql elastic pool operations
+* `sdist` is now compatible with wheel 0.31.0
+
+2.0.24
+++++++
+* Minor fixes
+
+2.0.23
+++++++
+* Support Autorest 3.0 based SDKs
+
 2.0.22
 ++++++
 * Added zone redundancy support for databases and elastic pools on creation and update. 

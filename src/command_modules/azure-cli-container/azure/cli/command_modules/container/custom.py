@@ -5,21 +5,41 @@
 
 # pylint: disable=too-few-public-methods,too-many-arguments,no-self-use,too-many-locals,line-too-long,unused-argument
 
+import errno
+try:
+    import msvcrt
+except ImportError:
+    # Not supported for Linux machines.
+    pass
+import platform
+import select
 import shlex
+import signal
+import sys
 import threading
 import time
-import sys
+try:
+    import termios
+    import tty
+except ImportError:
+    # Not supported for Windows machines.
+    pass
+import websocket
+from knack.log import get_logger
 from knack.prompting import prompt_pass, NoTTYException
 from knack.util import CLIError
 from azure.mgmt.containerinstance.models import (AzureFileVolume, Container, ContainerGroup, ContainerGroupNetworkProtocol,
                                                  ContainerPort, ImageRegistryCredential, IpAddress, Port, ResourceRequests,
-                                                 ResourceRequirements, Volume, VolumeMount)
-from ._client_factory import cf_container_groups, cf_container_logs
+                                                 ResourceRequirements, Volume, VolumeMount, ContainerExecRequestTerminalSize,
+                                                 GitRepoVolume)
+from ._client_factory import cf_container_groups, cf_container_logs, cf_start_container
 
-
+logger = get_logger(__name__)
+WINDOWS_NAME = 'Windows'
 ACR_SERVER_SUFFIX = '.azurecr.io/'
 AZURE_FILE_VOLUME_NAME = 'azurefile'
 SECRETS_VOLUME_NAME = 'secrets'
+GITREPO_VOLUME_NAME = 'gitrepo'
 
 
 def list_containers(client, resource_group_name=None):
@@ -60,6 +80,10 @@ def create_container(client,
                      azure_file_volume_account_name=None,
                      azure_file_volume_account_key=None,
                      azure_file_volume_mount_path=None,
+                     gitrepo_url=None,
+                     gitrepo_dir='.',
+                     gitrepo_revision=None,
+                     gitrepo_mount_path=None,
                      secrets=None,
                      secrets_mount_path=None):
     """Create a container group. """
@@ -96,6 +120,13 @@ def create_container(client,
         volumes.append(secrets_volume)
         mounts.append(secrets_volume_mount)
 
+    gitrepo_volume = _create_gitrepo_volume(gitrepo_url=gitrepo_url, gitrepo_dir=gitrepo_dir, gitrepo_revision=gitrepo_revision)
+    gitrepo_volume_mount = _create_gitrepo_volume_mount(gitrepo_volume=gitrepo_volume, gitrepo_mount_path=gitrepo_mount_path)
+
+    if gitrepo_volume:
+        volumes.append(gitrepo_volume)
+        mounts.append(gitrepo_volume_mount)
+
     cgroup_ip_address = _create_ip_address(ip_address, ports, dns_name_label)
 
     container = Container(name=name,
@@ -114,7 +145,8 @@ def create_container(client,
                             image_registry_credentials=image_registry_credentials,
                             volumes=volumes or None)
 
-    return client.create_or_update(resource_group_name, name, cgroup)
+    raw_response = client.create_or_update(resource_group_name, name, cgroup, raw=True)
+    return raw_response.output
 
 
 # pylint: disable=inconsistent-return-statements
@@ -182,6 +214,13 @@ def _create_secrets_volume(secrets):
     return Volume(name=SECRETS_VOLUME_NAME, secret=secrets) if secrets else None
 
 
+def _create_gitrepo_volume(gitrepo_url, gitrepo_dir, gitrepo_revision):
+    """Create Git Repo volume. """
+    gitrepo_volume = GitRepoVolume(repository=gitrepo_url, directory=gitrepo_dir, revision=gitrepo_revision)
+
+    return Volume(name=GITREPO_VOLUME_NAME, git_repo=gitrepo_volume) if gitrepo_url else None
+
+
 # pylint: disable=inconsistent-return-statements
 def _create_azure_file_volume_mount(azure_file_volume, azure_file_volume_mount_path):
     """Create Azure File volume mount. """
@@ -199,6 +238,15 @@ def _create_secrets_volume_mount(secrets_volume, secrets_mount_path):
             raise CLIError('Please specify --secrets --secrets-mount-path '
                            'to enable secrets volume mount.')
         return VolumeMount(name=SECRETS_VOLUME_NAME, mount_path=secrets_mount_path)
+
+
+def _create_gitrepo_volume_mount(gitrepo_volume, gitrepo_mount_path):
+    """Create Git Repo volume mount. """
+    if gitrepo_mount_path:
+        if not gitrepo_volume:
+            raise CLIError('Please specify --gitrepo-url (--gitrepo-dir --gitrepo-revision) '
+                           'to enable Git Repo volume mount.')
+        return VolumeMount(name=GITREPO_VOLUME_NAME, mount_path=gitrepo_mount_path)
 
 
 # pylint: disable=inconsistent-return-statements
@@ -229,6 +277,98 @@ def container_logs(cmd, resource_group_name, name, container_name=None, follow=F
             shupdown_grace_period=5,
             stream_target=_stream_logs,
             stream_args=(logs_client, resource_group_name, name, container_name, container_group.restart_policy))
+
+
+def container_exec(cmd, resource_group_name, name, exec_command, container_name=None, terminal_row_size=20, terminal_col_size=80):
+    """Start exec for a container. """
+
+    start_container_client = cf_start_container(cmd.cli_ctx)
+    container_group_client = cf_container_groups(cmd.cli_ctx)
+    container_group = container_group_client.get(resource_group_name, name)
+
+    if container_name or container_name is None and len(container_group.containers) == 1:
+        # If only one container in container group, use that container.
+        if container_name is None:
+            container_name = container_group.containers[0].name
+
+        terminal_size = ContainerExecRequestTerminalSize(rows=terminal_row_size, cols=terminal_col_size)
+
+        execContainerResponse = start_container_client.launch_exec(resource_group_name, name, container_name, exec_command, terminal_size)
+
+        if platform.system() is WINDOWS_NAME:
+            _start_exec_pipe_win(execContainerResponse.web_socket_uri, execContainerResponse.password)
+        else:
+            _start_exec_pipe(execContainerResponse.web_socket_uri, execContainerResponse.password)
+
+    else:
+        raise CLIError('--container-name required when container group has more than one container.')
+
+
+def _start_exec_pipe_win(web_socket_uri, password):
+
+    def _on_ws_open(ws):
+        ws.send(password)
+        t = threading.Thread(target=_capture_stdin, args=[ws])
+        t.daemon = True
+        t.start()
+
+    ws = websocket.WebSocketApp(web_socket_uri, on_open=_on_ws_open, on_message=_on_ws_msg)
+
+    ws.run_forever()
+
+
+def _on_ws_msg(ws, msg):
+    sys.stdout.write(msg)
+    sys.stdout.flush()
+
+
+def _capture_stdin(ws):
+    while True:
+        if msvcrt.kbhit:
+            x = msvcrt.getch()
+            ws.send(x)
+
+
+def _start_exec_pipe(web_socket_uri, password):
+    ws = websocket.create_connection(web_socket_uri)
+
+    oldtty = termios.tcgetattr(sys.stdin)
+    old_handler = signal.getsignal(signal.SIGWINCH)
+
+    try:
+        tty.setraw(sys.stdin.fileno())
+        tty.setcbreak(sys.stdin.fileno())
+        ws.send(password)
+        while True:
+            try:
+                if not _cycle_exec_pipe(ws):
+                    break
+            except (select.error, IOError) as e:
+                if e.args and e.args[0] == errno.EINTR:
+                    pass
+                else:
+                    raise
+    except websocket.WebSocketException:
+        pass
+    finally:
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, oldtty)
+        signal.signal(signal.SIGWINCH, old_handler)
+
+
+def _cycle_exec_pipe(ws):
+    r, _, _ = select.select([ws.sock, sys.stdin], [], [])
+    if ws.sock in r:
+        data = ws.recv()
+        if not data:
+            return False
+        sys.stdout.write(data)
+        sys.stdout.flush()
+    if sys.stdin in r:
+        x = sys.stdin.read(1)
+        if not x:
+            return True
+        ws.send(x)
+    return True
 
 
 def attach_to_container(cmd, resource_group_name, name, container_name=None):

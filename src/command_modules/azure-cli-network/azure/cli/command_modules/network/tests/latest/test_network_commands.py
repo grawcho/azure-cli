@@ -8,6 +8,7 @@
 import os
 import unittest
 
+from azure_devtools.scenario_tests import AllowLargeResponse
 from azure.cli.core.commands.client_factory import get_subscription_id
 from azure.cli.core.profiles import supported_api_version, ResourceType
 
@@ -175,6 +176,28 @@ class NetworkAppGatewayDefaultScenarioTest(ScenarioTest):
         self.cmd('network application-gateway list --resource-group {rg}', checks=self.check('length(@)', ag_count - 1))
 
 
+class NetworkAppGatewayAuthCertScenario(ScenarioTest):
+
+    @ResourceGroupPreparer(name_prefix='cli_test_ag_auth_cert')
+    def test_network_ag_auth_cert(self, resource_group):
+        self.kwargs.update({
+            'gateway': 'ag1',
+            'cert1': 'cert1',
+            'cert1_file': os.path.join(TEST_DIR, 'AuthCert.pfx'),
+            'cert2': 'cert2',
+            'cert2_file': os.path.join(TEST_DIR, 'AuthCert2.pfx'),
+            'settings': 'https_settings'
+        })
+        self.cmd('network application-gateway create -g {rg} -n {gateway} --no-wait')
+        self.cmd('network application-gateway wait -g {rg} -n {gateway} --exists')
+        self.cmd('network application-gateway auth-cert create -g {rg} --gateway-name {gateway} -n {cert1} --cert-file "{cert1_file}" --no-wait')
+        self.cmd('network application-gateway auth-cert create -g {rg} --gateway-name {gateway} -n {cert2} --cert-file "{cert2_file}" --no-wait')
+        self.cmd('network application-gateway http-settings create -g {rg} --gateway-name {gateway} -n {settings} --auth-certs {cert1} {cert2} --no-wait --port 443 --protocol https')
+        self.cmd('network application-gateway http-settings update -g {rg} --gateway-name {gateway} -n {settings} --auth-certs {cert2} {cert1} --no-wait')
+        self.cmd('network application-gateway show -g {rg} -n {gateway}',
+                 checks=self.check('length(backendHttpSettingsCollection[1].authenticationCertificates)', 2))
+
+
 class NetworkAppGatewayRedirectConfigScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_ag_basic')
@@ -222,8 +245,12 @@ class NetworkAppGatewayNoWaitScenarioTest(ScenarioTest):
     @ResourceGroupPreparer(name_prefix='cli_test_ag_no_wait')
     def test_network_app_gateway_no_wait(self, resource_group):
 
+        self.kwargs.update({
+            'tags': {u'a': u'b', u'c': u'd'}
+        })
+
         self.cmd('network application-gateway create -g {rg} -n ag1 --no-wait --connection-draining-timeout 180', checks=self.is_empty())
-        self.cmd('network application-gateway create -g {rg} -n ag2 --no-wait', checks=self.is_empty())
+        self.cmd('network application-gateway create -g {rg} -n ag2 --no-wait --tags a=b c=d', checks=self.is_empty())
         self.cmd('network application-gateway wait -g {rg} -n ag1 --created --interval 120', checks=self.is_empty())
         self.cmd('network application-gateway wait -g {rg} -n ag2 --created --interval 120', checks=self.is_empty())
         self.cmd('network application-gateway show -g {rg} -n ag1', checks=[
@@ -231,8 +258,10 @@ class NetworkAppGatewayNoWaitScenarioTest(ScenarioTest):
             self.check('backendHttpSettingsCollection[0].connectionDraining.enabled', True),
             self.check('backendHttpSettingsCollection[0].connectionDraining.drainTimeoutInSec', 180)
         ])
-        self.cmd('network application-gateway show -g {rg} -n ag2',
-                 checks=self.check('provisioningState', 'Succeeded'))
+        self.cmd('network application-gateway show -g {rg} -n ag2', checks=[
+            self.check('provisioningState', 'Succeeded'),
+            self.check('tags', '{tags}')
+        ])
         self.cmd('network application-gateway delete -g {rg} -n ag2 --no-wait')
         self.cmd('network application-gateway wait -g {rg} -n ag2 --deleted')
 
@@ -545,6 +574,50 @@ class NetworkAppGatewayWafConfigScenarioTest20170301(ScenarioTest):
         ])
 
 
+class NetworkDdosProtectionScenarioTest(LiveScenarioTest):
+
+    @ResourceGroupPreparer(name_prefix='cli_test_ddos_protection')
+    def test_network_ddos_protection_plan(self, resource_group):
+
+        self.kwargs.update({
+            'vnet1': 'vnet1',
+            'vnet2': 'vnet2',
+            'ddos': 'ddos1'
+        })
+
+        self.cmd('network vnet create -g {rg} -n {vnet1}')
+        self.kwargs['vnet2_id'] = self.cmd('network vnet create -g {rg} -n {vnet2}').get_output_in_json()['newVNet']['id']
+        # can be attached through DDoS create
+        self.kwargs['ddos_id'] = self.cmd('network ddos-protection create -g {rg} -n {ddos} --vnets {vnet1} {vnet2_id} --tags foo=doo').get_output_in_json()['id']
+        self.cmd('network ddos-protection show -g {rg} -n {ddos}')
+
+        # can be detached through VNet update
+        self.cmd('network vnet update -g {rg} -n {vnet1} --ddos-protection-plan ""')
+        self.cmd('network vnet update -g {rg} -n {vnet2} --ddos-protection-plan ""')
+        self.cmd('network ddos-protection show -g {rg} -n {ddos}')
+
+        # can be attached through VNet update
+        self.cmd('network vnet update -g {rg} -n {vnet1} --ddos-protection-plan {ddos}')
+        self.cmd('network vnet update -g {rg} -n {vnet2} --ddos-protection-plan {ddos_id}')
+        self.cmd('network ddos-protection show -g {rg} -n {ddos}')
+
+        # can be detached through DDoS update
+        self.cmd('network ddos-protection update -g {rg} -n {ddos} --tags doo=foo --vnets ""')
+        self.cmd('network ddos-protection show -g {rg} -n {ddos}')
+
+        # can be attached through DDoS update
+        self.cmd('network ddos-protection update -g {rg} -n {ddos} --vnets {vnet2_id}')
+        self.cmd('network ddos-protection show -g {rg} -n {ddos}')
+
+        self.cmd('network ddos-protection list -g {rg}')
+        with self.assertRaises(Exception):
+            self.cmd('network ddos-protection delete -g {rg} -n {ddos}')
+
+        # remove all vnets and retry
+        self.cmd('network ddos-protection update -g {rg} -n {ddos} --vnets ""')
+        self.cmd('network ddos-protection delete -g {rg} -n {ddos}')
+
+
 class NetworkPublicIpScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_public_ip')
@@ -619,7 +692,8 @@ class NetworkRouteFilterScenarioTest(ScenarioTest):
         self.cmd('network route-filter delete -g {rg} -n {filter}')
 
 
-class NetworkExpressRouteScenarioTest(ScenarioTest):
+# Convert back to ScenarioTest and re-record when issue #5998 is fixed
+class NetworkExpressRouteScenarioTest(LiveScenarioTest):
 
     def _test_express_route_peering(self):
 
@@ -637,7 +711,7 @@ class NetworkExpressRouteScenarioTest(ScenarioTest):
         _create_peering('AzurePublicPeering', 10000, 100, '100.0.0.0/30', '101.0.0.0/30')
         _create_peering('AzurePrivatePeering', 10001, 101, '102.0.0.0/30', '103.0.0.0/30')
 
-        self.cmd('network express-route peering create -g {rg} --circuit-name {er} --peering-type MicrosoftPeering --peer-asn 10002 --vlan-id 103 --primary-peer-subnet 104.0.0.0/30 --secondary-peer-subnet 105.0.0.0/30 --advertised-public-prefixes 104.0.0.0/30 --customer-asn 10000 --routing-registry-name level3', expect_failure=True)
+        self.cmd('network express-route peering create -g {rg} --circuit-name {er} --peering-type MicrosoftPeering --peer-asn 10002 --vlan-id 103 --primary-peer-subnet 104.0.0.0/30 --secondary-peer-subnet 105.0.0.0/30 --advertised-public-prefixes 104.0.0.0/30 --customer-asn 10000 --routing-registry-name level3')
         self.cmd('network express-route peering show -g {rg} --circuit-name {er} -n MicrosoftPeering', checks=[
             self.check('microsoftPeeringConfig.advertisedPublicPrefixes[0]', '104.0.0.0/30'),
             self.check('microsoftPeeringConfig.customerAsn', 10000),
@@ -718,7 +792,8 @@ class NetworkExpressRouteScenarioTest(ScenarioTest):
         self.cmd('network express-route list --resource-group {rg}', checks=self.is_empty())
 
 
-class NetworkExpressRouteIPv6PeeringScenarioTest(ScenarioTest):
+# Convert back to ScenarioTest and re-record when issue #5998 is fixed
+class NetworkExpressRouteIPv6PeeringScenarioTest(LiveScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_express_route_ipv6_peering')
     def test_network_express_route_ipv6_peering(self, resource_group):
@@ -1787,18 +1862,12 @@ class NetworkTrafficManagerScenarioTest(ScenarioTest):
         self.cmd('network traffic-manager profile delete -g {rg} -n {tm}')
 
 
-class NetworkWatcherScenarioTest(ScenarioTest):
+# convert to ScenarioTest and re-record when #6009 is fixed
+class NetworkWatcherScenarioTest(LiveScenarioTest):
     import mock
 
     def _mock_thread_count():
         return 1
-
-    def enable_large_payload(self, size=8192):
-        from azure_devtools.scenario_tests import LargeResponseBodyProcessor
-        large_resp_body = next((r for r in self.recording_processors if isinstance(
-            r, LargeResponseBodyProcessor)), None)
-        if large_resp_body:
-            large_resp_body._max_response_body = size   # pylint: disable=protected-access
 
     def _network_watcher_configure(self):
         self.cmd('network watcher configure -g {rg} --locations westus westus2 westcentralus --enabled')
@@ -1807,11 +1876,13 @@ class NetworkWatcherScenarioTest(ScenarioTest):
         self.cmd('network watcher list')
 
     def _network_watcher_vm(self):
-        self.cmd('vm create -g {rg} -n {vm} --image UbuntuLTS --authentication-type password --admin-username deploy --admin-password PassPass10!) --nsg {nsg}')
+        self.kwargs['private-ip'] = '10.0.0.9'
+        self.cmd('vm create -g {rg} -n {vm} --image UbuntuLTS --authentication-type password --admin-username deploy --admin-password PassPass10!) --nsg {nsg} --private-ip-address {private-ip}')
         self.cmd('vm extension set -g {rg} --vm-name {vm} -n NetworkWatcherAgentLinux --publisher Microsoft.Azure.NetworkWatcher')
+
         self.cmd('network watcher show-topology -g {rg}')
-        self.cmd('network watcher test-ip-flow -g {rg} --vm {vm} --direction inbound --local 10.0.0.4:22 --protocol tcp --remote 100.1.2.3:*')
-        self.cmd('network watcher test-ip-flow -g {rg} --vm {vm} --direction outbound --local 10.0.0.4:* --protocol tcp --remote 100.1.2.3:80')
+        self.cmd('network watcher test-ip-flow -g {rg} --vm {vm} --direction inbound --local {private-ip}:22 --protocol tcp --remote 100.1.2.3:*')
+        self.cmd('network watcher test-ip-flow -g {rg} --vm {vm} --direction outbound --local {private-ip}:* --protocol tcp --remote 100.1.2.3:80')
         self.cmd('network watcher show-security-group-view -g {rg} --vm {vm}')
         self.cmd('network watcher show-next-hop -g {rg} --vm {vm} --source-ip 123.4.5.6 --dest-ip 10.0.0.6')
         self.cmd('network watcher test-connectivity -g {rg} --source-resource {vm} --dest-address www.microsoft.com --dest-port 80')
@@ -1844,12 +1915,35 @@ class NetworkWatcherScenarioTest(ScenarioTest):
         self.cmd('network watcher troubleshooting start --resource vgw1 -t vnetGateway -g {rg} --storage-account {sa} --storage-path {storage_path}')
         self.cmd('network watcher troubleshooting show --resource vgw1 -t vnetGateway -g {rg}')
 
+    def _network_watcher_connection_monitor(self):
+        import time
+        self.kwargs.update({
+            'vm2': 'vm2',
+            'vm3': 'vm3',
+            'cm': 'cm1'
+        })
+        self.cmd('vm create -g {rg} -n {vm2} --image UbuntuLTS --authentication-type password --admin-username deploy --admin-password PassPass10!) --nsg {vm2}')
+        self.cmd('vm extension set -g {rg} --vm-name {vm2} -n NetworkWatcherAgentLinux --publisher Microsoft.Azure.NetworkWatcher')
+        self.cmd('vm create -g {rg} -n {vm3} --image UbuntuLTS --authentication-type password --admin-username deploy --admin-password PassPass10!) --nsg {vm3}')
+        self.cmd('vm extension set -g {rg} --vm-name {vm3} -n NetworkWatcherAgentLinux --publisher Microsoft.Azure.NetworkWatcher')
+        time.sleep(20)
+        self.cmd('network watcher connection-monitor create -n {cm} --source-resource {vm2} -g {rg} --dest-resource {vm3} --dest-port 80')
+        self.cmd('network watcher connection-monitor list -l {loc}')
+        self.cmd('network watcher connection-monitor show -l {loc} -n {cm}')
+        try:
+            self.cmd('network watcher connection-monitor stop -l {loc} -n {cm}')
+            self.cmd('network watcher connection-monitor start -l {loc} -n {cm}')
+        except CLIError:
+            pass
+        self.cmd('network watcher connection-monitor query -l {loc} -n {cm}')
+        self.cmd('network watcher connection-monitor delete -l {loc} -n {cm}')
+
     @mock.patch('azure.cli.command_modules.vm._actions._get_thread_count', _mock_thread_count)
     @ResourceGroupPreparer(name_prefix='cli_test_network_watcher', location='westcentralus')
     @StorageAccountPreparer(name_prefix='clitestnw', location='westcentralus')
+    @AllowLargeResponse()
     def test_network_watcher(self, resource_group, storage_account):
 
-        self.enable_large_payload()
         self.kwargs.update({
             'loc': 'westcentralus',
             'vm': 'vm1',
@@ -1857,6 +1951,7 @@ class NetworkWatcherScenarioTest(ScenarioTest):
             'capture': 'capture1'
         })
         self._network_watcher_configure()
+        self._network_watcher_connection_monitor()
         self._network_watcher_vm()
         self._network_watcher_flow_log()
         self._network_watcher_packet_capture()

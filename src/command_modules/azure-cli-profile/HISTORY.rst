@@ -2,6 +2,21 @@
 
 Release History
 ===============
+2.0.22
+++++++
+* account list: handle accounts which come from CLI 1.0/ASM mode
+* (Breaking change): remove `--msi` & `--msi-port` which were tagged `deprecating` 2 releases ago
+* `sdist` is now compatible with wheel 0.31.0
+
+2.0.21
+++++++
+* az login: warn on using --identity-port/--msi-port as they become useless with imds support
+
+2.0.20
+++++++
+* az login: use `--identity` and deprecate `--msi`
+* enable login/logout commands in cloud shell
+
 2.0.19
 ++++++
 * Enable `az login` in from interactive mode.
