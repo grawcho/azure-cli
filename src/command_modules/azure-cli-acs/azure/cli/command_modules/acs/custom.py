@@ -348,10 +348,8 @@ def _k8s_install_or_upgrade_connector(helm_cmd, cmd, client, name, resource_grou
         raise CLIError('--client-secret must be specified when --service-principal is specified')
     # Validate if the RG exists
     groups = cf_resource_groups(cmd.cli_ctx)
-    if aci_resource_group is None:
-        aci_resource_group = resource_group_name
     # Just do the get, we don't need the result, it will error out if the group doesn't exist.
-    rgkaci = groups.get(aci_resource_group)
+    rgkaci = groups.get(aci_resource_group or resource_group_name)
     # Auto assign the location
     if location is None:
         location = rgkaci.location  # pylint:disable=no-member
@@ -367,13 +365,13 @@ def _k8s_install_or_upgrade_connector(helm_cmd, cmd, client, name, resource_grou
     # Check if we want the linux connector
     if os_type.lower() in ['linux', 'both']:
         _helm_install_or_upgrade_aci_connector(helm_cmd, image_tag, url_chart, connector_name, service_principal,
-                                               client_secret, subscription_id, tenant_id, rgkaci.name, location,
+                                               client_secret, subscription_id, tenant_id, aci_resource_group, location,
                                                node_prefix + '-linux', 'Linux')
 
     # Check if we want the windows connector
     if os_type.lower() in ['windows', 'both']:
         _helm_install_or_upgrade_aci_connector(helm_cmd, image_tag, url_chart, connector_name, service_principal,
-                                               client_secret, subscription_id, tenant_id, rgkaci.name, location,
+                                               client_secret, subscription_id, tenant_id, aci_resource_group, location,
                                                node_prefix + '-win', 'Windows')
 
 
@@ -384,9 +382,8 @@ def _helm_install_or_upgrade_aci_connector(helm_cmd, image_tag, url_chart, conne
     helm_release_name = connector_name.lower() + "-" + os_type.lower()
     logger.warning("Deploying the ACI connector for '%s' using Helm", os_type)
     try:
-        values = ('env.nodeName={},env.nodeTaint={},env.nodeOsType={},image.tag={},' +
-                  'env.aciResourceGroup={},env.aciRegion={}').format(
-                      node_name, node_taint, os_type, image_tag, aci_resource_group, aci_region)
+        values = 'env.nodeName={},env.nodeTaint={},env.nodeOsType={},image.tag={}'.format(
+            node_name, node_taint, os_type, image_tag)
 
         if service_principal:
             values += ",env.azureClientId=" + service_principal
@@ -396,6 +393,10 @@ def _helm_install_or_upgrade_aci_connector(helm_cmd, image_tag, url_chart, conne
             values += ",env.azureSubscriptionId=" + subscription_id
         if tenant_id:
             values += ",env.azureTenantId=" + tenant_id
+        if aci_resource_group:
+            values += ",env.aciResourceGroup=" + aci_resource_group
+        if aci_region:
+            values += ",env.aciRegion=" + aci_region
 
         if helm_cmd == "install":
             subprocess.call(["helm", "install", url_chart, "--name", helm_release_name, "--set", values])
@@ -994,6 +995,13 @@ def merge_kubernetes_configurations(existing_file, addition_file):
         _handle_merge(existing, addition, 'contexts')
         existing['current-context'] = addition['current-context']
 
+    # check that ~/.kube/config is only read- and writable by its owner
+    if platform.system() != 'Windows':
+        existing_file_perms = "{:o}".format(stat.S_IMODE(os.lstat(existing_file).st_mode))
+        if not existing_file_perms.endswith('600'):
+            logger.warning('%s has permissions "%s".\nIt should be readable and writable only by its owner.',
+                           existing_file, existing_file_perms)
+
     with open(existing_file, 'w+') as stream:
         yaml.dump(existing, stream, default_flow_style=False)
 
@@ -1417,6 +1425,87 @@ def aks_upgrade(cmd, client, resource_group_name, name, kubernetes_version, no_w
     return sdk_no_wait(no_wait, client.create_or_update, resource_group_name, name, instance)
 
 
+DEV_SPACES_EXTENSION_NAME = 'dev-spaces-preview'
+DEV_SPACES_EXTENSION_MODULE = 'azext_dev_spaces_preview.custom'
+
+
+def aks_use_dev_spaces(cmd, client, name, resource_group_name, space_name='default', parent_space_name=None):
+    """
+    Use Azure Dev Spaces with a managed Kubernetes cluster.
+
+    :param name: Name of the managed cluster.
+    :type name: String
+    :param resource_group_name: Name of resource group. You can configure the default group. \
+    Using 'az configure --defaults group=<name>'.
+    :type resource_group_name: String
+    :param space_name: Name of the dev space to use.
+    :type space_name: String
+    :param parent_space_name: Name of a parent dev space to inherit from when creating a new dev space. \
+    By default, if there is already a single dev space with no parent, the new space inherits from this one.
+    :type parent_space_name: String
+    """
+
+    if _get_or_add_extension(DEV_SPACES_EXTENSION_NAME):
+        azext_custom = _get_azext_module(DEV_SPACES_EXTENSION_NAME, DEV_SPACES_EXTENSION_MODULE)
+        try:
+            azext_custom.ads_use_dev_spaces(name, resource_group_name, space_name, parent_space_name)
+        except AttributeError as ae:
+            raise CLIError(ae)
+
+
+def aks_remove_dev_spaces(cmd, client, name, resource_group_name, prompt=False):
+    """
+    Remove Azure Dev Spaces from a managed Kubernetes cluster.
+
+    :param name: Name of the managed cluster.
+    :type name: String
+    :param resource_group_name: Name of resource group. You can configure the default group. \
+    Using 'az configure --defaults group=<name>'.
+    :type resource_group_name: String
+    :param prompt: Do not prompt for confirmation.
+    :type prompt: bool
+    """
+
+    if _get_or_add_extension(DEV_SPACES_EXTENSION_NAME):
+        azext_custom = _get_azext_module(DEV_SPACES_EXTENSION_NAME, DEV_SPACES_EXTENSION_MODULE)
+        try:
+            azext_custom.ads_remove_dev_spaces(name, resource_group_name, prompt)
+        except AttributeError as ae:
+            raise CLIError(ae)
+
+
+def _get_azext_module(extension_name, module_name):
+    try:
+        # Adding the installed extension in the path
+        from azure.cli.core.extension import get_extension_path
+        ext_dir = get_extension_path(extension_name)
+        sys.path.append(ext_dir)
+        # Import the extension module
+        from importlib import import_module
+        azext_custom = import_module(module_name)
+        return azext_custom
+    except ImportError as ie:
+        raise CLIError(ie)
+
+
+def _install_dev_spaces_extension(extension_name):
+    try:
+        from azure.cli.command_modules.extension import custom
+        custom.add_extension(extension_name=extension_name)
+    except Exception:  # nopa pylint: disable=broad-except
+        return False
+    return True
+
+
+def _get_or_add_extension(extension_name):
+    from azure.cli.core.extension import (ExtensionNotInstalledException, get_extension)
+    try:
+        get_extension(extension_name)
+    except ExtensionNotInstalledException:
+        return _install_dev_spaces_extension(extension_name)
+    return True
+
+
 def _ensure_aks_service_principal(cli_ctx,
                                   service_principal=None,
                                   client_secret=None,
@@ -1511,7 +1600,7 @@ def _print_or_merge_credentials(path, kubeconfig):
             if ex.errno != errno.EEXIST:
                 raise
     if not os.path.exists(path):
-        with open(path, 'w+t'):
+        with os.fdopen(os.open(path, os.O_CREAT | os.O_WRONLY, 0o600), 'wt'):
             pass
 
     # merge the new kubeconfig into the existing one
