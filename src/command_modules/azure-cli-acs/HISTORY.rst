@@ -3,9 +3,27 @@
 Release History
 ===============
 
+2.1.1
+++++++
+* Updated options of `az aks use-dev-spaces` command. Added `--update` support.
+* `az aks get-credentials --admin` won't replace the user context in $HOME/.kube/config
+* expose read-only "nodeResourceGroup" property on managed clusters
+* fix `az acs browse` command error
+
+2.1.0
++++++
+* `az aks create` understands advanced networking (VNet) options
+* `az aks create` accepts options to enable Log Analytics monitoring and HTTP application routing addons
+* `az aks create --no-ssh-key` creates a cluster without using local SSH keys
+* `az aks create --enable-rbac` creates a cluster with Kubernetes Role-Based Access Control
+* `az aks create` handles Azure Active Directory auth options (PREVIEW)
+
 2.0.34
 ++++++
 * `az aks get-credentials` creates the kube config file with more secure filesystem permissions
+* make --connector-name optional for `aks install-connector`, `aks upgrade-connector` and `aks remove-connector`
+* add 2 new Azure Container Instance regions for `aks install-connector`
+* `aks install-connector` add the normalized location into the helm release name and node name
 
 2.0.33
 ++++++
