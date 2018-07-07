@@ -2,6 +2,11 @@
 
 Release History
 ===============
+0.1.36
+++++++
+* Minor fixes
+* webapp/functionapp: Adding support for disabling identity az webapp identity remove. Preview tag removed for Identity feature.
+
 0.1.35
 ++++++
 * dependencies: remove the cap on the urllib as newer requests was released

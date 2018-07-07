@@ -17,6 +17,7 @@ from knack.util import CLIError
 
 import azure.cli.core.telemetry as telemetry
 from azure.cli.core.extension import get_extension
+from azure.cli.core.commands import ExtensionCommandSource
 from azure.cli.core.commands.events import EVENT_INVOKER_ON_TAB_COMPLETION
 
 logger = get_logger(__name__)
@@ -125,15 +126,17 @@ class AzCliCommandParser(CLICommandParser):
 
     def format_help(self):
         extension_version = None
+        extension_name = None
         try:
-            if self.command_source:
+            if isinstance(self.command_source, ExtensionCommandSource):
+                extension_name = self.command_source.extension_name
                 extension_version = get_extension(self.command_source.extension_name).version
         except Exception:  # pylint: disable=broad-except
             pass
 
         telemetry.set_command_details(
             command=self.prog[3:],
-            extension_name=self.command_source.extension_name if self.command_source else None,
+            extension_name=extension_name,
             extension_version=extension_version)
         telemetry.set_success(summary='show help')
         super(AzCliCommandParser, self).format_help()
@@ -147,18 +150,25 @@ class AzCliCommandParser(CLICommandParser):
         # Override to customize the error message when a argument is not among the available choices
         # converted value must be one of the choices (if specified)
         if action.choices is not None and value not in action.choices:
-            error_msg = "{prog}: '{value}' is not an {prog} command. See '{prog} --help'.".format(prog=self.prog,
-                                                                                                  value=value)
+            if not self.command_source:
+                # parser has no `command_source`, value is part of command itself
+                error_msg = "{prog}: '{value}' is not in the '{prog}' command group. See '{prog} --help'.".format(
+                    prog=self.prog, value=value)
+            else:
+                # `command_source` indicates command values have been parsed, value is an argument
+                parameter = action.option_strings[0] if action.option_strings else action.dest
+                error_msg = "{prog}: '{value}' is not a valid value for '{param}'. See '{prog} --help'.".format(
+                    prog=self.prog, value=value, param=parameter)
             telemetry.set_user_fault(error_msg)
             logger.error(error_msg)
-            candidates = difflib.get_close_matches(value, action.choices, cutoff=0.8)
+            candidates = difflib.get_close_matches(value, action.choices, cutoff=0.7)
             if candidates:
                 print_args = {
                     's': 's' if len(candidates) > 1 else '',
                     'verb': 'are' if len(candidates) > 1 else 'is',
                     'value': value
                 }
-                suggestion_msg = "\nThe most similar command{s} to '{value}' {verb}:\n".format(**print_args)
+                suggestion_msg = "\nThe most similar choice{s} to '{value}' {verb}:\n".format(**print_args)
                 suggestion_msg += '\n'.join(['\t' + candidate for candidate in candidates])
                 print(suggestion_msg, file=sys.stderr)
 

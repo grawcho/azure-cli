@@ -170,19 +170,23 @@ helps['acr repository show-manifests'] = """
         - name: Show manifests of a repository in a container registry.
           text:
             az acr repository show-manifests -n MyRegistry --repository MyRepository
+        - name: Show the latest 10 manifests ordered by timestamp of a repository in a container registry.
+          text:
+            az acr repository show-manifests -n MyRegistry --repository MyRepository --top 10 --orderby time_desc
 """
 
 helps['acr repository delete'] = """
     type: command
     short-summary: Delete a repository or image in a container registry.
+    long-summary: This command deletes all associated layer data that are not referenced by any other manifest in the container registry.
     examples:
-        - name: Delete a repository from a container registry.
+        - name: Delete a repository from a container registry. This deletes all manifests and tags under 'hello-world'.
           text:
             az acr repository delete -n MyRegistry --repository hello-world
-        - name: Delete an image by tag. This deletes the manifest referenced by 'hello-world:latest', all other tags referencing the manifest, and any associated layer data.
+        - name: Delete an image by tag. This deletes the manifest referenced by 'hello-world:latest' and all other tags referencing the manifest.
           text:
             az acr repository delete -n MyRegistry --image hello-world:latest
-        - name: Delete an image by sha256-based manifest digest. This deletes all tags referencing the manifest and any associated layer data.
+        - name: Delete an image by sha256-based manifest digest. This deletes the manifest identified by 'hello-world@sha256:abc123' and all tags referencing the manifest.
           text:
             az acr repository delete -n MyRegistry --image hello-world@sha256:abc123
 """

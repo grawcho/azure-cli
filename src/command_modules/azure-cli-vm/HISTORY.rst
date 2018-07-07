@@ -2,6 +2,11 @@
 
 Release History
 ===============
+
+2.0.35
+++++++
+* msi: support removing system assigned identity
+
 2.0.34
 ++++++
 * vm create: refine vm size check for accelerated networking support

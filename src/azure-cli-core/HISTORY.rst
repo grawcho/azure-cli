@@ -3,6 +3,19 @@
 Release History
 ===============
 
+2.0.41
+++++++
+* Minor fixes
+* Update PyYAML dependency to 4.2b4
+
+2.0.40
+++++++
+* authentication: support authorization code flow for interactive login
+
+2.0.39
+++++++
+* MSI packaging change
+
 2.0.38
 ++++++
 * Add global support for `--subscription` to most commands.

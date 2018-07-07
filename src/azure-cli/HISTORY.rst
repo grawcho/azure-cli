@@ -3,6 +3,18 @@
 Release History
 ===============
 
+2.0.41
+++++++
+* Minor fixes
+
+2.0.40
+++++++
+* Minor fixes
+
+2.0.39
+++++++
+* MSI packaging change
+
 2.0.38
 ++++++
 * Minor fixes
