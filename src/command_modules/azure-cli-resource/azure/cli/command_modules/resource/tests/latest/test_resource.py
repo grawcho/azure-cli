@@ -36,6 +36,14 @@ class ResourceGroupScenarioTest(ScenarioTest):
             self.check('[0].name', '{rg}'),
             self.check('[0].tags', {'a': 'b', 'c': ''})
         ])
+        # test --force-string
+        self.kwargs.update({'tag': "\"{\\\"k\\\":\\\"v\\\"}\""})
+        self.cmd('group update -g {rg} --tags ""',
+                 checks=self.check('tags', {}))
+        self.cmd('group update -g {rg} --set tags.a={tag}',
+                 checks=self.check('tags.a', "{{'k': 'v'}}"))
+        self.cmd('group update -g {rg} --set tags.b={tag} --force-string',
+                 checks=self.check('tags.b', '{{\"k\":\"v\"}}'))
 
 
 class ResourceGroupNoWaitScenarioTest(ScenarioTest):
@@ -307,6 +315,10 @@ class DeploymentTest(ScenarioTest):
             'params': os.path.join(curr_dir, 'subscription_level_parameters.json').replace('\\', '\\\\'),
             'dn': self.create_random_name('azure-cli-sub-level-deployment', 40)
         })
+
+        self.cmd('group create --name cli_test_subscription_level_deployment --location WestUS', checks=[
+            self.check('properties.provisioningState', 'Succeeded')
+        ])
 
         self.cmd('deployment validate --location WestUS --template-file {tf} --parameters @"{params}"', checks=[
             self.check('properties.provisioningState', 'Succeeded')
