@@ -3,6 +3,14 @@
 Release History
 ===============
 
+2.2.2
++++++
+* `dns`: Added dns support to 2017-03-09-profile for Azure Stack 
+
+2.2.1
+++++++
+* Minor fixes
+
 2.2.0
 +++++
 * BREAKING CHANGE: 'show' commands log error message and fail with exit code of 3 upon a missing resource.

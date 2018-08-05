@@ -3,6 +3,15 @@
 Release History
 ===============
 
+2.2.2
++++++
+* Return 0 (success) when ending `az aks browse` by pressing [Ctrl+C]
+* changes for consuming multi api azure.mgmt.authorization package
+
+2.2.1
++++++
+* Depdendency update: paramiko >= 2.0.8
+
 2.2.0
 +++++
 * BREAKING CHANGE: 'show' commands log error message and fail with exit code of 3 upon a missing resource.

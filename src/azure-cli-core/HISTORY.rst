@@ -3,6 +3,11 @@
 Release History
 ===============
 
+2.0.43
+++++++
+* Comnsuming mult api azure.mgmt.azutorization package for stack support
+* Minor fixes
+
 2.0.42
 ++++++
 * login: support browser based login in WSL bash window
@@ -29,8 +34,8 @@ Release History
 ++++++
 * Minor fixes
 
-2.0.36
-++++++
+2.0.36	
+++++++	
 * Minor fixes
 
 2.0.35
