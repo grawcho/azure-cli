@@ -3,6 +3,14 @@
 Release History
 ===============
 
+2.3.4
++++++
+* install-connector: Updates the install-connector command to set the AKS Master FQDN
+
+2.3.3
++++++
+* bugfix: creating role assignment for vnet-subnet-id when not specifying service principal and skip-role-assignemnt
+
 2.3.2
 +++++
 * `az aks create` now defaults to Standard_DS2_v2 VMs.

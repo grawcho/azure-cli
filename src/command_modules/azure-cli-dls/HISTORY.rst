@@ -3,6 +3,15 @@
 Release History
 ===============
 
+0.1.3
++++++
+* Update ADLS version to latest(0.0.31)
+* Added commands for virtual network rules.
+
+0.1.2
++++++
+* Update ADLS version to latest(0.0.29)
+
 0.1.1
 +++++
 * Minor fixes

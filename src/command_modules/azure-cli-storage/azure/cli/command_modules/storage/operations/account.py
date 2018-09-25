@@ -26,6 +26,8 @@ def create_storage_account(cmd, resource_group_name, account_name, sku=None, loc
         params.identity = Identity()
     if https_only:
         params.enable_https_traffic_only = https_only
+    # temporary fix to allow idempotent create when value is None. (sdk defaults with False)
+    params.is_hns_enabled = None
 
     if NetworkRuleSet and (bypass or default_action):
         if bypass and not default_action:
@@ -76,7 +78,11 @@ def show_storage_account_connection_string(cmd, resource_group_name, account_nam
 
 def show_storage_account_usage(cmd, location):
     scf = storage_client_factory(cmd.cli_ctx)
-    return next((x for x in scf.usages.list_by_location(location) if x.name.value == 'StorageAccounts'), None)  # pylint: disable=no-member
+    try:
+        client = scf.usages
+    except NotImplementedError:
+        client = scf.usage
+    return next((x for x in client.list_by_location(location) if x.name.value == 'StorageAccounts'), None)  # pylint: disable=no-member
 
 
 def show_storage_account_usage_no_location(cmd):
