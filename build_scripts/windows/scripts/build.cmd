@@ -142,6 +142,7 @@ for %%i in (%TEMP_SCRATCH_FOLDER%\*.whl) do (
     set ALL_MODULES=!ALL_MODULES! %%i
 )
 echo All modules: %ALL_MODULES%
+%BUILDING_DIR%\python.exe -m pip install --no-warn-script-location --force-reinstall pycparser==2.18
 %BUILDING_DIR%\python.exe -m pip install --no-warn-script-location --no-cache-dir %ALL_MODULES%
 %BUILDING_DIR%\python.exe -m pip install --no-warn-script-location --force-reinstall --upgrade azure-nspkg azure-mgmt-nspkg
 
@@ -195,7 +196,7 @@ for /d /r %BUILDING_DIR%\Lib\site-packages\pip %%d in (__pycache__) do (
 if %errorlevel% neq 0 goto ERROR
 
 echo Building MSI...
-msbuild /t:rebuild /p:Configuration=Release %REPO_ROOT%\build_scripts\windows\azure-cli.wixproj
+"C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBuild.exe" /t:rebuild /p:Configuration=Release %REPO_ROOT%\build_scripts\windows\azure-cli.wixproj
 
 start %OUTPUT_DIR%
 

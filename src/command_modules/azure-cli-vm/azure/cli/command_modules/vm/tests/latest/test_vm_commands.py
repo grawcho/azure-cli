@@ -66,11 +66,11 @@ class VMImageListThruServiceScenarioTest(ScenarioTest):
 
     @AllowLargeResponse()
     def test_vm_images_list_thru_services(self):
-        result = self.cmd('vm image list -l westus --publisher Canonical --offer Ubuntu_Snappy_Core -o tsv --all').output
-        assert result.index('15.04') >= 0
+        result = self.cmd('vm image list -l westus --publisher Canonical --offer UbuntuServer -o tsv --all').output
+        assert result.index('16.04') >= 0
 
-        result = self.cmd('vm image list -p Canonical -f Ubuntu_Snappy_Core -o tsv --all').output
-        assert result.index('15.04') >= 0
+        result = self.cmd('vm image list -p Canonical -f UbuntuServer -o tsv --all').output
+        assert result.index('16.04') >= 0
 
 
 class VMOpenPortTest(ScenarioTest):
@@ -103,13 +103,15 @@ class VMShowListSizesListIPAddressesScenarioTest(ScenarioTest):
     def test_vm_show_list_sizes_list_ip_addresses(self, resource_group):
 
         self.kwargs.update({
-            'loc': 'westus',
+            'loc': 'centralus',
             'vm': 'vm-with-public-ip',
-            'allocation': 'dynamic'
+            'allocation': 'dynamic',
+            'zone': 2
         })
         # Expecting no results at the beginning
         self.cmd('vm list-ip-addresses --resource-group {rg}', checks=self.is_empty())
-        self.cmd('vm create --resource-group {rg} --location {loc} -n {vm} --admin-username ubuntu --image Canonical:UbuntuServer:14.04.4-LTS:latest --admin-password testPassword0 --public-ip-address-allocation {allocation} --authentication-type password')
+        self.cmd('vm create --resource-group {rg} --location {loc} -n {vm} --admin-username ubuntu --image Canonical:UbuntuServer:14.04.4-LTS:latest'
+                 ' --admin-password testPassword0 --public-ip-address-allocation {allocation} --authentication-type password --zone {zone}')
         result = self.cmd('vm show --resource-group {rg} --name {vm} -d', checks=[
             self.check('type(@)', 'object'),
             self.check('name', '{vm}'),
@@ -137,7 +139,10 @@ class VMShowListSizesListIPAddressesScenarioTest(ScenarioTest):
             self.check('[0].virtualMachine.resourceGroup', '{rg}'),
             self.check('length([0].virtualMachine.network.publicIpAddresses)', 1),
             self.check('[0].virtualMachine.network.publicIpAddresses[0].ipAllocationMethod', self.kwargs['allocation'].title()),
-            self.check('type([0].virtualMachine.network.publicIpAddresses[0].ipAddress)', 'string')
+            self.check('type([0].virtualMachine.network.publicIpAddresses[0].ipAddress)', 'string'),
+            self.check('[0].virtualMachine.network.publicIpAddresses[0].zone', '{zone}'),
+            self.check('type([0].virtualMachine.network.publicIpAddresses[0].name)', 'string'),
+            self.check('[0].virtualMachine.network.publicIpAddresses[0].resourceGroup', '{rg}')
         ])
 
 
@@ -558,6 +563,10 @@ class VMManagedDiskScenarioTest(ScenarioTest):
             self.check('diskSizeGb', 10)
         ])
 
+        # get SAS token
+        result = self.cmd('disk grant-access -g {rg} -n {disk1} --duration-in-seconds 10').get_output_in_json()
+        self.assertTrue('sv=' in result['accessSas'])
+
         # create another disk by importing from the disk1
         self.kwargs['disk1_id'] = data_disk['id']
         data_disk2 = self.cmd('disk create -g {rg} -n {disk2} --source {disk1_id}').get_output_in_json()
@@ -845,11 +854,14 @@ class VMExtensionScenarioTest(ScenarioTest):
 
         self.cmd('vm extension list --vm-name {vm} --resource-group {rg}',
                  checks=self.check('length([])', 0))
-        self.cmd('vm extension set -n {ext} --publisher {pub} --version 1.2  --vm-name {vm} --resource-group {rg} --protected-settings "{config}" --force-update')
-        self.cmd('vm get-instance-view -n {vm} -g {rg}', checks=[
+        self.cmd('vm extension set -n {ext} --publisher {pub} --version 1.2 --vm-name {vm} --resource-group {rg} --protected-settings "{config}" --force-update')
+        result = self.cmd('vm get-instance-view -n {vm} -g {rg}', checks=[
             self.check('*.extensions[0].name', ['VMAccessForLinux']),
-            self.check('*.extensions[0].typeHandlerVersion', ['1.4.7.1'])
-        ])
+        ]).get_output_in_json()
+        # ensure the minor version is 2+
+        minor_version = int(result['instanceView']['extensions'][0]['typeHandlerVersion'].split('.')[1])
+        self.assertGreater(minor_version, 2)
+
         result = self.cmd('vm extension show --resource-group {rg} --vm-name {vm} --name {ext}', checks=[
             self.check('type(@)', 'object'),
             self.check('name', '{ext}'),
@@ -885,9 +897,8 @@ class VMMachineExtensionImageScenarioTest(ScenarioTest):
         ])
 
 
-class VMExtensionImageSearchScenarioTest(ScenarioTest):
+class VMExtensionImageSearchScenarioTest(LiveScenarioTest):
 
-    @AllowLargeResponse()
     def test_vm_extension_image_search(self):
         # pick this specific name, so the search will be under one publisher. This avoids
         # the parallel searching behavior that causes incomplete VCR recordings.
@@ -899,8 +910,6 @@ class VMExtensionImageSearchScenarioTest(ScenarioTest):
             self.check('type(@)', 'array'),
             self.check("length([?name == '{image}']) == length(@)", True)
         ])
-        self.cmd('vm extension image list -l westus -p {pub} --name {image} --latest',
-                 checks=self.check('length(@)', 1))
 
 
 class VMCreateUbuntuScenarioTest(ScenarioTest):
@@ -1273,11 +1282,22 @@ class VMDiskAttachDetachTest(ScenarioTest):
             self.check('storageProfile.dataDisks[1].managedDisk.storageAccountType', 'Standard_LRS'),
             self.check('storageProfile.dataDisks[1].caching', 'None')
         ])
-        self.cmd('vm disk detach -g {rg} --vm-name {vm} -n {disk2}')
+        self.cmd('vm disk detach -g {rg} --vm-name {vm} -n {disk1}')
         self.cmd('vm show -g {rg} -n {vm}', checks=[
             self.check('length(storageProfile.dataDisks)', 1),
-            self.check('storageProfile.dataDisks[0].name', '{disk1}'),
+            self.check('storageProfile.dataDisks[0].name', '{disk2}'),
+            self.check('storageProfile.dataDisks[0].lun', 2),
         ])
+
+        # ensure data disk luns are managed correctly
+        self.cmd('vm disk attach -g {rg} --vm-name {vm} --disk {disk1}')
+        self.cmd('vm show -g {rg} -n {vm}', checks=[
+            self.check('length(storageProfile.dataDisks)', 2),
+            self.check('storageProfile.dataDisks[0].lun', 2),
+            self.check('storageProfile.dataDisks[1].lun', 0),
+        ])
+
+        self.cmd('vm disk detach -g {rg} --vm-name {vm} -n {disk2}')
         self.cmd('vm disk detach -g {rg} --vm-name {vm} -n {disk1}')
         self.cmd('vm show -g {rg} -n {vm}',
                  checks=self.check('length(storageProfile.dataDisks)', 0))
@@ -1285,6 +1305,7 @@ class VMDiskAttachDetachTest(ScenarioTest):
         self.cmd('vm show -g {rg} -n {vm}', checks=[
             self.check('storageProfile.dataDisks[0].caching', 'ReadWrite'),
             self.check('storageProfile.dataDisks[0].managedDisk.storageAccountType', 'Standard_LRS'),
+            self.check('storageProfile.dataDisks[0].lun', 0)
         ])
 
     @ResourceGroupPreparer(name_prefix='cli-test-stdssdk', location='eastus2')
@@ -2132,7 +2153,7 @@ class MSIScenarioTest(ScenarioTest):
             self.cmd('vmss identity show -g {rg} -n {vmss3}', checks=self.is_empty())
 
     @ResourceGroupPreparer(name_prefix='cli_test_msi_no_scope')
-    def test_msi_no_scope(self, resource_group):
+    def test_vm_msi_no_scope(self, resource_group):
 
         self.kwargs.update({
             'vm1': 'vm1',
@@ -2711,8 +2732,8 @@ class VMGenericUpdate(ScenarioTest):
 
 
 class VMGalleryImage(ScenarioTest):
-    @ResourceGroupPreparer(location='eastus2euap')
-    def test_gallery_e2e(self, resource_group):
+    @ResourceGroupPreparer(location='eastus2')
+    def test_gallery_e2e(self, resource_group, resource_group_location):
         self.kwargs.update({
             'vm': 'vm1',
             'vm2': 'vmFromImage',
@@ -2720,7 +2741,9 @@ class VMGalleryImage(ScenarioTest):
             'image': 'image1',
             'version': '1.1.2',
             'captured': 'managedImage1',
-            'image_id': 'TBD'
+            'image_id': 'TBD',
+            'location': resource_group_location,
+            'location2': 'westus2'
         })
 
         self.cmd('sig create -g {rg} --gallery-name {gallery}', checks=self.check('name', self.kwargs['gallery']))
@@ -2732,7 +2755,7 @@ class VMGalleryImage(ScenarioTest):
         res = self.cmd('sig image-definition show -g {rg} --gallery-name {gallery} --gallery-image-definition {image}',
                        checks=self.check('name', self.kwargs['image'])).get_output_in_json()
         self.kwargs['image_id'] = res['id']
-        self.cmd('vm create -g {rg} -n {vm} --image ubuntults --generate-ssh-keys')
+        self.cmd('vm create -g {rg} -n {vm} --image ubuntults --admin-username clitest1 --generate-ssh-key')
         self.cmd('vm run-command invoke -g {rg} -n {vm} --command-id RunShellScript --scripts "echo \'sudo waagent -deprovision+user --force\' | at -M now + 1 minutes"')
         time.sleep(70)
 
@@ -2746,9 +2769,12 @@ class VMGalleryImage(ScenarioTest):
         self.cmd('sig image-version show -g {rg} --gallery-name {gallery} --gallery-image-definition {image} --gallery-image-version {version}',
                  checks=self.check('name', self.kwargs['version']))
 
-        self.cmd('vm create -g {rg} -n {vm2} --image {image_id}', checks=self.check('powerState', 'VM running'))
+        self.cmd('sig image-version update -g {rg} --gallery-name {gallery} --gallery-image-definition {image} --gallery-image-version {version} --target-regions {location2}=2 {location}',
+                 checks=self.check('name', self.kwargs['version']))
 
-        self.cmd('sig image-version delete -g {rg} --gallery-name {gallery} --gallery-image-definition {image} --gallery-image-version {version}')
+        self.cmd('vm create -g {rg} -n {vm2} --image {image_id} --admin-username clitest1 --generate-ssh-keys', checks=self.check('powerState', 'VM running'))
+
+        self.cmd('sig image-version delete -g {rg} --gallery-name {gallery} --gallery-image-definition {image} --gallery-image-version-name {version}')
         time.sleep(60)  # service end latency
         self.cmd('sig image-definition delete -g {rg} --gallery-name {gallery} --gallery-image-definition {image}')
         self.cmd('sig delete -g {rg} --gallery-name {gallery}')

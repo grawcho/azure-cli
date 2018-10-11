@@ -15,7 +15,7 @@ except ImportError:
     logger.warn("Wheel is not available, disabling bdist_wheel hook")
     cmdclass = {}
 
-VERSION = "2.0.46"
+VERSION = "2.0.47"
 # If we have source, validate that our version numbers match
 # This should prevent uploading releases with mismatched versions.
 try:
@@ -58,6 +58,7 @@ DEPENDENCIES = [
     'azure-cli-batchai',
     'azure-cli-backup',
     'azure-cli-billing',
+    'azure-cli-botservice',
     'azure-cli-cdn',
     'azure-cli-cloud',
     'azure-cli-cognitiveservices',
@@ -75,8 +76,10 @@ DEPENDENCIES = [
     'azure-cli-find',
     'azure-cli-interactive',
     'azure-cli-iot',
+    'azure-cli-iotcentral',
     'azure-cli-keyvault',
     'azure-cli-lab',
+    'azure-cli-maps',
     'azure-cli-monitor',
     'azure-cli-network',
     'azure-cli-nspkg',
@@ -92,7 +95,8 @@ DEPENDENCIES = [
     'azure-cli-servicefabric',
     'azure-cli-servicebus',
     'azure-cli-eventhubs',
-    'azure-cli-search'
+    'azure-cli-search',
+    'azure-cli-signalr'
 ]
 
 with open('README.rst', 'r', encoding='utf-8') as f:
