@@ -326,6 +326,8 @@ helps['monitor diagnostic-settings categories'] = """
 helps['monitor diagnostic-settings create'] = """
             type: command
             short-summary: Create diagnostic settings for the specified resource.
+            long-summary: >
+                For more information, visit: https://docs.microsoft.com/en-us/rest/api/monitor/diagnosticsettings/createorupdate#metricsettings
             parameters:
                 - name: --name -n
                   short-summary: The name of the diagnostic settings.
@@ -351,6 +353,31 @@ helps['monitor diagnostic-settings create'] = """
                     Name or ID an event hub. If none is specified, the default event hub will be selected.
                 - name: --event-hub-rule
                   short-summary: Name or ID of the event hub authorization rule.
+            examples:
+                - name: Create diagnostic settings with EventHub.
+                  text: |
+                    az monitor diagnostic-settings create --resource {ID} -n {name}
+                       --event-hub-rule {eventHubRuleID} --storage-account {storageAccount}
+                       --logs '[
+                         {
+                           "category": "WorkflowRuntime",
+                           "enabled": true,
+                           "retentionPolicy": {
+                             "enabled": false,
+                             "days": 0
+                           }
+                         }
+                       ]'
+                       --metrics '[
+                         {
+                           "category": "WorkflowRuntime",
+                           "enabled": true,
+                           "retentionPolicy": {
+                             "enabled": false,
+                             "days": 0
+                           }
+                         }
+                       ]'
             """
 helps['monitor diagnostic-settings update'] = """
             type: command
@@ -846,7 +873,7 @@ helps['monitor activity-log list'] = """
             provided, then --offset will be ignored.
     examples:
         - name: List all events from July 1st, looking forward one week.
-          text: az monitor activity-log list --start-date 2018-07-01 --offset 7d
+          text: az monitor activity-log list --start-time 2018-07-01 --offset 7d
         - name: List events within the past six hours based on a correlation ID.
           text: az monitor activity-log list --correlation-id b5eac9d2-e829-4c9a-9efb-586d19417c5f
         - name: List events within the past hour based on resource group.

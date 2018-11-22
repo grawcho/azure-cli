@@ -70,18 +70,18 @@ class NetworkLoadBalancerWithSku(ScenarioTest):
         ])
 
 
-class NetworkInterfaceEndpoints(ScenarioTest):
+class NetworkPrivateEndpoints(ScenarioTest):
 
-    @ResourceGroupPreparer(name_prefix='cli_test_network_interface_endpoints')
-    def test_network_interface_endpoints(self, resource_group):
+    @ResourceGroupPreparer(name_prefix='cli_test_network_private_endpoints')
+    def test_network_private_endpoints(self, resource_group):
 
         # unable to create resource so we can only verify the commands don't fail (or fail expectedly)
-        self.cmd('network interface-endpoint list')
-        self.cmd('network interface-endpoint list -g {rg}')
+        self.cmd('network private-endpoint list')
+        self.cmd('network private-endpoint list -g {rg}')
 
         # system code 3 for 'not found'
         with self.assertRaisesRegexp(SystemExit, '3'):
-            self.cmd('network interface-endpoint show -g {rg} -n dummy')
+            self.cmd('network private-endpoint show -g {rg} -n dummy')
 
 
 class NetworkLoadBalancerWithZone(ScenarioTest):
@@ -215,6 +215,23 @@ class NetworkAppGatewayDefaultScenarioTest(ScenarioTest):
         self.cmd('network application-gateway start --resource-group {rg} -n ag1')
         self.cmd('network application-gateway delete --resource-group {rg} -n ag1')
         self.cmd('network application-gateway list --resource-group {rg}', checks=self.check('length(@)', ag_count - 1))
+
+
+class NetworkAppGatewayZoneScenario(ScenarioTest):
+
+    @ResourceGroupPreparer(name_prefix='cli_test_ag_zone', location='westus2')
+    def test_network_ag_zone(self, resource_group):
+        self.kwargs.update({
+            'gateway': 'ag1',
+            'ip': 'pubip1'
+        })
+        self.cmd('network public-ip create -g {rg} -n {ip} --sku Standard')
+        self.cmd('network application-gateway create -g {rg} -n {gateway} --sku Standard_v2 --min-capacity 2 --zones 1 3 --public-ip-address {ip} --no-wait')
+        self.cmd('network application-gateway wait -g {rg} -n {gateway} --exists')
+        self.cmd('network application-gateway show -g {rg} -n {gateway}', checks=[
+            self.check('zones[0]', 1),
+            self.check('zones[1]', 3)
+        ])
 
 
 class NetworkAppGatewayAuthCertScenario(ScenarioTest):

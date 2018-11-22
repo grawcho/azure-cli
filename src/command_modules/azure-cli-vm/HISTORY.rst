@@ -3,6 +3,23 @@
 Release History
 ===============
 
+2.2.8
+++++++
+* `vm/vmss create --storage-sku`: can now specify the storage account sku for managed os and data disks separately.
+* `sig image-version`: Version names now consistently specified by  `--image-version -e`. `--image-version-name` deprecated.
+* `vm/vmss create --ephemeral-os-disk`: exposed parameter to create a vm/vmss with a local os disk.
+* `snapshot create/update`: Added support for `--no-wait`.
+* `snapshot`: Added `wait` command.
+* `vm/vmss extension set --extension-instance-name`: can now specify the instance name of an extension.
+
+2.2.7
+++++++
+* `image create`: expose storage-sku argument for setting the image's default storage account type
+* `vm resize`: fix bug where `--no-wait` option causes command to crash
+* `vm encryption show`: table output format shows status
+* `vm secret format`: requires json/jsonc output. Warns user and defaults to json output if an undesired output format is selected.
+* `vm create --image`: improved validation of image argument
+
 2.2.6
 ++++++
 * `vm/vmss create`: enforce disk caching mode be `None` for Lv/Lv2 series of machines
@@ -11,7 +28,7 @@ Release History
 
 2.2.5
 ++++++
-* Fix SDK issue that caused Homebrew instllation to fail.
+* Fix SDK issue that caused Homebrew installation to fail.
 
 2.2.4
 ++++++
