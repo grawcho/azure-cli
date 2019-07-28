@@ -36,6 +36,8 @@ The document provides instructions and guidelines on how to author individual co
 
 [16. Deprecating Commands and Arguments](#deprecating-commands-and-arguments)
 
+[17. Multi-API Aware Modules](#multi-api-aware-modules)
+
 Authoring Commands
 =============================
 
@@ -71,7 +73,7 @@ Write your command as a simple function, specifying your arguments as the parame
 
 ***Parameter Naming Guidance***
 
-When choosing names, it is recommended that you look at similiar commands and follow those naming conventions to take advantage of any aliasing that may already be in place. For example, you should choose `resource_group_name` over `rg`, `resource_group` or some other shorthand, because this parameter is globally aliased and you will inherit the `-g` short option and the completer.
+When choosing names, it is recommended that you look at similar commands and follow those naming conventions to take advantage of any aliasing that may already be in place. For example, you should choose `resource_group_name` over `rg`, `resource_group` or some other shorthand, because this parameter is globally aliased and you will inherit the `-g` short option and the completer.
 
 Avoid using a parameter name called `name` as this is a very common alias in the CLI and will often create aliasing conflicts.
 
@@ -92,7 +94,7 @@ Before your command can be used in the CLI, it must be registered. Within the `l
 ```Python
 # (1) Registering a command type for reuse among groups
 mymod_sdk = CliCommandType(
-    operations_tmpl='azure.mgmt.mymod.operations.myoperations#MyOperations.{}',
+    operations_tmpl='azure.mgmt.mymod.operations#MyOperations.{}',
     client_factory=cf_mymod
 )
 
@@ -320,7 +322,7 @@ When writing commands for the Azure CLI, it is important to understand how keywo
 
 From the diagram you can see that any kwargs supplied when creating the `AzCommandsLoader` object are passed to and used as the baseline for any command groups or argument contexts that are later created. Any kwargs specified in the `command_group` calls serve as the baseline for any `command` or `custom_command` calls, and any kwargs passed to `argument_context` serve as the baseline for any calls to `argument`.
 
-While kwargs are inherited from higher levels on the diagram, they can be overriden at a lower level. For example, if `custom_command_type=foo` is used as a module-level kwarg in the `AzCommandLoader.__init__` method and `custom_command_type=bar` is passed for a call to `command_group`, then `bar` will be used for all calls to `custom_command` within that command group.
+While kwargs are inherited from higher levels on the diagram, they can be overridden at a lower level. For example, if `custom_command_type=foo` is used as a module-level kwarg in the `AzCommandLoader.__init__` method and `custom_command_type=bar` is passed for a call to `command_group`, then `bar` will be used for all calls to `custom_command` within that command group.
 
 Addtionally, you can see that kwargs registered on a command group *do not* carry over to argument contexts, so you must apply the kwargs in both places if necessary.
 
@@ -483,7 +485,7 @@ with self.argument_context('parent child') as c:
 Often times, the service needs references to supporting resources like storage accounts, key vault, etc. Typically, services require the ARM ID of these resources. The CLI pattern is to accept the ARM ID for this resource OR the name of the resource, assuming the resource is in the same subscription and resource group as the main resource.
 
 DO NOT:
-- Expose an ID parameter like `--storage-account-id`. 
+- Expose an ID parameter like `--storage-account-id`.
 - Add parameters like `--storage-account-resource-group` to indicate the resource group for the secondary resource. The user should supply the ARM ID in this instance.
 
 DO:
@@ -560,10 +562,10 @@ However, most commonly, the `custom_func_name` and `custom_func_type` kwargs wil
 
 **Working With Child Collections and Properties (Advanced)**
 
-Sometimes you will want to write commands that operate on child resources and it may be that these child resources don't have dedicated getters and setters. In these cases, you must rely on the getter and setter of the parent resource. For these cases, `generic_update_command` has three additional parameters:
-  - `child_collection_prop_name` - the name of the child collection property. For example, if object `my_parent` has a child collection called `my_children` that you would access using `my_parent.my_children` then the name you would use is 'my_children'.
-  - `child_collection_key_name` - Most child collections in Azure are lists of objects (as opposed to dictionaries) which will have a property in them that serves as the key. This is the name of that key property. By default it is 'name'. In the above example, if an entry in the `my_children` collection has a key property called `my_identifier` then the value you would supply is 'my_identifier'.
-  - `child_arg_name` - If you want to refer the child object key (the property identified by `child_collection_key_name`) inside a custom function, you should specify the argument name you use in your custom function. By default, this is called `item_name`. In the above example, where our child object had a key called `my_identifier`, you could refer to this property within your custom function through the `item_name` property, or specify something different.
+Sometimes you will want to write commands that operate on child resources and it may be that these child resources don't have dedicated getters and setters. In these cases, you must rely on the getter and setter of the parent resource. For example, consider an object `my_parent` which has a child collection `my_child` which in turn has its own child collection `my_grandchild`. The key property for all of these objects is simply `name`. For these cases, `generic_update_command` has three additional parameters:
+  - `child_collection_prop_name` - the name path to the child collection property, using dot syntax. To access `my_child`, the value would be `my_child`. To access `my_grandchild`, the value would be `my_child.my_grandchild`.
+  - `child_collection_key` - Most child collections in Azure are lists of objects (as opposed to dictionaries) which will have a property in them that serves as the key. This is the name of that key property. By default it is `name`. To refer to `my_child`, the value would be `name`. To refer to `my_grandchild` the value would be `name.name`.
+  - `child_arg_name` - If you want to refer the child object key (the property identified by `child_collection_key`) inside a custom function, you should specify the argument name you use in your custom function. By default, this is called `item_name`. In the above example, where our child object had a key called `name`, you could refer to this property within your custom function through the `item_name` property, or specify something different. For grandchild collections, use dot syntax (i.e.: `child_name.grandchild_name`).
 
 **Logic Flow**
 
@@ -581,7 +583,7 @@ return setter(instance)  # update the instance and return the result
 
 `generic_update_command` was designed to simulate PATCH-like behavior for services that are backed only by a PUT API endpoint. For services that have actual PATCH-based update endpoints, the CLI's `update` command should still leverage `generic_update_command` in order to provide consistency among commands. The following guidelines should be helpful:
 
-- You'll probably need to specify the `setter_name` since it will likely be `update` instead of `create_or_update` (the default). 
+- You'll probably need to specify the `setter_name` since it will likely be `update` instead of `create_or_update` (the default).
 - You will HAVE TO supply `custom_func_name` and `custom_func_type`. Consider the following example:
 ```Python
 def my_custom_foo_update(instance, prop1=None, prop2=None, complex_prop1=None, complex_prop2=None):
@@ -592,7 +594,7 @@ def my_custom_foo_update(instance, prop1=None, prop2=None, complex_prop1=None, c
    parameters = FooUpdateParameters(
      prop1=prop1,
      prop2=prop2)
-     
+
    # (2) complex objects must also have PATCH-like behavior, and often services do not
    # correctly support this. You may need to fill these objects with the existing
    # values if they are not being updated
@@ -805,3 +807,81 @@ with self.argument_context('test show-parameters') as c:
 ```
 
 This will deprecate the argument `--resource-id` option on `test show-parameters` in favor of `--resource`. Note that call to `c.deprecate`, calling the deprecate helper method off of the argument context. The warning message for this would read: ```Option `--resource-id` has been deprecated and will be removed in a future release. Use `--resource` instead.``` Here you must specify `target` in order to identify the deprecated option. When an option value is deprecated, it appears in help as two separate arguments, with the deprecation warning on the deprecated option. 
+
+## Multi-API Aware Modules
+To convert a module that used a mono-versioned SDK to one that works with multiple API versions:
+
+1. In `azure.cli.core.profiles._shared.py` register your SDK and client in the `ResourceType` enum:
+
+```Python
+class ResourceType(Enum):
+
+  MGMT_MYSERVICE = ('azure.mgmt.myservice, MyServiceManagementClient')  # REGISTER YOUR SDK
+  ...
+```
+
+
+2. In the `AZURE_API_PROFILES` dictionary in that same file, for each profile your service applies to, add an entry for it like this:
+
+```Python
+AZURE_API_PROFILES = {
+  'latest': {
+    ResourceType.MGMT_MYSERVICE: '2019-03-01' # the supported API version on that profile
+    ...
+  },
+  '2019-03-01-hybrid': {
+    ResourceType.MGMT_MYSERVICE: '2018-08-01' # different API version for this profile
+    ...
+  },
+  ...
+}
+```
+
+3. Update imports in your files. They must use the API profile-aware "get_models" method and have access to a command or CLI object.
+
+Example:
+```Python
+from azure.mgmt.myservice import Foo, Boo
+
+def my_command(...):
+   # do stuff
+```
+
+Converted:
+```Python
+def my_command(cmd, ...):
+  Foo, Boo = cmd.get_models('Foo', 'Boo')
+  # do stuff
+```
+
+4. Use appropriate conditionals to ensure your command can run on all supported profiles:
+
+***commands.py***
+
+```Python
+with self.command_group('test') as g:
+  g.command('use-new-feature', 'use_new_feature', min_api='2018-03-01')  # won't be available unless min API is met
+```
+
+***params.py***
+
+```Python
+with self.argument_context('test create') as c:
+  c.argument('enable_new_feature', min_api='2018-03-01', arg_type=get_three_state_flag())  # expose argument only when min API is satisfied
+```
+
+***custom.py***
+
+```Python
+def my_test_command(cmd, ...):
+  Foo = cmd.get_models('Foo')
+  my_foo = Foo(...)
+  
+  # will still work with older API versions because this branch will be skipped
+  if cmd.supported_api_version(min_api='2018-03-01'):
+    my_foo.enable_new_feature = enable_new_feature
+
+  return client.create_or_update(..., my_foo)
+```
+
+See earlier topics for other kwargs that can be used with multi-API idioms.

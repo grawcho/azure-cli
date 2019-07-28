@@ -93,13 +93,6 @@ for %%a in (%CLI_SRC%\azure-cli %CLI_SRC%\azure-cli-core %CLI_SRC%\azure-cli-nsp
    %BUILDING_DIR%\python.exe setup.py bdist_wheel -d %TEMP_SCRATCH_FOLDER%
    popd
 )
-pushd %CLI_SRC%\command_modules
-for /D %%a in (*) do (
-   pushd %CLI_SRC%\command_modules\%%a
-   %BUILDING_DIR%\python.exe setup.py bdist_wheel -d %TEMP_SCRATCH_FOLDER%
-   popd
-)
-popd
 echo Built CLI packages successfully.
 
 if %errorlevel% neq 0 goto ERROR
@@ -112,6 +105,7 @@ echo All modules: %ALL_MODULES%
 %BUILDING_DIR%\python.exe -m pip install --no-warn-script-location --force-reinstall pycparser==2.18
 %BUILDING_DIR%\python.exe -m pip install --no-warn-script-location --no-cache-dir %ALL_MODULES%
 %BUILDING_DIR%\python.exe -m pip install --no-warn-script-location --force-reinstall --upgrade azure-nspkg azure-mgmt-nspkg
+%BUILDING_DIR%\python.exe -m pip install --no-warn-script-location --force-reinstall urllib3==1.24.2
 
 pushd %BUILDING_DIR%
 %BUILDING_DIR%\python.exe %~dp0\patch_models_v2.py

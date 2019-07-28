@@ -13,7 +13,8 @@ import json
 
 from azure.cli.core.util import \
     (get_file_json, truncate_text, shell_safe_json_parse, b64_to_hex, hash_string, random_string,
-     open_page_in_browser, can_launch_browser, handle_exception)
+     open_page_in_browser, can_launch_browser, handle_exception, ConfiguredDefaultSetter, send_raw_request,
+     should_disable_connection_verify)
 
 
 class TestUtils(unittest.TestCase):
@@ -178,7 +179,7 @@ class TestBase64ToHex(unittest.TestCase):
         self.base64 = 'PvOJgaPq5R004GyT1tB0IW3XUyM='.encode('ascii')
 
     def test_b64_to_hex(self):
-        self.assertEquals('3EF38981A3EAE51D34E06C93D6D074216DD75323', b64_to_hex(self.base64))
+        self.assertEqual('3EF38981A3EAE51D34E06C93D6D074216DD75323', b64_to_hex(self.base64))
 
     def test_b64_to_hex_type(self):
         self.assertIsInstance(b64_to_hex(self.base64), str)
@@ -305,6 +306,50 @@ class TestHandleException(unittest.TestCase):
         self.assertTrue(mock_logger_error.called)
         self.assertEqual(mock.call(mock_http_error), mock_logger_error.call_args)
         self.assertEqual(ex_result, 1)
+
+    def test_configured_default_setter(self):
+        config = mock.MagicMock()
+        config.use_local_config = None
+        with ConfiguredDefaultSetter(config, True):
+            self.assertEqual(config.use_local_config, True)
+        self.assertIsNone(config.use_local_config)
+
+        config.use_local_config = True
+        with ConfiguredDefaultSetter(config, False):
+            self.assertEqual(config.use_local_config, False)
+        self.assertTrue(config.use_local_config)
+
+    @mock.patch('requests.request', autospec=True)
+    def test_send_raw_requests(self, request_mock):
+        from azure.cli.core.commands.client_factory import UA_AGENT
+        return_val = mock.MagicMock()
+        return_val.is_ok = True
+        request_mock.return_value = return_val
+
+        cli_ctx = mock.MagicMock()
+        cli_ctx.data = {
+            'command': 'rest',
+            'safe_params': ['method', 'uri']
+        }
+        test_arm_endpoint = 'https://arm.com/'
+        test_url = 'subscription/1234/good'
+        tets_uri_parameters = ['p1=v1', "{'p2': 'v2'}"]
+        test_body = '{"b1": "v1"}'
+        cli_ctx.cloud.endpoints.resource_manager = test_arm_endpoint
+
+        expected_header = {
+            'User-Agent': UA_AGENT,
+            'Content-Type': 'application/json',
+            'CommandName': 'rest',
+            'ParameterSetName': 'method uri'
+        }
+
+        send_raw_request(cli_ctx, 'PUT', test_url, uri_parameters=tets_uri_parameters, body=test_body,
+                         skip_authorization_header=True, generated_client_request_id_name=None)
+
+        request_mock.assert_called_with('PUT', test_arm_endpoint + test_url,
+                                        params={'p1': 'v1', 'p2': 'v2'}, data=test_body,
+                                        headers=expected_header, verify=(not should_disable_connection_verify()))
 
     @staticmethod
     def _get_mock_HttpOperationError(response_text):
