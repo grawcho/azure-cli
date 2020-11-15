@@ -523,7 +523,7 @@ def _configure_auto_storage(cli_ctx, location):
     :param str location: location for the auto-storage account.
     :return (str, str): a tuple with auto storage account name and key.
     """
-    from azure.mgmt.resource.resources.models import ResourceGroup
+    ResourceGroup = get_sdk(cli_ctx, ResourceType.MGMT_RESOURCE_RESOURCES, 'ResourceGroup', mod='models')
     BlockBlobService, FileService = get_sdk(cli_ctx, ResourceType.DATA_STORAGE,
                                             'blob#BlockBlobService', 'file#FileService')
     resource_group = _get_auto_storage_resource_group()
@@ -764,8 +764,9 @@ def _get_files_from_bfs(cli_ctx, bfs, path, expiry):
     :param str path: path to list files from.
     :param int expiry: SAS expiration time in minutes.
     """
-    from azure.storage.blob import BlockBlobService
-    from azure.storage.blob.models import Blob, BlobPermissions
+    BlockBlobService = get_sdk(cli_ctx, ResourceType.DATA_STORAGE, 'blob#BlockBlobService')
+    Blob = get_sdk(cli_ctx, ResourceType.DATA_STORAGE, 'blob#Blob')
+    BlobPermissions = get_sdk(cli_ctx, ResourceType.DATA_STORAGE, 'blob#BlobPermissions')
     result = []
     service = BlockBlobService(bfs.account_name, _get_storage_account_key(cli_ctx, bfs.account_name, None))
     effective_path = _get_path_for_storage(path)
@@ -1073,9 +1074,9 @@ def _ssh_exec(ip, port, cmdline, username, password, ssh_private_key):
     output_lock = threading.Lock()
 
     def _worker(s):
-        for l in s:
+        for item in s:
             with output_lock:
-                print(l, end='')
+                print(item, end='')
 
     threads = [threading.Thread(target=_worker, args=(s,)) for s in [out, err]]
     for t in threads:

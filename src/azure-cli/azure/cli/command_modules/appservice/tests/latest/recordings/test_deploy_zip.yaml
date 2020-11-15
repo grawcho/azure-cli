@@ -1,55 +1,5 @@
 interactions:
 - request:
-    body: '{"location": "westus", "tags": {"product": "azurecli", "cause": "automation",
-      "date": "2019-06-11T14:13:49Z"}}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - group create
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '110'
-      Content-Type:
-      - application/json; charset=utf-8
-      ParameterSetName:
-      - --location --name --tag
-      User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
-      accept-language:
-      - en-US
-    method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_webapp_zipDeploy000001?api-version=2018-05-01
-  response:
-    body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001","name":"cli_test_webapp_zipDeploy000001","location":"westus","tags":{"product":"azurecli","cause":"automation","date":"2019-06-11T14:13:49Z"},"properties":{"provisioningState":"Succeeded"}}'
-    headers:
-      cache-control:
-      - no-cache
-      content-length:
-      - '384'
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Tue, 11 Jun 2019 14:13:51 GMT
-      expires:
-      - '-1'
-      pragma:
-      - no-cache
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains
-      x-content-type-options:
-      - nosniff
-      x-ms-ratelimit-remaining-subscription-writes:
-      - '1199'
-    status:
-      code: 201
-      message: Created
-- request:
     body: null
     headers:
       Accept:
@@ -63,24 +13,24 @@ interactions:
       ParameterSetName:
       - -g -n --sku
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-resource/10.2.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_webapp_zipDeploy000001?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_webapp_zipDeploy000001?api-version=2020-06-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001","name":"cli_test_webapp_zipDeploy000001","location":"westus","tags":{"product":"azurecli","cause":"automation","date":"2019-06-11T14:13:49Z"},"properties":{"provisioningState":"Succeeded"}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001","name":"cli_test_webapp_zipDeploy000001","type":"Microsoft.Resources/resourceGroups","location":"japanwest","tags":{"product":"azurecli","cause":"automation","date":"2020-10-13T17:50:05Z"},"properties":{"provisioningState":"Succeeded"}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '384'
+      - '431'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 11 Jun 2019 14:13:51 GMT
+      - Tue, 13 Oct 2020 17:50:07 GMT
       expires:
       - '-1'
       pragma:
@@ -95,8 +45,8 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: 'b''{"name": "webapp-zipDeploy-plan000003", "type": "Microsoft.Web/serverfarms",
-      "location": "westus", "properties": {"skuName": "S1", "capacity": 1}}'''
+    body: '{"name": "webapp-zipDeploy-plan000003", "type": "Microsoft.Web/serverfarms",
+      "location": "japanwest", "properties": {"skuName": "S1", "capacity": 1}}'
     headers:
       Accept:
       - application/json
@@ -107,18 +57,18 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '159'
+      - '162'
       Content-Type:
       - application/json; charset=utf-8
       ParameterSetName:
       - -g -n --sku
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: POST
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/validate?api-version=2018-02-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/validate?api-version=2019-08-01
   response:
     body:
       string: '{"status":"Success","error":null}'
@@ -130,7 +80,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 14:13:52 GMT
+      - Tue, 13 Oct 2020 17:50:08 GMT
       expires:
       - '-1'
       pragma:
@@ -148,7 +98,7 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-ratelimit-remaining-subscription-writes:
-      - '1198'
+      - '1197'
       x-powered-by:
       - ASP.NET
     status:
@@ -168,24 +118,24 @@ interactions:
       ParameterSetName:
       - -g -n --sku
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-resource/10.2.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_webapp_zipDeploy000001?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_webapp_zipDeploy000001?api-version=2020-06-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001","name":"cli_test_webapp_zipDeploy000001","location":"westus","tags":{"product":"azurecli","cause":"automation","date":"2019-06-11T14:13:49Z"},"properties":{"provisioningState":"Succeeded"}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001","name":"cli_test_webapp_zipDeploy000001","type":"Microsoft.Resources/resourceGroups","location":"japanwest","tags":{"product":"azurecli","cause":"automation","date":"2020-10-13T17:50:05Z"},"properties":{"provisioningState":"Succeeded"}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '384'
+      - '431'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 11 Jun 2019 14:13:52 GMT
+      - Tue, 13 Oct 2020 17:50:08 GMT
       expires:
       - '-1'
       pragma:
@@ -200,7 +150,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"location": "westus", "properties": {"perSiteScaling": false, "isXenon":
+    body: '{"location": "japanwest", "properties": {"perSiteScaling": false, "isXenon":
       false}, "sku": {"name": "S1", "tier": "STANDARD", "capacity": 1}}'
     headers:
       Accept:
@@ -212,32 +162,147 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '139'
+      - '142'
       Content-Type:
       - application/json; charset=utf-8
       ParameterSetName:
       - -g -n --sku
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003?api-version=2018-02-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003?api-version=2019-08-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003","name":"webapp-zipDeploy-plan000003","type":"Microsoft.Web/serverfarms","kind":"app","location":"West
-        US","properties":{"serverFarmId":10784,"name":"webapp-zipDeploy-plan000003","workerSize":"Default","workerSizeId":0,"workerTierName":null,"numberOfWorkers":1,"currentWorkerSize":"Default","currentWorkerSizeId":0,"currentNumberOfWorkers":1,"status":"Ready","webSpace":"cli_test_webapp_zipDeploy000001-WestUSwebspace","subscription":"e483435e-282d-4ac1-92b5-d6123f2aa360","adminSiteName":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"maximumNumberOfWorkers":10,"planName":"VirtualDedicatedPlan","adminRuntimeSiteName":null,"computeMode":"Dedicated","siteMode":null,"geoRegion":"West
-        US","perSiteScaling":false,"maximumElasticWorkerCount":1,"numberOfSites":0,"hostingEnvironmentId":null,"isSpot":false,"spotExpirationTime":null,"freeOfferExpirationTime":null,"tags":null,"kind":"app","resourceGroup":"cli_test_webapp_zipDeploy000001","reserved":false,"isXenon":false,"hyperV":false,"mdmId":"waws-prod-bay-121_10784","targetWorkerCount":0,"targetWorkerSizeId":0,"provisioningState":"Succeeded","webSiteId":null},"sku":{"name":"S1","tier":"Standard","size":"S1","family":"S","capacity":1}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003","name":"webapp-zipDeploy-plan000003","type":"Microsoft.Web/serverfarms","kind":"app","location":"Japan
+        West","properties":{"serverFarmId":18838,"name":"webapp-zipDeploy-plan000003","workerSize":"Default","workerSizeId":0,"workerTierName":null,"numberOfWorkers":1,"currentWorkerSize":"Default","currentWorkerSizeId":0,"currentNumberOfWorkers":1,"status":"Ready","webSpace":"cli_test_webapp_zipDeploy000001-JapanWestwebspace","subscription":"e483435e-282d-4ac1-92b5-d6123f2aa360","adminSiteName":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"maximumNumberOfWorkers":10,"planName":"VirtualDedicatedPlan","adminRuntimeSiteName":null,"computeMode":"Dedicated","siteMode":null,"geoRegion":"Japan
+        West","perSiteScaling":false,"maximumElasticWorkerCount":1,"numberOfSites":0,"hostingEnvironmentId":null,"isSpot":false,"spotExpirationTime":null,"freeOfferExpirationTime":null,"tags":null,"kind":"app","resourceGroup":"cli_test_webapp_zipDeploy000001","reserved":false,"isXenon":false,"hyperV":false,"mdmId":"waws-prod-os1-011_18838","targetWorkerCount":0,"targetWorkerSizeId":0,"provisioningState":"Succeeded","webSiteId":null,"existingServerFarmIds":null},"sku":{"name":"S1","tier":"Standard","size":"S1","family":"S","capacity":1}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '1547'
+      - '1585'
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 14:13:59 GMT
+      - Tue, 13 Oct 2020 17:50:21 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-IIS/10.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-aspnet-version:
+      - 4.0.30319
+      x-content-type-options:
+      - nosniff
+      x-ms-ratelimit-remaining-subscription-writes:
+      - '1197'
+      x-powered-by:
+      - ASP.NET
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - webapp create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g -n --plan
+      User-Agent:
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
+      accept-language:
+      - en-US
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003?api-version=2019-08-01
+  response:
+    body:
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003","name":"webapp-zipDeploy-plan000003","type":"Microsoft.Web/serverfarms","kind":"app","location":"Japan
+        West","properties":{"serverFarmId":18838,"name":"webapp-zipDeploy-plan000003","workerSize":"Default","workerSizeId":0,"workerTierName":null,"numberOfWorkers":1,"currentWorkerSize":"Default","currentWorkerSizeId":0,"currentNumberOfWorkers":1,"status":"Ready","webSpace":"cli_test_webapp_zipDeploy000001-JapanWestwebspace","subscription":"e483435e-282d-4ac1-92b5-d6123f2aa360","adminSiteName":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"maximumNumberOfWorkers":10,"planName":"VirtualDedicatedPlan","adminRuntimeSiteName":null,"computeMode":"Dedicated","siteMode":null,"geoRegion":"Japan
+        West","perSiteScaling":false,"maximumElasticWorkerCount":1,"numberOfSites":0,"hostingEnvironmentId":null,"isSpot":false,"spotExpirationTime":null,"freeOfferExpirationTime":null,"tags":null,"kind":"app","resourceGroup":"cli_test_webapp_zipDeploy000001","reserved":false,"isXenon":false,"hyperV":false,"mdmId":"waws-prod-os1-011_18838","targetWorkerCount":0,"targetWorkerSizeId":0,"provisioningState":"Succeeded","webSiteId":null,"existingServerFarmIds":null},"sku":{"name":"S1","tier":"Standard","size":"S1","family":"S","capacity":1}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '1585'
+      content-type:
+      - application/json
+      date:
+      - Tue, 13 Oct 2020 17:50:21 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-IIS/10.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-aspnet-version:
+      - 4.0.30319
+      x-content-type-options:
+      - nosniff
+      x-powered-by:
+      - ASP.NET
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"name": "webapp-zipDeploy-test000002", "type": "Microsoft.Web/sites",
+      "location": "Japan West", "properties": {"serverFarmId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003"}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - webapp create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '364'
+      Content-Type:
+      - application/json; charset=utf-8
+      ParameterSetName:
+      - -g -n --plan
+      User-Agent:
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
+      accept-language:
+      - en-US
+    method: POST
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/validate?api-version=2019-08-01
+  response:
+    body:
+      string: '{"status":"Success","error":null}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '33'
+      content-type:
+      - application/json
+      date:
+      - Tue, 13 Oct 2020 17:50:22 GMT
       expires:
       - '-1'
       pragma:
@@ -275,26 +340,26 @@ interactions:
       ParameterSetName:
       - -g -n --plan
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003?api-version=2018-02-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003?api-version=2019-08-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003","name":"webapp-zipDeploy-plan000003","type":"Microsoft.Web/serverfarms","kind":"app","location":"West
-        US","properties":{"serverFarmId":10784,"name":"webapp-zipDeploy-plan000003","workerSize":"Default","workerSizeId":0,"workerTierName":null,"numberOfWorkers":1,"currentWorkerSize":"Default","currentWorkerSizeId":0,"currentNumberOfWorkers":1,"status":"Ready","webSpace":"cli_test_webapp_zipDeploy000001-WestUSwebspace","subscription":"e483435e-282d-4ac1-92b5-d6123f2aa360","adminSiteName":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"maximumNumberOfWorkers":10,"planName":"VirtualDedicatedPlan","adminRuntimeSiteName":null,"computeMode":"Dedicated","siteMode":null,"geoRegion":"West
-        US","perSiteScaling":false,"maximumElasticWorkerCount":1,"numberOfSites":0,"hostingEnvironmentId":null,"isSpot":false,"spotExpirationTime":null,"freeOfferExpirationTime":null,"tags":null,"kind":"app","resourceGroup":"cli_test_webapp_zipDeploy000001","reserved":false,"isXenon":false,"hyperV":false,"mdmId":"waws-prod-bay-121_10784","targetWorkerCount":0,"targetWorkerSizeId":0,"provisioningState":"Succeeded","webSiteId":null},"sku":{"name":"S1","tier":"Standard","size":"S1","family":"S","capacity":1}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003","name":"webapp-zipDeploy-plan000003","type":"Microsoft.Web/serverfarms","kind":"app","location":"Japan
+        West","properties":{"serverFarmId":18838,"name":"webapp-zipDeploy-plan000003","workerSize":"Default","workerSizeId":0,"workerTierName":null,"numberOfWorkers":1,"currentWorkerSize":"Default","currentWorkerSizeId":0,"currentNumberOfWorkers":1,"status":"Ready","webSpace":"cli_test_webapp_zipDeploy000001-JapanWestwebspace","subscription":"e483435e-282d-4ac1-92b5-d6123f2aa360","adminSiteName":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"maximumNumberOfWorkers":10,"planName":"VirtualDedicatedPlan","adminRuntimeSiteName":null,"computeMode":"Dedicated","siteMode":null,"geoRegion":"Japan
+        West","perSiteScaling":false,"maximumElasticWorkerCount":1,"numberOfSites":0,"hostingEnvironmentId":null,"isSpot":false,"spotExpirationTime":null,"freeOfferExpirationTime":null,"tags":null,"kind":"app","resourceGroup":"cli_test_webapp_zipDeploy000001","reserved":false,"isXenon":false,"hyperV":false,"mdmId":"waws-prod-os1-011_18838","targetWorkerCount":0,"targetWorkerSizeId":0,"provisioningState":"Succeeded","webSiteId":null,"existingServerFarmIds":null},"sku":{"name":"S1","tier":"Standard","size":"S1","family":"S","capacity":1}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '1547'
+      - '1585'
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 14:14:00 GMT
+      - Tue, 13 Oct 2020 17:50:23 GMT
       expires:
       - '-1'
       pragma:
@@ -317,8 +382,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: 'b''b\''b\\\''{"name": "webapp-zipDeploy-test000002", "type": "Microsoft.Web/sites",
-      "location": "West US", "properties": {"serverFarmId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003"}}\\\''\'''''
+    body: '{"name": "webapp-zipDeploy-test000002", "type": "Site"}'
     headers:
       Accept:
       - application/json
@@ -329,87 +393,30 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '361'
+      - '68'
       Content-Type:
       - application/json; charset=utf-8
       ParameterSetName:
       - -g -n --plan
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: POST
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/validate?api-version=2018-02-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Web/checknameavailability?api-version=2019-08-01
   response:
     body:
-      string: '{"status":"Success","error":null}'
+      string: '{"nameAvailable":true,"reason":"","message":""}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '33'
+      - '47'
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 14:14:00 GMT
-      expires:
-      - '-1'
-      pragma:
-      - no-cache
-      server:
-      - Microsoft-IIS/10.0
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
-      x-aspnet-version:
-      - 4.0.30319
-      x-content-type-options:
-      - nosniff
-      x-ms-ratelimit-remaining-subscription-writes:
-      - '1199'
-      x-powered-by:
-      - ASP.NET
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - webapp create
-      Connection:
-      - keep-alive
-      ParameterSetName:
-      - -g -n --plan
-      User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
-      accept-language:
-      - en-US
-    method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003?api-version=2018-02-01
-  response:
-    body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003","name":"webapp-zipDeploy-plan000003","type":"Microsoft.Web/serverfarms","kind":"app","location":"West
-        US","properties":{"serverFarmId":10784,"name":"webapp-zipDeploy-plan000003","workerSize":"Default","workerSizeId":0,"workerTierName":null,"numberOfWorkers":1,"currentWorkerSize":"Default","currentWorkerSizeId":0,"currentNumberOfWorkers":1,"status":"Ready","webSpace":"cli_test_webapp_zipDeploy000001-WestUSwebspace","subscription":"e483435e-282d-4ac1-92b5-d6123f2aa360","adminSiteName":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"maximumNumberOfWorkers":10,"planName":"VirtualDedicatedPlan","adminRuntimeSiteName":null,"computeMode":"Dedicated","siteMode":null,"geoRegion":"West
-        US","perSiteScaling":false,"maximumElasticWorkerCount":1,"numberOfSites":0,"hostingEnvironmentId":null,"isSpot":false,"spotExpirationTime":null,"freeOfferExpirationTime":null,"tags":null,"kind":"app","resourceGroup":"cli_test_webapp_zipDeploy000001","reserved":false,"isXenon":false,"hyperV":false,"mdmId":"waws-prod-bay-121_10784","targetWorkerCount":0,"targetWorkerSizeId":0,"provisioningState":"Succeeded","webSiteId":null},"sku":{"name":"S1","tier":"Standard","size":"S1","family":"S","capacity":1}}'
-    headers:
-      cache-control:
-      - no-cache
-      content-length:
-      - '1547'
-      content-type:
-      - application/json
-      date:
-      - Tue, 11 Jun 2019 14:14:01 GMT
+      - Tue, 13 Oct 2020 17:50:23 GMT
       expires:
       - '-1'
       pragma:
@@ -432,11 +439,11 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: 'b''b\''{"location": "West US", "properties": {"serverFarmId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003",
+    body: '{"location": "Japan West", "properties": {"serverFarmId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003",
       "reserved": false, "isXenon": false, "hyperV": false, "siteConfig": {"netFrameworkVersion":
       "v4.6", "appSettings": [{"name": "WEBSITE_NODE_DEFAULT_VERSION", "value": "10.14"}],
       "alwaysOn": true, "localMySqlEnabled": false, "http20Enabled": true}, "scmSiteAlsoStopped":
-      false}}\'''''
+      false, "httpsOnly": false}}'
     headers:
       Accept:
       - application/json
@@ -447,33 +454,35 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '554'
+      - '577'
       Content-Type:
       - application/json; charset=utf-8
       ParameterSetName:
       - -g -n --plan
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/sites/webapp-zipDeploy-test000002?api-version=2018-11-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/sites/webapp-zipDeploy-test000002?api-version=2019-08-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/sites/webapp-zipDeploy-test000002","name":"webapp-zipDeploy-test000002","type":"Microsoft.Web/sites","kind":"app","location":"West
-        US","properties":{"name":"webapp-zipDeploy-test000002","state":"Running","hostNames":["webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.azurewebsites.net"],"webSpace":"cli_test_webapp_zipDeploy000001-WestUSwebspace","selfLink":"https://waws-prod-bay-121.api.azurewebsites.windows.net:454/subscriptions/00000000-0000-0000-0000-000000000000/webspaces/cli_test_webapp_zipDeploy000001-WestUSwebspace/sites/webapp-zipDeploy-test000002","repositorySiteName":"webapp-zipDeploy-test000002","owner":null,"usageState":"Normal","enabled":true,"adminEnabled":true,"enabledHostNames":["webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.azurewebsites.net","webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.scm.azurewebsites.net"],"siteProperties":{"metadata":null,"properties":[{"name":"LinuxFxVersion","value":""},{"name":"WindowsFxVersion","value":null}],"appSettings":null},"availabilityState":"Normal","sslCertificates":null,"csrs":[],"cers":null,"siteMode":null,"hostNameSslStates":[{"name":"webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.azurewebsites.net","sslState":"Disabled","ipBasedSslResult":null,"virtualIP":null,"thumbprint":null,"toUpdate":null,"toUpdateIpBasedSsl":null,"ipBasedSslState":"NotConfigured","hostType":"Standard"},{"name":"webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.scm.azurewebsites.net","sslState":"Disabled","ipBasedSslResult":null,"virtualIP":null,"thumbprint":null,"toUpdate":null,"toUpdateIpBasedSsl":null,"ipBasedSslState":"NotConfigured","hostType":"Repository"}],"computeMode":null,"serverFarm":null,"serverFarmId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003","reserved":false,"isXenon":false,"hyperV":false,"lastModifiedTimeUtc":"2019-06-11T14:14:04.3533333","storageRecoveryDefaultState":"Running","contentAvailabilityState":"Normal","runtimeAvailabilityState":"Normal","siteConfig":null,"deploymentId":"webapp-zipDeploy-test000002","trafficManagerHostNames":null,"sku":"Standard","scmSiteAlsoStopped":false,"targetSwapSlot":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"clientAffinityEnabled":true,"clientCertEnabled":false,"clientCertExclusionPaths":null,"hostNamesDisabled":false,"domainVerificationIdentifiers":null,"kind":"app","outboundIpAddresses":"13.93.141.10,40.78.90.180,40.78.93.25,40.78.88.130,40.78.92.162","possibleOutboundIpAddresses":"13.93.141.10,40.78.90.180,40.78.93.25,40.78.88.130,40.78.92.162,40.78.92.123,40.78.92.141,40.78.85.102","containerSize":0,"dailyMemoryTimeQuota":0,"suspendedTill":null,"siteDisabledReason":0,"functionExecutionUnitsCache":null,"maxNumberOfWorkers":null,"homeStamp":"waws-prod-bay-121","cloningInfo":null,"hostingEnvironmentId":null,"tags":null,"resourceGroup":"cli_test_webapp_zipDeploy000001","defaultHostName":"webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.azurewebsites.net","slotSwapStatus":null,"httpsOnly":false,"redundancyMode":"None","inProgressOperationId":null,"geoDistributions":null}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/sites/webapp-zipDeploy-test000002","name":"webapp-zipDeploy-test000002","type":"Microsoft.Web/sites","kind":"app","location":"Japan
+        West","properties":{"name":"webapp-zipDeploy-test000002","state":"Running","hostNames":["webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.azurewebsites.net"],"webSpace":"cli_test_webapp_zipDeploy000001-JapanWestwebspace","selfLink":"https://waws-prod-os1-011.api.azurewebsites.windows.net:454/subscriptions/00000000-0000-0000-0000-000000000000/webspaces/cli_test_webapp_zipDeploy000001-JapanWestwebspace/sites/webapp-zipDeploy-test000002","repositorySiteName":"webapp-zipDeploy-test000002","owner":null,"usageState":"Normal","enabled":true,"adminEnabled":true,"enabledHostNames":["webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.azurewebsites.net","webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net"],"siteProperties":{"metadata":null,"properties":[{"name":"LinuxFxVersion","value":""},{"name":"WindowsFxVersion","value":null}],"appSettings":null},"availabilityState":"Normal","sslCertificates":null,"csrs":[],"cers":null,"siteMode":null,"hostNameSslStates":[{"name":"webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.azurewebsites.net","sslState":"Disabled","ipBasedSslResult":null,"virtualIP":null,"thumbprint":null,"toUpdate":null,"toUpdateIpBasedSsl":null,"ipBasedSslState":"NotConfigured","hostType":"Standard"},{"name":"webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net","sslState":"Disabled","ipBasedSslResult":null,"virtualIP":null,"thumbprint":null,"toUpdate":null,"toUpdateIpBasedSsl":null,"ipBasedSslState":"NotConfigured","hostType":"Repository"}],"computeMode":null,"serverFarm":null,"serverFarmId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003","reserved":false,"isXenon":false,"hyperV":false,"lastModifiedTimeUtc":"2020-10-13T17:50:28.6633333","storageRecoveryDefaultState":"Running","contentAvailabilityState":"Normal","runtimeAvailabilityState":"Normal","siteConfig":{"numberOfWorkers":null,"defaultDocuments":null,"netFrameworkVersion":null,"phpVersion":null,"pythonVersion":null,"nodeVersion":null,"powerShellVersion":null,"linuxFxVersion":null,"windowsFxVersion":null,"requestTracingEnabled":null,"remoteDebuggingEnabled":null,"remoteDebuggingVersion":null,"httpLoggingEnabled":null,"azureMonitorLogCategories":null,"acrUseManagedIdentityCreds":false,"acrUserManagedIdentityID":null,"logsDirectorySizeLimit":null,"detailedErrorLoggingEnabled":null,"publishingUsername":null,"publishingPassword":null,"appSettings":null,"azureStorageAccounts":null,"metadata":null,"connectionStrings":null,"machineKey":null,"handlerMappings":null,"documentRoot":null,"scmType":null,"use32BitWorkerProcess":null,"webSocketsEnabled":null,"alwaysOn":null,"javaVersion":null,"javaContainer":null,"javaContainerVersion":null,"appCommandLine":null,"managedPipelineMode":null,"virtualApplications":null,"winAuthAdminState":null,"winAuthTenantState":null,"customAppPoolIdentityAdminState":null,"customAppPoolIdentityTenantState":null,"runtimeADUser":null,"runtimeADUserPassword":null,"loadBalancing":null,"routingRules":null,"experiments":null,"limits":null,"autoHealEnabled":null,"autoHealRules":null,"tracingOptions":null,"vnetName":null,"vnetRouteAllEnabled":null,"cors":null,"push":null,"apiDefinition":null,"apiManagementConfig":null,"autoSwapSlotName":null,"localMySqlEnabled":null,"managedServiceIdentityId":null,"xManagedServiceIdentityId":null,"ipSecurityRestrictions":[{"ipAddress":"Any","action":"Allow","priority":1,"name":"Allow
+        all","description":"Allow all access"}],"scmIpSecurityRestrictions":[{"ipAddress":"Any","action":"Allow","priority":1,"name":"Allow
+        all","description":"Allow all access"}],"scmIpSecurityRestrictionsUseMain":null,"http20Enabled":null,"minTlsVersion":null,"scmMinTlsVersion":null,"ftpsState":null,"preWarmedInstanceCount":null,"functionAppScaleLimit":null,"healthCheckPath":null,"fileChangeAuditEnabled":null,"functionsRuntimeScaleMonitoringEnabled":null,"websiteTimeZone":null,"minimumElasticInstanceCount":0},"deploymentId":"webapp-zipDeploy-test000002","trafficManagerHostNames":null,"sku":"Standard","scmSiteAlsoStopped":false,"targetSwapSlot":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"clientAffinityEnabled":true,"clientCertEnabled":false,"clientCertMode":"Required","clientCertExclusionPaths":null,"hostNamesDisabled":false,"domainVerificationIdentifiers":null,"customDomainVerificationId":"30E3673979DFB5673924412D39370809E608E2DE4E889BD01C7B80FC38A57EED","kind":"app","inboundIpAddress":"104.215.11.176","possibleInboundIpAddresses":"104.215.11.176","ftpUsername":"webapp-zipDeploy-test000002\\$webapp-zipDeploy-test000002","ftpsHostName":"ftps://waws-prod-os1-011.ftp.azurewebsites.windows.net/site/wwwroot","outboundIpAddresses":"104.215.11.176,104.215.12.60,104.215.10.163,104.215.12.212,104.215.8.97","possibleOutboundIpAddresses":"104.215.11.176,104.215.12.60,104.215.10.163,104.215.12.212,104.215.8.97,104.215.12.167,104.215.13.127","containerSize":0,"dailyMemoryTimeQuota":0,"suspendedTill":null,"siteDisabledReason":0,"functionExecutionUnitsCache":null,"maxNumberOfWorkers":null,"homeStamp":"waws-prod-os1-011","cloningInfo":null,"hostingEnvironmentId":null,"tags":null,"resourceGroup":"cli_test_webapp_zipDeploy000001","defaultHostName":"webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.azurewebsites.net","slotSwapStatus":null,"httpsOnly":false,"redundancyMode":"None","inProgressOperationId":null,"geoDistributions":null,"privateEndpointConnections":null,"buildVersion":null,"targetBuildVersion":null,"migrationState":null}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '3546'
+      - '6111'
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 14:14:20 GMT
+      - Tue, 13 Oct 2020 17:50:47 GMT
       etag:
-      - '"1D5205FECFB38CB"'
+      - '"1D6A18956DB1C40"'
       expires:
       - '-1'
       pragma:
@@ -515,30 +524,30 @@ interactions:
       ParameterSetName:
       - -g -n --plan
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: POST
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/sites/webapp-zipDeploy-test000002/publishxml?api-version=2018-11-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/sites/webapp-zipDeploy-test000002/publishxml?api-version=2019-08-01
   response:
     body:
       string: <publishData><publishProfile profileName="webapp-zipDeploy-test000002
-        - Web Deploy" publishMethod="MSDeploy" publishUrl="webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.scm.azurewebsites.net:443"
+        - Web Deploy" publishMethod="MSDeploy" publishUrl="webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net:443"
         msdeploySite="webapp-zipDeploy-test000002" userName="$webapp-zipDeploy-test000002"
-        userPWD="odvRi8uxTpJa8EiMRklHrLGY47tqy6YntfYmFe8QgowuYt9bgFDkcjKP5on7" destinationAppUrl="http://webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.azurewebsites.net"
+        userPWD="QfAzHKBwR2JEvKHNLihtdjY5kfGeQTiBLP8MoHWC3jogd5NoXqo65kHL9os9" destinationAppUrl="http://webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.azurewebsites.net"
         SQLServerDBConnectionString="" mySQLDBConnectionString="" hostingProviderForumLink=""
         controlPanelLink="http://windows.azure.com" webSystem="WebSites"><databases
         /></publishProfile><publishProfile profileName="webapp-zipDeploy-test000002
-        - FTP" publishMethod="FTP" publishUrl="ftp://waws-prod-bay-121.ftp.azurewebsites.windows.net/site/wwwroot"
+        - FTP" publishMethod="FTP" publishUrl="ftp://waws-prod-os1-011.ftp.azurewebsites.windows.net/site/wwwroot"
         ftpPassiveMode="True" userName="webapp-zipDeploy-test000002\$webapp-zipDeploy-test000002"
-        userPWD="odvRi8uxTpJa8EiMRklHrLGY47tqy6YntfYmFe8QgowuYt9bgFDkcjKP5on7" destinationAppUrl="http://webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.azurewebsites.net"
+        userPWD="QfAzHKBwR2JEvKHNLihtdjY5kfGeQTiBLP8MoHWC3jogd5NoXqo65kHL9os9" destinationAppUrl="http://webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.azurewebsites.net"
         SQLServerDBConnectionString="" mySQLDBConnectionString="" hostingProviderForumLink=""
         controlPanelLink="http://windows.azure.com" webSystem="WebSites"><databases
         /></publishProfile><publishProfile profileName="webapp-zipDeploy-test000002
-        - ReadOnly - FTP" publishMethod="FTP" publishUrl="ftp://waws-prod-bay-121dr.ftp.azurewebsites.windows.net/site/wwwroot"
+        - ReadOnly - FTP" publishMethod="FTP" publishUrl="ftp://waws-prod-os1-011dr.ftp.azurewebsites.windows.net/site/wwwroot"
         ftpPassiveMode="True" userName="webapp-zipDeploy-test000002\$webapp-zipDeploy-test000002"
-        userPWD="odvRi8uxTpJa8EiMRklHrLGY47tqy6YntfYmFe8QgowuYt9bgFDkcjKP5on7" destinationAppUrl="http://webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.azurewebsites.net"
+        userPWD="QfAzHKBwR2JEvKHNLihtdjY5kfGeQTiBLP8MoHWC3jogd5NoXqo65kHL9os9" destinationAppUrl="http://webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.azurewebsites.net"
         SQLServerDBConnectionString="" mySQLDBConnectionString="" hostingProviderForumLink=""
         controlPanelLink="http://windows.azure.com" webSystem="WebSites"><databases
         /></publishProfile></publishData>
@@ -550,7 +559,7 @@ interactions:
       content-type:
       - application/xml
       date:
-      - Tue, 11 Jun 2019 14:14:20 GMT
+      - Tue, 13 Oct 2020 17:50:48 GMT
       expires:
       - '-1'
       pragma:
@@ -586,25 +595,25 @@ interactions:
       ParameterSetName:
       - -g -n --src
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: POST
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/sites/webapp-zipDeploy-test000002/config/publishingcredentials/list?api-version=2018-11-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/sites/webapp-zipDeploy-test000002/config/publishingcredentials/list?api-version=2019-08-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/sites/webapp-zipDeploy-test000002/publishingcredentials/$webapp-zipDeploy-test000002","name":"webapp-zipDeploy-test000002","type":"Microsoft.Web/sites/publishingcredentials","location":"West
-        US","properties":{"name":null,"publishingUserName":"$webapp-zipDeploy-test000002","publishingPassword":"odvRi8uxTpJa8EiMRklHrLGY47tqy6YntfYmFe8QgowuYt9bgFDkcjKP5on7","publishingPasswordHash":null,"publishingPasswordHashSalt":null,"metadata":null,"isDeleted":false,"scmUri":"https://$webapp-zipDeploy-test000002:odvRi8uxTpJa8EiMRklHrLGY47tqy6YntfYmFe8QgowuYt9bgFDkcjKP5on7@webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.scm.azurewebsites.net"}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/sites/webapp-zipDeploy-test000002/publishingcredentials/$webapp-zipDeploy-test000002","name":"webapp-zipDeploy-test000002","type":"Microsoft.Web/sites/publishingcredentials","location":"Japan
+        West","properties":{"name":null,"publishingUserName":"$webapp-zipDeploy-test000002","publishingPassword":"QfAzHKBwR2JEvKHNLihtdjY5kfGeQTiBLP8MoHWC3jogd5NoXqo65kHL9os9","publishingPasswordHash":null,"publishingPasswordHashSalt":null,"metadata":null,"isDeleted":false,"scmUri":"https://$webapp-zipDeploy-test000002:QfAzHKBwR2JEvKHNLihtdjY5kfGeQTiBLP8MoHWC3jogd5NoXqo65kHL9os9@webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net"}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '867'
+      - '870'
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 14:14:20 GMT
+      - Tue, 13 Oct 2020 17:50:49 GMT
       expires:
       - '-1'
       pragma:
@@ -622,7 +631,7 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-ratelimit-remaining-subscription-resource-requests:
-      - '11999'
+      - '11998'
       x-powered-by:
       - ASP.NET
     status:
@@ -642,27 +651,27 @@ interactions:
       ParameterSetName:
       - -g -n --src
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/sites/webapp-zipDeploy-test000002?api-version=2018-11-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/sites/webapp-zipDeploy-test000002?api-version=2019-08-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/sites/webapp-zipDeploy-test000002","name":"webapp-zipDeploy-test000002","type":"Microsoft.Web/sites","kind":"app","location":"West
-        US","properties":{"name":"webapp-zipDeploy-test000002","state":"Running","hostNames":["webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.azurewebsites.net"],"webSpace":"cli_test_webapp_zipDeploy000001-WestUSwebspace","selfLink":"https://waws-prod-bay-121.api.azurewebsites.windows.net:454/subscriptions/00000000-0000-0000-0000-000000000000/webspaces/cli_test_webapp_zipDeploy000001-WestUSwebspace/sites/webapp-zipDeploy-test000002","repositorySiteName":"webapp-zipDeploy-test000002","owner":null,"usageState":"Normal","enabled":true,"adminEnabled":true,"enabledHostNames":["webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.azurewebsites.net","webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.scm.azurewebsites.net"],"siteProperties":{"metadata":null,"properties":[{"name":"LinuxFxVersion","value":""},{"name":"WindowsFxVersion","value":null}],"appSettings":null},"availabilityState":"Normal","sslCertificates":null,"csrs":[],"cers":null,"siteMode":null,"hostNameSslStates":[{"name":"webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.azurewebsites.net","sslState":"Disabled","ipBasedSslResult":null,"virtualIP":null,"thumbprint":null,"toUpdate":null,"toUpdateIpBasedSsl":null,"ipBasedSslState":"NotConfigured","hostType":"Standard"},{"name":"webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.scm.azurewebsites.net","sslState":"Disabled","ipBasedSslResult":null,"virtualIP":null,"thumbprint":null,"toUpdate":null,"toUpdateIpBasedSsl":null,"ipBasedSslState":"NotConfigured","hostType":"Repository"}],"computeMode":null,"serverFarm":null,"serverFarmId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003","reserved":false,"isXenon":false,"hyperV":false,"lastModifiedTimeUtc":"2019-06-11T14:14:04.7166667","storageRecoveryDefaultState":"Running","contentAvailabilityState":"Normal","runtimeAvailabilityState":"Normal","siteConfig":null,"deploymentId":"webapp-zipDeploy-test000002","trafficManagerHostNames":null,"sku":"Standard","scmSiteAlsoStopped":false,"targetSwapSlot":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"clientAffinityEnabled":true,"clientCertEnabled":false,"clientCertExclusionPaths":null,"hostNamesDisabled":false,"domainVerificationIdentifiers":null,"kind":"app","outboundIpAddresses":"13.93.141.10,40.78.90.180,40.78.93.25,40.78.88.130,40.78.92.162","possibleOutboundIpAddresses":"13.93.141.10,40.78.90.180,40.78.93.25,40.78.88.130,40.78.92.162,40.78.92.123,40.78.92.141,40.78.85.102","containerSize":0,"dailyMemoryTimeQuota":0,"suspendedTill":null,"siteDisabledReason":0,"functionExecutionUnitsCache":null,"maxNumberOfWorkers":null,"homeStamp":"waws-prod-bay-121","cloningInfo":null,"hostingEnvironmentId":null,"tags":null,"resourceGroup":"cli_test_webapp_zipDeploy000001","defaultHostName":"webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.azurewebsites.net","slotSwapStatus":null,"httpsOnly":false,"redundancyMode":"None","inProgressOperationId":null,"geoDistributions":null}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/sites/webapp-zipDeploy-test000002","name":"webapp-zipDeploy-test000002","type":"Microsoft.Web/sites","kind":"app","location":"Japan
+        West","properties":{"name":"webapp-zipDeploy-test000002","state":"Running","hostNames":["webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.azurewebsites.net"],"webSpace":"cli_test_webapp_zipDeploy000001-JapanWestwebspace","selfLink":"https://waws-prod-os1-011.api.azurewebsites.windows.net:454/subscriptions/00000000-0000-0000-0000-000000000000/webspaces/cli_test_webapp_zipDeploy000001-JapanWestwebspace/sites/webapp-zipDeploy-test000002","repositorySiteName":"webapp-zipDeploy-test000002","owner":null,"usageState":"Normal","enabled":true,"adminEnabled":true,"enabledHostNames":["webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.azurewebsites.net","webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net"],"siteProperties":{"metadata":null,"properties":[{"name":"LinuxFxVersion","value":""},{"name":"WindowsFxVersion","value":null}],"appSettings":null},"availabilityState":"Normal","sslCertificates":null,"csrs":[],"cers":null,"siteMode":null,"hostNameSslStates":[{"name":"webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.azurewebsites.net","sslState":"Disabled","ipBasedSslResult":null,"virtualIP":null,"thumbprint":null,"toUpdate":null,"toUpdateIpBasedSsl":null,"ipBasedSslState":"NotConfigured","hostType":"Standard"},{"name":"webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net","sslState":"Disabled","ipBasedSslResult":null,"virtualIP":null,"thumbprint":null,"toUpdate":null,"toUpdateIpBasedSsl":null,"ipBasedSslState":"NotConfigured","hostType":"Repository"}],"computeMode":null,"serverFarm":null,"serverFarmId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/serverfarms/webapp-zipDeploy-plan000003","reserved":false,"isXenon":false,"hyperV":false,"lastModifiedTimeUtc":"2020-10-13T17:50:29.38","storageRecoveryDefaultState":"Running","contentAvailabilityState":"Normal","runtimeAvailabilityState":"Normal","siteConfig":{"numberOfWorkers":null,"defaultDocuments":null,"netFrameworkVersion":null,"phpVersion":null,"pythonVersion":null,"nodeVersion":null,"powerShellVersion":null,"linuxFxVersion":null,"windowsFxVersion":null,"requestTracingEnabled":null,"remoteDebuggingEnabled":null,"remoteDebuggingVersion":null,"httpLoggingEnabled":null,"azureMonitorLogCategories":null,"acrUseManagedIdentityCreds":false,"acrUserManagedIdentityID":null,"logsDirectorySizeLimit":null,"detailedErrorLoggingEnabled":null,"publishingUsername":null,"publishingPassword":null,"appSettings":null,"azureStorageAccounts":null,"metadata":null,"connectionStrings":null,"machineKey":null,"handlerMappings":null,"documentRoot":null,"scmType":null,"use32BitWorkerProcess":null,"webSocketsEnabled":null,"alwaysOn":null,"javaVersion":null,"javaContainer":null,"javaContainerVersion":null,"appCommandLine":null,"managedPipelineMode":null,"virtualApplications":null,"winAuthAdminState":null,"winAuthTenantState":null,"customAppPoolIdentityAdminState":null,"customAppPoolIdentityTenantState":null,"runtimeADUser":null,"runtimeADUserPassword":null,"loadBalancing":null,"routingRules":null,"experiments":null,"limits":null,"autoHealEnabled":null,"autoHealRules":null,"tracingOptions":null,"vnetName":null,"vnetRouteAllEnabled":null,"cors":null,"push":null,"apiDefinition":null,"apiManagementConfig":null,"autoSwapSlotName":null,"localMySqlEnabled":null,"managedServiceIdentityId":null,"xManagedServiceIdentityId":null,"ipSecurityRestrictions":null,"scmIpSecurityRestrictions":null,"scmIpSecurityRestrictionsUseMain":null,"http20Enabled":null,"minTlsVersion":null,"scmMinTlsVersion":null,"ftpsState":null,"preWarmedInstanceCount":null,"functionAppScaleLimit":null,"healthCheckPath":null,"fileChangeAuditEnabled":null,"functionsRuntimeScaleMonitoringEnabled":null,"websiteTimeZone":null,"minimumElasticInstanceCount":0},"deploymentId":"webapp-zipDeploy-test000002","trafficManagerHostNames":null,"sku":"Standard","scmSiteAlsoStopped":false,"targetSwapSlot":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"clientAffinityEnabled":true,"clientCertEnabled":false,"clientCertMode":"Required","clientCertExclusionPaths":null,"hostNamesDisabled":false,"domainVerificationIdentifiers":null,"customDomainVerificationId":"30E3673979DFB5673924412D39370809E608E2DE4E889BD01C7B80FC38A57EED","kind":"app","inboundIpAddress":"104.215.11.176","possibleInboundIpAddresses":"104.215.11.176","ftpUsername":"webapp-zipDeploy-test000002\\$webapp-zipDeploy-test000002","ftpsHostName":"ftps://waws-prod-os1-011.ftp.azurewebsites.windows.net/site/wwwroot","outboundIpAddresses":"104.215.11.176,104.215.12.60,104.215.10.163,104.215.12.212,104.215.8.97","possibleOutboundIpAddresses":"104.215.11.176,104.215.12.60,104.215.10.163,104.215.12.212,104.215.8.97,104.215.12.167,104.215.13.127","containerSize":0,"dailyMemoryTimeQuota":0,"suspendedTill":null,"siteDisabledReason":0,"functionExecutionUnitsCache":null,"maxNumberOfWorkers":null,"homeStamp":"waws-prod-os1-011","cloningInfo":null,"hostingEnvironmentId":null,"tags":null,"resourceGroup":"cli_test_webapp_zipDeploy000001","defaultHostName":"webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.azurewebsites.net","slotSwapStatus":null,"httpsOnly":false,"redundancyMode":"None","inProgressOperationId":null,"geoDistributions":null,"privateEndpointConnections":[],"buildVersion":null,"targetBuildVersion":null,"migrationState":null}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '3546'
+      - '5906'
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 14:14:21 GMT
+      - Tue, 13 Oct 2020 17:50:50 GMT
       etag:
-      - '"1D5205FECFB38CB"'
+      - '"1D6A18956DB1C40"'
       expires:
       - '-1'
       pragma:
@@ -702,30 +711,30 @@ interactions:
       ParameterSetName:
       - -g -n --src
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: POST
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/sites/webapp-zipDeploy-test000002/publishxml?api-version=2018-11-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_webapp_zipDeploy000001/providers/Microsoft.Web/sites/webapp-zipDeploy-test000002/publishxml?api-version=2019-08-01
   response:
     body:
       string: <publishData><publishProfile profileName="webapp-zipDeploy-test000002
-        - Web Deploy" publishMethod="MSDeploy" publishUrl="webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.scm.azurewebsites.net:443"
+        - Web Deploy" publishMethod="MSDeploy" publishUrl="webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net:443"
         msdeploySite="webapp-zipDeploy-test000002" userName="$webapp-zipDeploy-test000002"
-        userPWD="odvRi8uxTpJa8EiMRklHrLGY47tqy6YntfYmFe8QgowuYt9bgFDkcjKP5on7" destinationAppUrl="http://webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.azurewebsites.net"
+        userPWD="QfAzHKBwR2JEvKHNLihtdjY5kfGeQTiBLP8MoHWC3jogd5NoXqo65kHL9os9" destinationAppUrl="http://webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.azurewebsites.net"
         SQLServerDBConnectionString="" mySQLDBConnectionString="" hostingProviderForumLink=""
         controlPanelLink="http://windows.azure.com" webSystem="WebSites"><databases
         /></publishProfile><publishProfile profileName="webapp-zipDeploy-test000002
-        - FTP" publishMethod="FTP" publishUrl="ftp://waws-prod-bay-121.ftp.azurewebsites.windows.net/site/wwwroot"
+        - FTP" publishMethod="FTP" publishUrl="ftp://waws-prod-os1-011.ftp.azurewebsites.windows.net/site/wwwroot"
         ftpPassiveMode="True" userName="webapp-zipDeploy-test000002\$webapp-zipDeploy-test000002"
-        userPWD="odvRi8uxTpJa8EiMRklHrLGY47tqy6YntfYmFe8QgowuYt9bgFDkcjKP5on7" destinationAppUrl="http://webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.azurewebsites.net"
+        userPWD="QfAzHKBwR2JEvKHNLihtdjY5kfGeQTiBLP8MoHWC3jogd5NoXqo65kHL9os9" destinationAppUrl="http://webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.azurewebsites.net"
         SQLServerDBConnectionString="" mySQLDBConnectionString="" hostingProviderForumLink=""
         controlPanelLink="http://windows.azure.com" webSystem="WebSites"><databases
         /></publishProfile><publishProfile profileName="webapp-zipDeploy-test000002
-        - ReadOnly - FTP" publishMethod="FTP" publishUrl="ftp://waws-prod-bay-121dr.ftp.azurewebsites.windows.net/site/wwwroot"
+        - ReadOnly - FTP" publishMethod="FTP" publishUrl="ftp://waws-prod-os1-011dr.ftp.azurewebsites.windows.net/site/wwwroot"
         ftpPassiveMode="True" userName="webapp-zipDeploy-test000002\$webapp-zipDeploy-test000002"
-        userPWD="odvRi8uxTpJa8EiMRklHrLGY47tqy6YntfYmFe8QgowuYt9bgFDkcjKP5on7" destinationAppUrl="http://webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.azurewebsites.net"
+        userPWD="QfAzHKBwR2JEvKHNLihtdjY5kfGeQTiBLP8MoHWC3jogd5NoXqo65kHL9os9" destinationAppUrl="http://webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.azurewebsites.net"
         SQLServerDBConnectionString="" mySQLDBConnectionString="" hostingProviderForumLink=""
         controlPanelLink="http://windows.azure.com" webSystem="WebSites"><databases
         /></publishProfile></publishData>
@@ -737,7 +746,7 @@ interactions:
       content-type:
       - application/xml
       date:
-      - Tue, 11 Jun 2019 14:14:22 GMT
+      - Tue, 13 Oct 2020 17:50:51 GMT
       expires:
       - '-1'
       pragma:
@@ -768,16 +777,18 @@ interactions:
       - '*/*'
       Accept-Encoding:
       - gzip, deflate
+      Cache-Control:
+      - no-cache
       Connection:
       - keep-alive
       Content-Length:
       - '199'
-      User-Agent:
-      - python-requests/2.22.0
-      content-type:
+      Content-Type:
       - application/octet-stream
+      User-Agent:
+      - AZURECLI/2.12.1
     method: POST
-    uri: https://webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.scm.azurewebsites.net/api/zipdeploy?isAsync=true
+    uri: https://webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net/api/zipdeploy?isAsync=true
   response:
     body:
       string: ''
@@ -787,17 +798,18 @@ interactions:
       content-length:
       - '0'
       date:
-      - Tue, 11 Jun 2019 14:14:35 GMT
+      - Tue, 13 Oct 2020 17:50:54 GMT
       expires:
       - '-1'
       location:
-      - https://webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.scm.azurewebsites.net/api/deployments/latest?deployer=Push-Deployer&time=2019-06-11_14-14-27Z
+      - https://webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net/api/deployments/latest?deployer=ZipDeploy&time=2020-10-13_17-50-54Z
       pragma:
       - no-cache
       server:
       - Microsoft-IIS/10.0
       set-cookie:
-      - ARRAffinity=dfef65d5d005decdf16ca6c5670ca470d3b3147889c1170e73f46a07f21ca5ae;Path=/;HttpOnly;Domain=webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.scm.azurewebsites.net
+      - ARRAffinity=5e2f2fdb5dda499a16c9d5abbb02f8a071498f20d6368465736d9acc36d36755;Path=/;HttpOnly;Secure;Domain=webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net
+      - ARRAffinitySameSite=5e2f2fdb5dda499a16c9d5abbb02f8a071498f20d6368465736d9acc36d36755;Path=/;HttpOnly;SameSite=None;Secure;Domain=webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net
       x-aspnet-version:
       - 4.0.30319
       x-powered-by:
@@ -812,38 +824,41 @@ interactions:
       - '*/*'
       Accept-Encoding:
       - gzip, deflate
+      Cache-Control:
+      - no-cache
       Connection:
       - keep-alive
-      User-Agent:
-      - python-requests/2.22.0
-      content-type:
+      Content-Type:
       - application/octet-stream
+      User-Agent:
+      - AZURECLI/2.12.1
     method: GET
-    uri: https://webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.scm.azurewebsites.net/api/deployments/mock-deployment
+    uri: https://webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net/api/deployments/mock-deployment
   response:
     body:
-      string: '{"id":"1e68585c42c3416ab4064876d135f526","status":1,"status_text":"Building
-        and Deploying ''1e68585c42c3416ab4064876d135f526''.","author_email":"N/A","author":"N/A","deployer":"Push-Deployer","message":"Created
-        via a push deployment","progress":"Running deployment command...","received_time":"2019-06-11T14:14:27.5092214Z","start_time":"2019-06-11T14:14:28.9466216Z","end_time":null,"last_success_end_time":null,"complete":false,"active":false,"is_temp":false,"is_readonly":true,"url":null,"log_url":null,"site_name":"webapp-zipDeploy-test000002","provisioningState":null}'
+      string: '{"id":"e5d01af0e5ea49b4a11cb82a9b6b6e6e","status":1,"status_text":"Building
+        and Deploying ''e5d01af0e5ea49b4a11cb82a9b6b6e6e''.","author_email":"N/A","author":"N/A","deployer":"ZipDeploy","message":"Created
+        via a push deployment","progress":"Running deployment command...","received_time":"2020-10-13T17:50:55.0075982Z","start_time":"2020-10-13T17:50:56.1326786Z","end_time":null,"last_success_end_time":null,"complete":false,"active":false,"is_temp":false,"is_readonly":true,"url":null,"log_url":null,"site_name":"webapp-zipDeploy-test000002","provisioningState":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '584'
+      - '580'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 11 Jun 2019 14:14:42 GMT
+      - Tue, 13 Oct 2020 17:51:00 GMT
       expires:
       - '-1'
       location:
-      - https://webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.scm.azurewebsites.net/api/deployments/latest
+      - https://webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net/api/deployments/latest
       pragma:
       - no-cache
       server:
       - Microsoft-IIS/10.0
       set-cookie:
-      - ARRAffinity=dfef65d5d005decdf16ca6c5670ca470d3b3147889c1170e73f46a07f21ca5ae;Path=/;HttpOnly;Domain=webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.scm.azurewebsites.net
+      - ARRAffinity=5e2f2fdb5dda499a16c9d5abbb02f8a071498f20d6368465736d9acc36d36755;Path=/;HttpOnly;Secure;Domain=webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net
+      - ARRAffinitySameSite=5e2f2fdb5dda499a16c9d5abbb02f8a071498f20d6368465736d9acc36d36755;Path=/;HttpOnly;SameSite=None;Secure;Domain=webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net
       x-aspnet-version:
       - 4.0.30319
       x-powered-by:
@@ -858,27 +873,29 @@ interactions:
       - '*/*'
       Accept-Encoding:
       - gzip, deflate
+      Cache-Control:
+      - no-cache
       Connection:
       - keep-alive
-      User-Agent:
-      - python-requests/2.22.0
-      content-type:
+      Content-Type:
       - application/octet-stream
+      User-Agent:
+      - AZURECLI/2.12.1
     method: GET
-    uri: https://webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.scm.azurewebsites.net/api/deployments/mock-deployment
+    uri: https://webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net/api/deployments/mock-deployment
   response:
     body:
-      string: '{"id":"1e68585c42c3416ab4064876d135f526","status":4,"status_text":"","author_email":"N/A","author":"N/A","deployer":"Push-Deployer","message":"Created
-        via a push deployment","progress":"","received_time":"2019-06-11T14:14:27.5092214Z","start_time":"2019-06-11T14:14:28.9466216Z","end_time":"2019-06-11T14:14:45.1653679Z","last_success_end_time":"2019-06-11T14:14:45.1653679Z","complete":true,"active":true,"is_temp":false,"is_readonly":true,"url":"https://webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.scm.azurewebsites.net/api/deployments/latest","log_url":"https://webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.scm.azurewebsites.net/api/deployments/latest/log","site_name":"webapp-zipDeploy-test000002","provisioningState":null}'
+      string: '{"id":"e5d01af0e5ea49b4a11cb82a9b6b6e6e","status":4,"status_text":"","author_email":"N/A","author":"N/A","deployer":"ZipDeploy","message":"Created
+        via a push deployment","progress":"","received_time":"2020-10-13T17:50:55.0075982Z","start_time":"2020-10-13T17:50:56.1326786Z","end_time":"2020-10-13T17:51:08.7128599Z","last_success_end_time":"2020-10-13T17:51:08.7128599Z","complete":true,"active":true,"is_temp":false,"is_readonly":true,"url":"https://webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net/api/deployments/latest","log_url":"https://webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net/api/deployments/latest/log","site_name":"webapp-zipDeploy-test000002","provisioningState":null}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '733'
+      - '729'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 11 Jun 2019 14:14:47 GMT
+      - Tue, 13 Oct 2020 17:51:09 GMT
       expires:
       - '-1'
       pragma:
@@ -886,7 +903,8 @@ interactions:
       server:
       - Microsoft-IIS/10.0
       set-cookie:
-      - ARRAffinity=dfef65d5d005decdf16ca6c5670ca470d3b3147889c1170e73f46a07f21ca5ae;Path=/;HttpOnly;Domain=webapp-zipdeploy-testbf4x2us3xnyqtv5tx2t.scm.azurewebsites.net
+      - ARRAffinity=5e2f2fdb5dda499a16c9d5abbb02f8a071498f20d6368465736d9acc36d36755;Path=/;HttpOnly;Secure;Domain=webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net
+      - ARRAffinitySameSite=5e2f2fdb5dda499a16c9d5abbb02f8a071498f20d6368465736d9acc36d36755;Path=/;HttpOnly;SameSite=None;Secure;Domain=webapp-zipdeploy-testdsg2wsdkt34p2dbpxqg.scm.azurewebsites.net
       vary:
       - Accept-Encoding
       x-aspnet-version:
@@ -896,51 +914,4 @@ interactions:
     status:
       code: 200
       message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - group delete
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '0'
-      ParameterSetName:
-      - --name --yes --no-wait
-      User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
-      accept-language:
-      - en-US
-    method: DELETE
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_webapp_zipDeploy000001?api-version=2018-05-01
-  response:
-    body:
-      string: ''
-    headers:
-      cache-control:
-      - no-cache
-      content-length:
-      - '0'
-      date:
-      - Tue, 11 Jun 2019 14:14:50 GMT
-      expires:
-      - '-1'
-      location:
-      - https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/operationresults/eyJqb2JJZCI6IlJFU09VUkNFR1JPVVBERUxFVElPTkpPQi1DTEk6NUZURVNUOjVGV0VCQVBQOjVGWklQREVQTE9ZS0NIUFNDRUNLNzNQUVEzSnwxOTIzOTIyQjg2MUUyRjM1LVdFU1RVUyIsImpvYkxvY2F0aW9uIjoid2VzdHVzIn0?api-version=2018-05-01
-      pragma:
-      - no-cache
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains
-      x-content-type-options:
-      - nosniff
-      x-ms-ratelimit-remaining-subscription-deletes:
-      - '14999'
-    status:
-      code: 202
-      message: Accepted
 version: 1

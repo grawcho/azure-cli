@@ -11,9 +11,8 @@ helps['bot'] = """
 """
 helps['bot create'] = """
     type: command
-    short-summary: Create a new bot.
-    long-summary: Create a new bot. Support for creating v3 SDK bots will be deprecated on August 1st, 2019. For more
-                  information please visit this blog post, blog.botframework.com/2019/06/07/v3-bot-broadcast-message/
+    short-summary: Create a new v4 SDK bot.
+    long-summary: Create a new v4 SDK bot.
 """
 helps['bot show'] = """
     type: command
@@ -126,6 +125,14 @@ helps['bot directline create'] = """
         - name: Create the DirectLine Channel for a bot.
           text: |-
             az bot directline create -n botName -g MyResourceGroup --disablev1
+"""
+helps['bot directline update'] = """
+    type: command
+    short-summary: Update the DirectLine Channel on a bot with only v3 protocol enabled.
+    examples:
+        - name: Update the DirectLine Channel for a bot.
+          text: |-
+            az bot directline update -n botName -g MyResourceGroup --disablev1
 """
 helps['bot telegram create'] = """
     type: command

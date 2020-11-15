@@ -13,14 +13,15 @@ from azure.cli.command_modules.botservice.bot_publish_prep import BotPublishPrep
 from azure.cli.command_modules.botservice.bot_template_deployer import BotTemplateDeployer
 from azure.cli.command_modules.botservice.constants import CSHARP, JAVASCRIPT, TYPESCRIPT
 from azure.cli.command_modules.botservice.kudu_client import KuduClient
+from azure.cli.command_modules.botservice.name_availability import NameAvailability
 from azure.cli.command_modules.botservice.web_app_operations import WebAppOperations
-from azure.cli.core.commands.client_factory import get_subscription_id
 from azure.mgmt.botservice.models import (
     Bot,
     BotProperties,
     ConnectionSetting,
     ConnectionSettingProperties,
     ConnectionSettingParameter,
+    ErrorException,
     Sku)
 
 from knack.util import CLIError
@@ -29,13 +30,10 @@ from knack.log import get_logger
 logger = get_logger(__name__)
 
 
-def __bot_template_validator(version, deploy_echo):  # pylint: disable=inconsistent-return-statements
-    if version == 'v3' and deploy_echo:
-        raise CLIError("'az bot create --version v3' only creates one type of bot. To create a v3 bot, do not use "
-                       "the '--echo' flag when using this command. See 'az bot create --help'.")
-
+def __bot_template_validator(deploy_echo):  # pylint: disable=inconsistent-return-statements
     if deploy_echo:
         return 'echo'
+    return None
 
 
 def __prepare_configuration_file(cmd, resource_group_name, kudu_client, folder_path):
@@ -78,22 +76,45 @@ def __prepare_configuration_file(cmd, resource_group_name, kudu_client, folder_p
             f.write(json.dumps(existing))
 
 
-def create(cmd, client, resource_group_name, resource_name, kind, msa_app_id, password, language=None,  # pylint: disable=too-many-locals, too-many-statements
-           description=None, display_name=None, endpoint=None, tags=None, storageAccountName=None,
-           location='Central US', sku_name='F0', appInsightsLocation=None, version='v4', deploy_echo=None):
+def __handle_failed_name_check(name_response, cmd, client, resource_group_name, resource_name):
+    # Creates should be idempotent, verify if the bot already exists inside of the provided Resource Group
+    logger.debug('Failed name availability check for provided bot name "%s".\n'
+                 'Checking if bot exists in Resource Group "%s".', resource_name, resource_group_name)
+    try:
+        # If the bot exists, return the bot's information to the user
+        existing_bot = get_bot(cmd, client, resource_group_name, resource_name)
+        logger.warning('Provided bot name already exists in Resource Group. Returning bot information:')
+        return existing_bot
+    except ErrorException as e:
+        if e.error.error.code == 'ResourceNotFound':
+            code = e.error.error.code
+            message = e.error.error.message
+
+            logger.debug('Bot "%s" not found in Resource Group "%s".\n  Code: "%s"\n  Message: '
+                         '"%s"', resource_name, resource_group_name, code, message)
+            raise CLIError('Unable to create bot.\nReason: "{}"'.format(name_response.message))
+
+        # For other error codes, raise them to the user
+        raise e
+
+
+def create(cmd, client, resource_group_name, resource_name, kind, msa_app_id, password=None, language=None,  # pylint: disable=too-many-locals, too-many-statements, inconsistent-return-statements
+           description=None, display_name=None, endpoint=None, tags=None, location='Central US',
+           sku_name='F0', deploy_echo=None):
     # Kind parameter validation
     kind = kind.lower()
     registration_kind = 'registration'
     bot_kind = 'bot'
     webapp_kind = 'webapp'
-    function_kind = 'function'
 
-    if version == 'v3':
-        logger.warning('WARNING: `az bot create` for v3 bots is being discontinued on August 1st, 2019. We encourage '
-                       'developers to move to creating and deploying v4 bots.\n\nFor more information on creating '
-                       'and deploying v4 bots, please visit https://aka.ms/create-and-deploy-v4-bot\n\nFor more '
-                       'information on v3 bot creation deprecation, please visit this blog post: '
-                       'https://blog.botframework.com/2019/06/07/v3-bot-broadcast-message/')
+    # Mapping: registration is deprecated, we now use 'bot' kind for registration bots
+    if kind == registration_kind:
+        kind = bot_kind
+
+    # Check the resource name availability for the bot.
+    name_response = NameAvailability.check_name_availability(client, resource_name, kind)
+    if not name_response.valid:
+        return __handle_failed_name_check(name_response, cmd, client, resource_group_name, resource_name)
 
     if resource_name.find(".") > -1:
         logger.warning('"." found in --name parameter ("%s"). "." is an invalid character for Azure Bot resource names '
@@ -108,18 +129,11 @@ def create(cmd, client, resource_group_name, resource_name, kind, msa_app_id, pa
     except Exception as e:
         logger.debug(e)
         raise CLIError("--appid must be a valid GUID from a Microsoft Azure AD Application Registration. See "
-                       "https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app for "
+                       "https://docs.microsoft.com/azure/active-directory/develop/quickstart-register-app for "
                        "more information on App Registrations. See 'az bot create --help' for more CLI information.")
-    if not password:
-        raise CLIError("--password cannot have a length of 0. This value is used to authorize calls to your bot. See "
-                       "'az bot create --help'.`")
 
     # If display name was not provided, just use the resource name
     display_name = display_name or resource_name
-
-    # Mapping: registration is deprecated, we now use 'bot' kind for registration bots
-    if kind == registration_kind:
-        kind = bot_kind
 
     logger.info('Creating Azure Bot Service.')
 
@@ -153,43 +167,24 @@ def create(cmd, client, resource_group_name, resource_name, kind, msa_app_id, pa
             parameters=parameters
         )
 
-    # Web app and function bots require deploying custom ARM templates, we do that in a separate method
+    if not password:
+        raise CLIError("--password cannot have a length of 0 for Web App Bots. This value is used to authorize calls "
+                       "to your bot. See 'az bot create --help'.")
+
+    # Web app bots require deploying custom ARM templates, we do that in a separate method
     logger.info('Detected kind %s, validating parameters for the specified kind.', kind)
 
     if not language:
-        raise CLIError("You must pass in a language when creating a {0} or {1} bot. See 'az bot create --help'."
-                       .format(webapp_kind, function_kind))
+        raise CLIError("You must pass in a language when creating a {0} bot. See 'az bot create --help'."
+                       .format(webapp_kind))
     language = language.lower()
 
-    bot_template_type = __bot_template_validator(version, deploy_echo)
-
-    if version == 'v4':
-        if storageAccountName:
-            logger.warning('WARNING: `az bot create` for v4 bots no longer creates or uses a Storage Account. If '
-                           'you wish to create a Storage Account via Azure CLI, please use `az storage account` or '
-                           'an ARM template.')
-        if appInsightsLocation:
-            logger.warning(
-                'WARNING: `az bot create` for v4 bots no longer creates or uses Application Insights. If '
-                'you wish to create Application Insights via Azure CLI, please use an ARM template.')
-        storageAccountName = None
-        appInsightsLocation = None
-    if version == 'v3' and not appInsightsLocation:
-        appInsightsLocation = 'South Central US'
+    bot_template_type = __bot_template_validator(deploy_echo)
 
     creation_results = BotTemplateDeployer.create_app(
         cmd, logger, client, resource_group_name, resource_name, description, kind, msa_app_id, password,
-        storageAccountName, location, sku_name, appInsightsLocation, language, version, bot_template_type)
+        location, sku_name, language, bot_template_type)
 
-    subscription_id = get_subscription_id(cmd.cli_ctx)
-    publish_cmd = "az bot publish --resource-group %s -n %s --subscription %s -v %s" % (
-        resource_group_name, resource_name, subscription_id, version)
-    if language == CSHARP:
-        proj_file = '%s.csproj' % resource_name
-        publish_cmd += " --proj-file-path %s" % proj_file
-    creation_results['publishCommand'] = publish_cmd
-    logger.info('To publish your local changes to Azure, use the following command from your code directory:\n  %s',
-                publish_cmd)
     return creation_results
 
 
@@ -564,8 +559,7 @@ def prepare_webapp_deploy(language, code_dir=None, proj_file_path=None):
 
         with open(os.path.join(code_dir, '.deployment'), 'w') as f:
             f.write('[config]\n')
-            proj_file = proj_file_path.lower()
-            proj_file = proj_file if proj_file.endswith('.csproj') else proj_file + '.csproj'
+            proj_file = proj_file_path if proj_file_path.lower().endswith('.csproj') else proj_file_path + '.csproj'
             f.write('SCM_SCRIPT_GENERATOR_ARGS=--aspNetCore "{0}"\n'.format(proj_file))
         logger.info('.deployment file successfully created.')
     return True
@@ -682,7 +676,7 @@ def publish_app(cmd, client, resource_group_name, resource_name, code_dir=None, 
 
 def update(client, resource_group_name, resource_name, endpoint=None, description=None,
            display_name=None, tags=None, sku_name=None, app_insights_key=None,
-           app_insights_api_key=None, app_insights_app_id=None):
+           app_insights_api_key=None, app_insights_app_id=None, icon_url=None):
     bot = client.bots.get(
         resource_group_name=resource_group_name,
         resource_name=resource_name
@@ -693,6 +687,7 @@ def update(client, resource_group_name, resource_name, endpoint=None, descriptio
     bot_props.description = description if description else bot_props.description
     bot_props.display_name = display_name if display_name else bot_props.display_name
     bot_props.endpoint = endpoint if endpoint else bot_props.endpoint
+    bot_props.icon_url = icon_url if icon_url else bot_props.icon_url
 
     bot_props.developer_app_insight_key = app_insights_key if app_insights_key else bot_props.developer_app_insight_key
     bot_props.developer_app_insights_application_id = app_insights_app_id if app_insights_app_id \

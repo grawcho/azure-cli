@@ -32,6 +32,10 @@ def cf_connection_monitor(cli_ctx, _):
     return network_client_factory(cli_ctx).connection_monitors
 
 
+def cf_flow_logs(cli_ctx, _):
+    return network_client_factory(cli_ctx).flow_logs
+
+
 def cf_ddos_protection_plans(cli_ctx, _):
     return network_client_factory(cli_ctx).ddos_protection_plans
 
@@ -46,6 +50,10 @@ def cf_express_route_circuit_authorizations(cli_ctx, _):
 
 def cf_express_route_circuit_connections(cli_ctx, _):
     return network_client_factory(cli_ctx).express_route_circuit_connections
+
+
+def cf_peer_express_route_circuit_connections(cli_ctx, _):
+    return network_client_factory(cli_ctx).peer_express_route_circuit_connections
 
 
 def cf_express_route_circuit_peerings(cli_ctx, _):
@@ -84,8 +92,24 @@ def cf_private_endpoints(cli_ctx, _):
     return network_client_factory(cli_ctx).private_endpoints
 
 
+def cf_private_dns_zone_groups(cli_ctx, _):
+    return network_client_factory(cli_ctx).private_dns_zone_groups
+
+
+def cf_private_endpoint_types(cli_ctx, _):
+    return network_client_factory(cli_ctx).available_private_endpoint_types
+
+
+def cf_private_link_services(cli_ctx, _):
+    return network_client_factory(cli_ctx).private_link_services
+
+
 def cf_load_balancers(cli_ctx, _):
     return network_client_factory(cli_ctx).load_balancers
+
+
+def cf_load_balancer_backend_pools(cli_ctx, _):
+    return network_client_factory(cli_ctx).load_balancer_backend_address_pools
 
 
 def cf_local_network_gateways(cli_ctx, _):
@@ -172,6 +196,10 @@ def cf_virtual_network_peerings(cli_ctx, _):
     return network_client_factory(cli_ctx).virtual_network_peerings
 
 
+def cf_service_aliases(cli_ctx, _):
+    return network_client_factory(cli_ctx).available_service_aliases
+
+
 def cf_traffic_manager_mgmt_profiles(cli_ctx, _):
     from azure.mgmt.trafficmanager import TrafficManagerManagementClient
     from azure.cli.core.commands.client_factory import get_mgmt_service_client
@@ -218,3 +246,31 @@ def cf_route_filter_rules(cli_ctx, _):
 
 def cf_service_community(cli_ctx, _):
     return network_client_factory(cli_ctx).bgp_service_communities
+
+
+def cf_virtual_router(cli_ctx, _):
+    return network_client_factory(cli_ctx).virtual_routers
+
+
+def cf_virtual_router_peering(cli_ctx, _):
+    return network_client_factory(cli_ctx).virtual_router_peerings
+
+
+def cf_bastion_hosts(cli_ctx, _):
+    return network_client_factory(cli_ctx).bastion_hosts
+
+
+def cf_security_partner_providers(cli_ctx, _):
+    return network_client_factory(cli_ctx).security_partner_providers
+
+
+def cf_network_virtual_appliances(cli_ctx, _):
+    return network_client_factory(cli_ctx).network_virtual_appliances
+
+
+def cf_virtual_appliance_skus(cli_ctx, _):
+    return network_client_factory(cli_ctx).virtual_appliance_skus
+
+
+def cf_virtual_appliance_sites(cli_ctx, _):
+    return network_client_factory(cli_ctx).virtual_appliance_sites

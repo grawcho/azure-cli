@@ -1,55 +1,5 @@
 interactions:
 - request:
-    body: '{"location": "westus", "tags": {"product": "azurecli", "cause": "automation",
-      "date": "2019-05-30T17:47:53Z"}}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - group create
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '110'
-      Content-Type:
-      - application/json; charset=utf-8
-      ParameterSetName:
-      - --location --name --tag
-      User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
-      accept-language:
-      - en-US
-    method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001?api-version=2018-05-01
-  response:
-    body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001","name":"cli_test_ag_public_ip000001","location":"westus","tags":{"product":"azurecli","cause":"automation","date":"2019-05-30T17:47:53Z"},"properties":{"provisioningState":"Succeeded"}}'
-    headers:
-      cache-control:
-      - no-cache
-      content-length:
-      - '384'
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Thu, 30 May 2019 17:47:54 GMT
-      expires:
-      - '-1'
-      pragma:
-      - no-cache
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains
-      x-content-type-options:
-      - nosniff
-      x-ms-ratelimit-remaining-subscription-writes:
-      - '1199'
-    status:
-      code: 201
-      message: Created
-- request:
     body: null
     headers:
       Accept:
@@ -63,24 +13,24 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
       accept-language:
       - en-US
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001?api-version=2020-06-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001","name":"cli_test_ag_public_ip000001","location":"westus","tags":{"product":"azurecli","cause":"automation","date":"2019-05-30T17:47:53Z"},"properties":{"provisioningState":"Succeeded"}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001","name":"cli_test_ag_public_ip000001","type":"Microsoft.Resources/resourceGroups","location":"westus","tags":{"product":"azurecli","cause":"automation","date":"2020-07-14T12:18:50Z"},"properties":{"provisioningState":"Succeeded"}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '384'
+      - '428'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:47:55 GMT
+      - Tue, 14 Jul 2020 12:18:52 GMT
       expires:
       - '-1'
       pragma:
@@ -108,12 +58,12 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
       accept-language:
       - en-US
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resources?$filter=resourceGroup%20eq%20%27cli_test_ag_public_ip000001%27%20and%20name%20eq%20%27vnet4%27%20and%20resourceType%20eq%20%27Microsoft.Network%2FvirtualNetworks%27&api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resources?$filter=resourceGroup%20eq%20%27cli_test_ag_public_ip000001%27%20and%20name%20eq%20%27vnet4%27%20and%20resourceType%20eq%20%27Microsoft.Network%2FvirtualNetworks%27&api-version=2020-06-01
   response:
     body:
       string: '{"value":[]}'
@@ -125,7 +75,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:47:55 GMT
+      - Tue, 14 Jul 2020 12:18:52 GMT
       expires:
       - '-1'
       pragma:
@@ -153,12 +103,12 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
       accept-language:
       - en-US
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resources?$filter=resourceGroup%20eq%20%27cli_test_ag_public_ip000001%27%20and%20name%20eq%20%27publicip4%27%20and%20resourceType%20eq%20%27Microsoft.Network%2FpublicIPAddresses%27&api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resources?$filter=resourceGroup%20eq%20%27cli_test_ag_public_ip000001%27%20and%20name%20eq%20%27publicip4%27%20and%20resourceType%20eq%20%27Microsoft.Network%2FpublicIPAddresses%27&api-version=2020-06-01
   response:
     body:
       string: '{"value":[]}'
@@ -170,7 +120,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:47:56 GMT
+      - Tue, 14 Jul 2020 12:18:52 GMT
       expires:
       - '-1'
       pragma:
@@ -191,10 +141,10 @@ interactions:
       "location": "westus", "apiVersion": "2015-06-15", "dependsOn": [], "tags": {},
       "properties": {"addressSpace": {"addressPrefixes": ["10.0.0.1/16"]}, "subnets":
       [{"name": "subnet1", "properties": {"addressPrefix": "10.0.0.1/28"}}]}}, {"apiVersion":
-      "2019-04-01", "type": "Microsoft.Network/publicIPAddresses", "name": "publicip4",
+      "2020-05-01", "type": "Microsoft.Network/publicIPAddresses", "name": "publicip4",
       "location": "westus", "tags": {}, "dependsOn": [], "properties": {"publicIPAllocationMethod":
       "Dynamic"}}, {"type": "Microsoft.Network/applicationGateways", "name": "test4",
-      "location": "westus", "tags": {}, "apiVersion": "2019-04-01", "dependsOn": ["Microsoft.Network/virtualNetworks/vnet4",
+      "location": "westus", "tags": {}, "apiVersion": "2020-05-01", "dependsOn": ["Microsoft.Network/virtualNetworks/vnet4",
       "Microsoft.Network/publicIpAddresses/publicip4"], "properties": {"backendAddressPools":
       [{"name": "appGatewayBackendPool"}], "backendHttpSettingsCollection": [{"name":
       "appGatewayBackendHttpSettings", "properties": {"Port": 80, "Protocol": "Http",
@@ -212,9 +162,10 @@ interactions:
       "properties": {"RuleType": "Basic", "httpListener": {"id": "[concat(variables(\''appGwID\''),
       \''/httpListeners/appGatewayHttpListener\'')]"}, "backendAddressPool": {"id":
       "[concat(variables(\''appGwID\''), \''/backendAddressPools/appGatewayBackendPool\'')]"},
-      "backendHttpSettings": {"id": "[concat(variables(\''appGwID\''), \''/backendHttpSettingsCollection/appGatewayBackendHttpSettings\'')]"}}}]},
-      "zones": null}], "outputs": {"applicationGateway": {"type": "object", "value":
-      "[reference(\''test4\'')]"}}}, "parameters": {}, "mode": "Incremental"}}'''
+      "backendHttpSettings": {"id": "[concat(variables(\''appGwID\''), \''/backendHttpSettingsCollection/appGatewayBackendHttpSettings\'')]"}}}],
+      "privateLinkConfigurations": []}, "zones": null}], "outputs": {"applicationGateway":
+      {"type": "object", "value": "[reference(\''test4\'')]"}}}, "parameters": {},
+      "mode": "Incremental"}}'''
     headers:
       Accept:
       - application/json
@@ -225,32 +176,32 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '2985'
+      - '3018'
       Content-Type:
       - application/json; charset=utf-8
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
       accept-language:
       - en-US
     method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment?api-version=2020-06-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/ag_deploy_jJ2AndYklg9O5JckxLsQ3boEj9O7Az59","name":"ag_deploy_jJ2AndYklg9O5JckxLsQ3boEj9O7Az59","properties":{"templateHash":"13122417023455684931","parameters":{},"mode":"Incremental","provisioningState":"Accepted","timestamp":"2019-05-30T17:47:57.7807902Z","duration":"PT0.2054973S","correlationId":"250475e5-05f0-409d-828f-ab1d8babdde3","providers":[{"namespace":"Microsoft.Network","resourceTypes":[{"resourceType":"virtualNetworks","locations":["westus"]},{"resourceType":"publicIPAddresses","locations":["westus"]},{"resourceType":"applicationGateways","locations":["westus"]}]}],"dependencies":[{"dependsOn":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/virtualNetworks/vnet4","resourceType":"Microsoft.Network/virtualNetworks","resourceName":"vnet4"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/publicIPAddresses/publicip4","resourceType":"Microsoft.Network/publicIPAddresses","resourceName":"publicip4"}],"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4","resourceType":"Microsoft.Network/applicationGateways","resourceName":"test4"}]}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/ag_deploy_BsrXLgQtMTc0mIQkXZW7JmMgQcENEHbq","name":"ag_deploy_BsrXLgQtMTc0mIQkXZW7JmMgQcENEHbq","type":"Microsoft.Resources/deployments","properties":{"templateHash":"3293534918111865698","parameters":{},"mode":"Incremental","provisioningState":"Accepted","timestamp":"2020-07-14T12:18:58.2283207Z","duration":"PT3.2298101S","correlationId":"34a97160-d2b1-40c3-8e57-8fd443998fac","providers":[{"namespace":"Microsoft.Network","resourceTypes":[{"resourceType":"virtualNetworks","locations":["westus"]},{"resourceType":"publicIPAddresses","locations":["westus"]},{"resourceType":"applicationGateways","locations":["westus"]}]}],"dependencies":[{"dependsOn":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/virtualNetworks/vnet4","resourceType":"Microsoft.Network/virtualNetworks","resourceName":"vnet4"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/publicIPAddresses/publicip4","resourceType":"Microsoft.Network/publicIPAddresses","resourceName":"publicip4"}],"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4","resourceType":"Microsoft.Network/applicationGateways","resourceName":"test4"}]}}'
     headers:
       azure-asyncoperation:
-      - https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/ag_deploy_jJ2AndYklg9O5JckxLsQ3boEj9O7Az59/operationStatuses/08586423684079023343?api-version=2018-05-01
+      - https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/ag_deploy_BsrXLgQtMTc0mIQkXZW7JmMgQcENEHbq/operationStatuses/08586068777504791140?api-version=2020-06-01
       cache-control:
       - no-cache
       content-length:
-      - '1658'
+      - '1698'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:47:57 GMT
+      - Tue, 14 Jul 2020 12:18:59 GMT
       expires:
       - '-1'
       pragma:
@@ -260,7 +211,7 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-ratelimit-remaining-subscription-writes:
-      - '1199'
+      - '1179'
     status:
       code: 201
       message: Created
@@ -278,10 +229,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -293,7 +244,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:48:27 GMT
+      - Tue, 14 Jul 2020 12:19:30 GMT
       expires:
       - '-1'
       pragma:
@@ -321,10 +272,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -336,7 +287,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:48:57 GMT
+      - Tue, 14 Jul 2020 12:20:00 GMT
       expires:
       - '-1'
       pragma:
@@ -364,10 +315,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -379,7 +330,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:49:28 GMT
+      - Tue, 14 Jul 2020 12:20:31 GMT
       expires:
       - '-1'
       pragma:
@@ -407,10 +358,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -422,7 +373,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:49:58 GMT
+      - Tue, 14 Jul 2020 12:21:01 GMT
       expires:
       - '-1'
       pragma:
@@ -450,10 +401,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -465,7 +416,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:50:28 GMT
+      - Tue, 14 Jul 2020 12:21:32 GMT
       expires:
       - '-1'
       pragma:
@@ -493,10 +444,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -508,7 +459,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:50:59 GMT
+      - Tue, 14 Jul 2020 12:22:03 GMT
       expires:
       - '-1'
       pragma:
@@ -536,10 +487,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -551,7 +502,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:51:29 GMT
+      - Tue, 14 Jul 2020 12:22:33 GMT
       expires:
       - '-1'
       pragma:
@@ -579,10 +530,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -594,7 +545,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:51:59 GMT
+      - Tue, 14 Jul 2020 12:23:04 GMT
       expires:
       - '-1'
       pragma:
@@ -622,10 +573,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -637,7 +588,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:52:30 GMT
+      - Tue, 14 Jul 2020 12:23:34 GMT
       expires:
       - '-1'
       pragma:
@@ -665,10 +616,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -680,7 +631,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:53:00 GMT
+      - Tue, 14 Jul 2020 12:24:05 GMT
       expires:
       - '-1'
       pragma:
@@ -708,10 +659,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -723,7 +674,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:53:31 GMT
+      - Tue, 14 Jul 2020 12:24:35 GMT
       expires:
       - '-1'
       pragma:
@@ -751,10 +702,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -766,7 +717,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:54:01 GMT
+      - Tue, 14 Jul 2020 12:25:06 GMT
       expires:
       - '-1'
       pragma:
@@ -794,10 +745,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -809,7 +760,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:54:31 GMT
+      - Tue, 14 Jul 2020 12:25:36 GMT
       expires:
       - '-1'
       pragma:
@@ -837,10 +788,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -852,7 +803,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:55:02 GMT
+      - Tue, 14 Jul 2020 12:26:07 GMT
       expires:
       - '-1'
       pragma:
@@ -880,10 +831,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -895,7 +846,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:55:33 GMT
+      - Tue, 14 Jul 2020 12:26:37 GMT
       expires:
       - '-1'
       pragma:
@@ -923,10 +874,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -938,7 +889,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:56:03 GMT
+      - Tue, 14 Jul 2020 12:27:07 GMT
       expires:
       - '-1'
       pragma:
@@ -966,10 +917,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -981,7 +932,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:56:33 GMT
+      - Tue, 14 Jul 2020 12:27:38 GMT
       expires:
       - '-1'
       pragma:
@@ -1009,10 +960,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -1024,7 +975,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:57:03 GMT
+      - Tue, 14 Jul 2020 12:28:08 GMT
       expires:
       - '-1'
       pragma:
@@ -1052,10 +1003,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -1067,7 +1018,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:57:34 GMT
+      - Tue, 14 Jul 2020 12:28:38 GMT
       expires:
       - '-1'
       pragma:
@@ -1095,10 +1046,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -1110,7 +1061,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:58:04 GMT
+      - Tue, 14 Jul 2020 12:29:09 GMT
       expires:
       - '-1'
       pragma:
@@ -1138,10 +1089,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -1153,7 +1104,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:58:35 GMT
+      - Tue, 14 Jul 2020 12:29:39 GMT
       expires:
       - '-1'
       pragma:
@@ -1181,10 +1132,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -1196,7 +1147,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:59:06 GMT
+      - Tue, 14 Jul 2020 12:30:10 GMT
       expires:
       - '-1'
       pragma:
@@ -1224,10 +1175,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -1239,7 +1190,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 17:59:36 GMT
+      - Tue, 14 Jul 2020 12:30:40 GMT
       expires:
       - '-1'
       pragma:
@@ -1267,10 +1218,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -1282,7 +1233,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 18:00:07 GMT
+      - Tue, 14 Jul 2020 12:31:11 GMT
       expires:
       - '-1'
       pragma:
@@ -1310,10 +1261,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -1325,7 +1276,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 18:00:37 GMT
+      - Tue, 14 Jul 2020 12:31:42 GMT
       expires:
       - '-1'
       pragma:
@@ -1353,10 +1304,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -1368,7 +1319,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 18:01:08 GMT
+      - Tue, 14 Jul 2020 12:32:12 GMT
       expires:
       - '-1'
       pragma:
@@ -1396,10 +1347,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -1411,7 +1362,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 18:01:39 GMT
+      - Tue, 14 Jul 2020 12:32:43 GMT
       expires:
       - '-1'
       pragma:
@@ -1439,10 +1390,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -1454,7 +1405,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 18:02:09 GMT
+      - Tue, 14 Jul 2020 12:33:13 GMT
       expires:
       - '-1'
       pragma:
@@ -1482,10 +1433,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Running"}'
@@ -1497,7 +1448,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 18:02:39 GMT
+      - Tue, 14 Jul 2020 12:33:44 GMT
       expires:
       - '-1'
       pragma:
@@ -1525,53 +1476,10 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
-  response:
-    body:
-      string: '{"status":"Running"}'
-    headers:
-      cache-control:
-      - no-cache
-      content-length:
-      - '20'
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Thu, 30 May 2019 18:03:09 GMT
-      expires:
-      - '-1'
-      pragma:
-      - no-cache
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains
-      vary:
-      - Accept-Encoding
-      x-content-type-options:
-      - nosniff
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - network application-gateway create
-      Connection:
-      - keep-alive
-      ParameterSetName:
-      - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
-      User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
-    method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586423684079023343?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment/operationStatuses/08586068777504791140?api-version=2020-06-01
   response:
     body:
       string: '{"status":"Succeeded"}'
@@ -1583,7 +1491,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 18:03:40 GMT
+      - Tue, 14 Jul 2020 12:34:14 GMT
       expires:
       - '-1'
       pragma:
@@ -1611,22 +1519,22 @@ interactions:
       ParameterSetName:
       - -g -n --subnet --vnet-name --vnet-address-prefix --subnet-address-prefix --public-ip-address
       User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.0
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/mock-deployment?api-version=2020-06-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/ag_deploy_jJ2AndYklg9O5JckxLsQ3boEj9O7Az59","name":"ag_deploy_jJ2AndYklg9O5JckxLsQ3boEj9O7Az59","properties":{"templateHash":"13122417023455684931","parameters":{},"mode":"Incremental","provisioningState":"Succeeded","timestamp":"2019-05-30T18:03:31.5315492Z","duration":"PT15M33.9562563S","correlationId":"250475e5-05f0-409d-828f-ab1d8babdde3","providers":[{"namespace":"Microsoft.Network","resourceTypes":[{"resourceType":"virtualNetworks","locations":["westus"]},{"resourceType":"publicIPAddresses","locations":["westus"]},{"resourceType":"applicationGateways","locations":["westus"]}]}],"dependencies":[{"dependsOn":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/virtualNetworks/vnet4","resourceType":"Microsoft.Network/virtualNetworks","resourceName":"vnet4"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/publicIPAddresses/publicip4","resourceType":"Microsoft.Network/publicIPAddresses","resourceName":"publicip4"}],"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4","resourceType":"Microsoft.Network/applicationGateways","resourceName":"test4"}],"outputs":{"applicationGateway":{"type":"Object","value":{"provisioningState":"Succeeded","resourceGuid":"4affda79-3451-450f-80bd-02052d9c2262","sku":{"name":"Standard_Medium","tier":"Standard","capacity":2},"operationalState":"Running","gatewayIPConfigurations":[{"name":"appGatewayFrontendIP","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/gatewayIPConfigurations/appGatewayFrontendIP","etag":"W/\"7c21435e-e5be-4613-a856-ea010f7f4734\"","properties":{"provisioningState":"Succeeded","subnet":{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/virtualNetworks/vnet4/subnets/subnet1"}},"type":"Microsoft.Network/applicationGateways/gatewayIPConfigurations"}],"sslCertificates":[],"authenticationCertificates":[],"frontendIPConfigurations":[{"name":"appGatewayFrontendIP","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/frontendIPConfigurations/appGatewayFrontendIP","etag":"W/\"7c21435e-e5be-4613-a856-ea010f7f4734\"","type":"Microsoft.Network/applicationGateways/frontendIPConfigurations","properties":{"provisioningState":"Succeeded","privateIPAllocationMethod":"Dynamic","publicIPAddress":{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/publicIPAddresses/publicip4"},"httpListeners":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/httpListeners/appGatewayHttpListener"}]}}],"frontendPorts":[{"name":"appGatewayFrontendPort","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/frontendPorts/appGatewayFrontendPort","etag":"W/\"7c21435e-e5be-4613-a856-ea010f7f4734\"","properties":{"provisioningState":"Succeeded","port":80,"httpListeners":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/httpListeners/appGatewayHttpListener"}]},"type":"Microsoft.Network/applicationGateways/frontendPorts"}],"backendAddressPools":[{"name":"appGatewayBackendPool","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/backendAddressPools/appGatewayBackendPool","etag":"W/\"7c21435e-e5be-4613-a856-ea010f7f4734\"","properties":{"provisioningState":"Succeeded","backendAddresses":[],"requestRoutingRules":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/requestRoutingRules/rule1"}]},"type":"Microsoft.Network/applicationGateways/backendAddressPools"}],"backendHttpSettingsCollection":[{"name":"appGatewayBackendHttpSettings","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/backendHttpSettingsCollection/appGatewayBackendHttpSettings","etag":"W/\"7c21435e-e5be-4613-a856-ea010f7f4734\"","properties":{"provisioningState":"Succeeded","port":80,"protocol":"Http","cookieBasedAffinity":"Disabled","connectionDraining":{"enabled":false,"drainTimeoutInSec":1},"pickHostNameFromBackendAddress":false,"requestTimeout":30,"requestRoutingRules":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/requestRoutingRules/rule1"}]},"type":"Microsoft.Network/applicationGateways/backendHttpSettingsCollection"}],"httpListeners":[{"name":"appGatewayHttpListener","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/httpListeners/appGatewayHttpListener","etag":"W/\"7c21435e-e5be-4613-a856-ea010f7f4734\"","properties":{"provisioningState":"Succeeded","frontendIPConfiguration":{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/frontendIPConfigurations/appGatewayFrontendIP"},"frontendPort":{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/frontendPorts/appGatewayFrontendPort"},"protocol":"Http","requireServerNameIndication":false,"requestRoutingRules":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/requestRoutingRules/rule1"}]},"type":"Microsoft.Network/applicationGateways/httpListeners"}],"urlPathMaps":[],"requestRoutingRules":[{"name":"rule1","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/requestRoutingRules/rule1","etag":"W/\"7c21435e-e5be-4613-a856-ea010f7f4734\"","properties":{"provisioningState":"Succeeded","ruleType":"Basic","httpListener":{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/httpListeners/appGatewayHttpListener"},"backendAddressPool":{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/backendAddressPools/appGatewayBackendPool"},"backendHttpSettings":{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/backendHttpSettingsCollection/appGatewayBackendHttpSettings"}},"type":"Microsoft.Network/applicationGateways/requestRoutingRules"}],"probes":[],"rewriteRuleSets":[],"redirectConfigurations":[]}}},"outputResources":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/publicIPAddresses/publicip4"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/virtualNetworks/vnet4"}]}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Resources/deployments/ag_deploy_BsrXLgQtMTc0mIQkXZW7JmMgQcENEHbq","name":"ag_deploy_BsrXLgQtMTc0mIQkXZW7JmMgQcENEHbq","type":"Microsoft.Resources/deployments","properties":{"templateHash":"3293534918111865698","parameters":{},"mode":"Incremental","provisioningState":"Succeeded","timestamp":"2020-07-14T12:34:07.6239778Z","duration":"PT15M12.6254672S","correlationId":"34a97160-d2b1-40c3-8e57-8fd443998fac","providers":[{"namespace":"Microsoft.Network","resourceTypes":[{"resourceType":"virtualNetworks","locations":["westus"]},{"resourceType":"publicIPAddresses","locations":["westus"]},{"resourceType":"applicationGateways","locations":["westus"]}]}],"dependencies":[{"dependsOn":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/virtualNetworks/vnet4","resourceType":"Microsoft.Network/virtualNetworks","resourceName":"vnet4"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/publicIPAddresses/publicip4","resourceType":"Microsoft.Network/publicIPAddresses","resourceName":"publicip4"}],"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4","resourceType":"Microsoft.Network/applicationGateways","resourceName":"test4"}],"outputs":{"applicationGateway":{"type":"Object","value":{"provisioningState":"Succeeded","resourceGuid":"ac432ffe-c44d-434b-a420-d7553dcaeb20","sku":{"name":"Standard_Medium","tier":"Standard","capacity":2},"operationalState":"Running","gatewayIPConfigurations":[{"name":"appGatewayFrontendIP","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/gatewayIPConfigurations/appGatewayFrontendIP","etag":"W/\"3e912bb9-5eb9-4fdf-a1e0-5594f288920d\"","properties":{"provisioningState":"Succeeded","subnet":{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/virtualNetworks/vnet4/subnets/subnet1"}},"type":"Microsoft.Network/applicationGateways/gatewayIPConfigurations"}],"sslCertificates":[],"authenticationCertificates":[],"frontendIPConfigurations":[{"name":"appGatewayFrontendIP","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/frontendIPConfigurations/appGatewayFrontendIP","etag":"W/\"3e912bb9-5eb9-4fdf-a1e0-5594f288920d\"","type":"Microsoft.Network/applicationGateways/frontendIPConfigurations","properties":{"provisioningState":"Succeeded","privateIPAllocationMethod":"Dynamic","publicIPAddress":{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/publicIPAddresses/publicip4"},"httpListeners":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/httpListeners/appGatewayHttpListener"}]}}],"frontendPorts":[{"name":"appGatewayFrontendPort","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/frontendPorts/appGatewayFrontendPort","etag":"W/\"3e912bb9-5eb9-4fdf-a1e0-5594f288920d\"","properties":{"provisioningState":"Succeeded","port":80,"httpListeners":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/httpListeners/appGatewayHttpListener"}]},"type":"Microsoft.Network/applicationGateways/frontendPorts"}],"backendAddressPools":[{"name":"appGatewayBackendPool","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/backendAddressPools/appGatewayBackendPool","etag":"W/\"3e912bb9-5eb9-4fdf-a1e0-5594f288920d\"","properties":{"provisioningState":"Succeeded","backendAddresses":[],"requestRoutingRules":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/requestRoutingRules/rule1"}]},"type":"Microsoft.Network/applicationGateways/backendAddressPools"}],"backendHttpSettingsCollection":[{"name":"appGatewayBackendHttpSettings","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/backendHttpSettingsCollection/appGatewayBackendHttpSettings","etag":"W/\"3e912bb9-5eb9-4fdf-a1e0-5594f288920d\"","properties":{"provisioningState":"Succeeded","port":80,"protocol":"Http","cookieBasedAffinity":"Disabled","connectionDraining":{"enabled":false,"drainTimeoutInSec":1},"pickHostNameFromBackendAddress":false,"requestTimeout":30,"requestRoutingRules":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/requestRoutingRules/rule1"}]},"type":"Microsoft.Network/applicationGateways/backendHttpSettingsCollection"}],"httpListeners":[{"name":"appGatewayHttpListener","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/httpListeners/appGatewayHttpListener","etag":"W/\"3e912bb9-5eb9-4fdf-a1e0-5594f288920d\"","properties":{"provisioningState":"Succeeded","frontendIPConfiguration":{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/frontendIPConfigurations/appGatewayFrontendIP"},"frontendPort":{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/frontendPorts/appGatewayFrontendPort"},"protocol":"Http","hostNames":[],"requireServerNameIndication":false,"requestRoutingRules":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/requestRoutingRules/rule1"}]},"type":"Microsoft.Network/applicationGateways/httpListeners"}],"urlPathMaps":[],"requestRoutingRules":[{"name":"rule1","id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/requestRoutingRules/rule1","etag":"W/\"3e912bb9-5eb9-4fdf-a1e0-5594f288920d\"","properties":{"provisioningState":"Succeeded","ruleType":"Basic","httpListener":{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/httpListeners/appGatewayHttpListener"},"backendAddressPool":{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/backendAddressPools/appGatewayBackendPool"},"backendHttpSettings":{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4/backendHttpSettingsCollection/appGatewayBackendHttpSettings"}},"type":"Microsoft.Network/applicationGateways/requestRoutingRules"}],"probes":[],"rewriteRuleSets":[],"redirectConfigurations":[]}}},"outputResources":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/applicationGateways/test4"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/publicIPAddresses/publicip4"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_ag_public_ip000001/providers/Microsoft.Network/virtualNetworks/vnet4"}]}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '9376'
+      - '9431'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 30 May 2019 18:03:40 GMT
+      - Tue, 14 Jul 2020 12:34:15 GMT
       expires:
       - '-1'
       pragma:
@@ -1640,51 +1548,4 @@ interactions:
     status:
       code: 200
       message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - group delete
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '0'
-      ParameterSetName:
-      - --name --yes --no-wait
-      User-Agent:
-      - python/3.7.3 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.65
-      accept-language:
-      - en-US
-    method: DELETE
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_ag_public_ip000001?api-version=2018-05-01
-  response:
-    body:
-      string: ''
-    headers:
-      cache-control:
-      - no-cache
-      content-length:
-      - '0'
-      date:
-      - Thu, 30 May 2019 18:03:42 GMT
-      expires:
-      - '-1'
-      location:
-      - https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/operationresults/eyJqb2JJZCI6IlJFU09VUkNFR1JPVVBERUxFVElPTkpPQi1DTEk6NUZURVNUOjVGQUc6NUZQVUJMSUM6NUZJUFFPVE40TTNHNlU2TlZYQllMRHw0MkU0QUU2Q0IxRkU1NjFBLVdFU1RVUyIsImpvYkxvY2F0aW9uIjoid2VzdHVzIn0?api-version=2018-05-01
-      pragma:
-      - no-cache
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains
-      x-content-type-options:
-      - nosniff
-      x-ms-ratelimit-remaining-subscription-deletes:
-      - '14998'
-    status:
-      code: 202
-      message: Accepted
 version: 1

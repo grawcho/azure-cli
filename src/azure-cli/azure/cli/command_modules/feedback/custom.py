@@ -22,8 +22,9 @@ from knack.prompting import prompt, NoTTYException
 from knack.util import CLIError
 
 from azure.cli.core.extension._resolve import resolve_project_url_from_index, NoExtensionCandidatesError
-from azure.cli.core.util import get_az_version_string, open_page_in_browser
+from azure.cli.core.util import get_az_version_string, open_page_in_browser, can_launch_browser, in_cloud_console
 from azure.cli.core.azlogging import _UNKNOWN_COMMAND, _CMD_LOG_LINE_PREFIX
+from azure.cli.core.commands.constants import SURVEY_PROMPT
 
 _ONE_MIN_IN_SECS = 60
 
@@ -50,7 +51,8 @@ _MSG_INTR = \
     '\nWe appreciate your feedback!\n\n' \
     'For more information on getting started, visit: {}\n' \
     'If you have questions, visit our Stack Overflow page: {}\n'\
-    .format(_GET_STARTED_URL, _QUESTIONS_URL)
+    '{}\n'\
+    .format(_GET_STARTED_URL, _QUESTIONS_URL, SURVEY_PROMPT)
 
 _MSG_CMD_ISSUE = "\nEnter the number of the command you would like to create an issue for. Enter q to quit: "
 
@@ -60,8 +62,8 @@ _ISSUES_TEMPLATE_PREFIX = """
 
 BEGIN TEMPLATE
 ===============
-**A browser has been opened to {} to create an issue.**
-**You can also run `az feedback --verbose` to emit the full output to stderr.**
+**If possible, a browser will be opened to {} to create an issue.**
+**You can also run `az feedback --verbose` to emit the full issue draft to stderr.**
 **Azure CLI repo: {}**
 **Azure CLI Extensions repo: {}**
 """
@@ -90,7 +92,7 @@ Steps to reproduce the behavior. Note that argument values have been redacted, a
 ```
 {platform}
 {python_info}
-{shell}
+{installer}
 
 {cli_version}
 ```
@@ -106,7 +108,7 @@ _AUTO_GEN_COMMENT = "<!--auto-generated-->"
 _LogMetadataType = namedtuple('LogMetadata', ['cmd', 'seconds_ago', 'file_path', 'p_id'])
 
 
-class CommandLogFile(object):
+class CommandLogFile:
     _LogRecordType = namedtuple("LogRecord", ["p_id", "date_time", "level", "logger", "log_msg"])
     UNKNOWN_CMD = "Unknown"
 
@@ -347,7 +349,7 @@ class CommandLogFile(object):
         return CommandLogFile._LogRecordType(*parts)
 
 
-class ErrorMinifier(object):
+class ErrorMinifier:
 
     _FILE_RE = re.compile(r'File "(.*)"')
     _CONTINUATION_STR = "...\n"
@@ -482,18 +484,6 @@ class ErrorMinifier(object):
 
 
 def _build_issue_info_tup(command_log_file=None):
-    def _get_parent_proc_name():
-        import psutil
-        parent = psutil.Process(os.getpid()).parent()
-        if parent:
-            #  powershell.exe launches cmd.exe to launch the cli.
-            grandparent = parent.parent()
-            if grandparent and grandparent.name().lower().startswith("powershell"):
-                return grandparent.name()
-            # if powershell is not the grandparent, simply return the parent's name.
-            return parent.name()
-        return None
-
     format_dict = {"command_name": "", "errors_string": "",
                    "executed_command": ""}
 
@@ -523,9 +513,11 @@ def _build_issue_info_tup(command_log_file=None):
     # Get other system information
     format_dict["cli_version"] = _get_az_version_summary()
     format_dict["python_info"] = "Python {}".format(platform.python_version())
-    format_dict["platform"] = "{}".format(platform.platform())
-    format_dict["shell"] = "Shell: {}".format(_get_parent_proc_name())
+    platform_info = "{} (Cloud Shell)".format(platform.platform()) if in_cloud_console() else platform.platform()
+    format_dict["platform"] = platform_info
     format_dict["auto_gen_comment"] = _AUTO_GEN_COMMENT
+    from azure.cli.core._environment import _ENV_AZ_INSTALLER
+    format_dict["installer"] = "Installer: {}".format(os.getenv(_ENV_AZ_INSTALLER) or '')
 
     pretty_url_name = _get_extension_repo_url(ext_name) if is_ext else _CLI_ISSUES_URL
 
@@ -750,7 +742,12 @@ def _prompt_issue(recent_command_list):
     print(prefix)
 
     logger.info(original_issue)
-    open_page_in_browser(url)
+    # if we are not in cloud shell and can launch a browser, launch it with the issue draft
+    if can_launch_browser() and not in_cloud_console():
+        open_page_in_browser(url)
+    else:
+        print("There isn't an available browser to create an issue draft. You can copy and paste the url"
+              " below in a browser to submit.\n\n{}\n\n".format(url))
 
     return True
 
@@ -763,6 +760,8 @@ def handle_feedback(cmd):
 
         if res:
             print(_MSG_THNK)
+            from azure.cli.core.util import show_updates_available
+            show_updates_available(new_line_before=True)
         return
     except NoTTYException:
         raise CLIError('This command is interactive, however no tty is available.')

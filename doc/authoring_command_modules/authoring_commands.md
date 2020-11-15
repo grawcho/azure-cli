@@ -38,6 +38,8 @@ The document provides instructions and guidelines on how to author individual co
 
 [17. Multi-API Aware Modules](#multi-api-aware-modules)
 
+[18. Preview Commands and Arguments](#preview-commands-and-arguments)
+
 Authoring Commands
 =============================
 
@@ -50,21 +52,30 @@ class MyCommandsLoader(AzCommandsLoader):
 
     def __init__(self, cli_ctx=None):
         from azure.cli.core.sdk.util import CliCommandType
+        from azure.cli.core.profiles._shared import MGMT_MYTYPE
         mymod_custom = CliCommandType(operations_tmpl='azure.cli.command_modules.mymod.custom#{}')
+
         super(MyCommandsLoader, self).__init__(cli_ctx=cli_ctx,
-                                               min_profile='2017-03-10-profile',
+                                               resource_type=MGMT_MYTYPE,
                                                custom_command_type=mymod_custom)
 
     def load_command_table(self, args):
-        super(MyCommandsLoader, self).load_command_table(args)
         # TODO: Register command groups and commands here
         return self.command_table
 
     def load_arguments(self, command):
-        super(MyCommandsLoader, self).load_arguments(command)
         # TODO: Register argument contexts and arguments here
 
 COMMAND_LOADER_CLS = MyCommandsLoader
+```
+
+Note that `MGMT_MYTYPE` will need to be added to the `azure\cli\core\profiles\_shared.py` file. See [Multi-API Aware Modules](#multi-api-aware-modules)
+
+```Python
+class ResourceType(Enum):  # pylint: disable=too-few-public-methods
+    ...
+    MGMT_MYTYPE = ('azure.mgmt.mytype', 'MyTypeManagementClient')
+    ...
 ```
 
 ## Write a Command
@@ -140,15 +151,15 @@ Any kwargs that are not specified will be pulled from the `command_type` kwarg, 
 
 ***custom_command***
 
-The signature for `custom_command` is exactly the same as `command`. The only difference is that, whereas `command` uses `command_type` as the fallback for missings kwargs, `custom_command` relies on `custom_command_type`.
+The signature for `custom_command` is exactly the same as `command`. The only difference is that, whereas `command` uses `command_type` as the fallback for missing kwargs, `custom_command` relies on `custom_command_type`.
 
 ***generic_update_command***
 
-See the section on "Suppporting Generic Update"
+See the section on [Generic Update Commands](#generic-update-commands)
 
 ***wait_command***
 
-The generic wait command provides a templated solution for polling Azure resources until specific conditions are met.
+The generic wait command provides a template solution for polling Azure resources until specific conditions are met.
 
 ```Python
 wait_command(self, name, getter_name='get', **kwargs)
@@ -165,7 +176,7 @@ Since most wait commands rely on a simple GET call from the SDK, most of these e
 
 ***custom_wait_command***
 
-Similar to `custom_command` and `command`, the signature for `custom_wait_command` is exactly the same as `wait_command` but uses `custom_command_type` as the fallback for missings kwargs.
+Similar to `custom_command` and `command`, the signature for `custom_wait_command` is exactly the same as `wait_command` but uses `custom_command_type` as the fallback for missing kwargs.
 
 ***show_command***
 
@@ -182,7 +193,7 @@ show_command(self, name, getter_name='get', **kwargs)
 
 ***custom_show_command***
 
-Similar to `custom_command` and `command`, the signature for `custom_show_command` is exactly the same as `show_command` but uses `custom_command_type` as the fallback for missings kwargs.
+Similar to `custom_command` and `command`, the signature for `custom_show_command` is exactly the same as `show_command` but uses `custom_command_type` as the fallback for missing kwargs.
 
 **(4) Supporting --no-wait**
 
@@ -229,6 +240,31 @@ with self.command_group('mymod', mymod_sdk) as g:
     g.generic_update_command('update', supports_no_wait=True)
 ```
 
+**(5) Supporting --defer**
+
+When registering a command, the boolean `supports_local_cache` property can be used to specify that the command supports `--defer`. This will allow traditional GET and PUT requests to interact with the CLI's local object cache instead of making
+calls on the wire either for performance reasons (to avoid network latency) or because the service will only accept a payload constructed from many calls.
+
+See [Commands With Complex Types](https://github.com/Azure/azure-cli/blob/dev/doc/command_guidelines.md#commands-with-complex-types)
+
+Here are examples:
+
+***custom_command()***
+
+```Python
+# inside load_command_table(...)
+with self.command_group('mymod', mymod_sdk) as g:
+    g.custom_command('command2', 'do_something_2', supports_local_cache=True)
+
+# inside custom.py
+def do_something_2(cmd, client, arg1, arg2, no_wait=False):
+    from azure.cli.core.commands import cached_get, cached_put
+    item = cached_get(cmd, client.get, arg1, arg2)
+    # TODO: perform some mutation of item
+    return cached_put(cmd, client.create_or_update, arg1, arg2, item)
+```
+
+Cached objects are deleted upon a successful PUT and can be view and managed using the `az cache` commands.
 
 ## Write Help Entry
 
@@ -297,18 +333,6 @@ extra(self, dest, arg_type=None, **kwargs)
 ```
 Arguments are the same as `argument`, however this will create a new parameter whereas `argument` will not. This is useful when a reflected SDK method is missing a parameter that you need to expose in your command.
 
-***expand***
-```Python
-expand(self, dest, model_type, group_name=None, patches=None):
-```
-
-Often reflected SDK methods have complex parameters that are difficult to expose directly. The `expand` method offers one way to expose these methods without resorting to a custom command approach.
-
-- `dest` -  The name of the parameter that will be expanded.
-- `model_type` - The model type which will be expanded and collapsed back into the `dest` value.
-- `group_name` - The argument group to which the expand parameters will be assigned. (See arg_group kwarg)
-- `patches` - A list of patches to apply to the expanded parameters.
-
 Additional Topics
 =============================
 
@@ -324,15 +348,7 @@ From the diagram you can see that any kwargs supplied when creating the `AzComma
 
 While kwargs are inherited from higher levels on the diagram, they can be overridden at a lower level. For example, if `custom_command_type=foo` is used as a module-level kwarg in the `AzCommandLoader.__init__` method and `custom_command_type=bar` is passed for a call to `command_group`, then `bar` will be used for all calls to `custom_command` within that command group.
 
-Addtionally, you can see that kwargs registered on a command group *do not* carry over to argument contexts, so you must apply the kwargs in both places if necessary.
-
-****Commands Loader****
-
-_Special Kwargs_
-
-The following special kwargs are only interpretted by the command loader:
-- `min_profile` - Minimum profile which the module supports. If an older profile is used, the module will not be loaded.
-- `max_profile` - Maximum profile which the module supports. If a newer profile is used, the module will not be loaded.
+Additionally, you can see that kwargs registered on a command group *do not* carry over to argument contexts, so you must apply the kwargs in both places if necessary.
 
 ****Command Group****
 
@@ -343,16 +359,17 @@ The following special kwargs are supported by command group and its helper metho
 - `validator` - See section on [Validators](#validators)
 - `confirmation` - During interactive use, will prompt the user to confirm their choice to proceed. Supply a value of True to use the default prompt, or supply a string to use a custom prompt message. If the command is invoked in non-interactive scenarios and the --yes/-y parameter is not supplied, the command will fail.
 - `transform` - Accepts a callable that takes a command result, which can be manipulated as desired. The transformed result is then returned. In general, output formats should closely mirror those returned by the service, and so this should be infrequently used. The modifies the output *regardless of the output format type*.
-- `deprecate_info` - Accepts a string which will be displayed whenever the command is invoked. Used to display deprecation warnings.
+- `deprecate_info` - See [Deprecating Commands and Arguments](https://github.com/Azure/azure-cli/blob/dev/doc/authoring_command_modules/authoring_commands.md#deprecating-commands-and-arguments)
 - `formatter_class` - Advanced. Accepts a custom class that derives from `argparse.HelpFormatter` to modify the help document generation.
 - `argument_loader` - Advanced. Accepts a callable that takes no parameters which will be used in place of the default argument loader.
 - `description_loader` - Advanced. Accepts a callable that takes no parameters which will be used in place of the default description loader.
+- `is_preview` - See [Preview Commands and Arguments](https://github.com/Azure/azure-cli/blob/dev/doc/authoring_command_modules/authoring_commands.md#preview-commands-and-arguments)
 
 _General Kwargs_
 
 The following kwargs may be inherited from the command loader:
 - `min_api` - Minimum API version for which the command will appear.
-- `max_api` - Maximimum API version for which the command will appear.
+- `max_api` - Maximum API version for which the command will appear.
 - `resource_type` - An `azure.cli.core.profiles.ResourceType` enum value that is used for multi-API packages.
 - `operation_group` - Only used by the `azure-cli-vm` module to specify which resource API to target.
 - `command_group` - A `CliCommandType` object that contains a bundle of kwargs that will be used by the `command` method if not otherwise provided.
@@ -368,6 +385,7 @@ The follow special kwargs are supported by argument context and its helper metho
 - `completer` - See section on [Tab Completion](#tab-completion)
 - `id_part` - See section on [Supporting the IDs Parameter](#supporting-the-ids-parameter).
 - `arg_group` - Groups arguments within this context under a group name or add an argument to the group. This group name is shown in the help for the command. For example if `arg_group` is "Network", all applicable arguments will be grouped under the heading "Network Arguments" in the help text for the command.
+- `is_preview` - See [Preview Commands and Arguments](https://github.com/Azure/azure-cli/blob/dev/doc/authoring_command_modules/authoring_commands.md#preview-commands-and-arguments)
 
 Additionally, the following `kwargs`, supported by argparse, are supported as well:
 - `nargs` - See https://docs.python.org/3/library/argparse.html#nargs
@@ -384,7 +402,7 @@ _General Kwargs_
 
 The following kwargs may be inherited from the command loader:
 - `min_api` - Minimum API version for which the argument will appear. Otherwise the argument will be ignored.
-- `max_api` - Maximimum API version for which the argument will appear. Otherwise the argument will be ignored.
+- `max_api` - Maximum API version for which the argument will appear. Otherwise the argument will be ignored.
 - `resource_type` - An `azure.cli.core.profiles.ResourceType` enum value that is used for multi-API packages.
 - `operation_group` - Only used by the `azure-cli-vm` module to specify which resource API to target.
 
@@ -547,7 +565,7 @@ However, most commonly, the `custom_func_name` and `custom_func_type` kwargs wil
 - `getter_type` - A `CliCommandType` object which will be used to locate the getter. Only needed if the getter is a custom command (uncommon).
 - `setter_name` - The name of the method which will be used to update the object instance using a PUT method. If the method is named `create_or_update` (which is the case for most SDKs), this can be omitted.
 - `setter_type` - A `CliCommandType` object which will be used to locate the setter. Only needed if the setter is a custom command (uncommon).
-- `setter_arg_name` - The name of the argument in the setter which corresponds to the object being updated. If the name if `parameters` (which is the case for most SDKs), this can be omitted.
+- `setter_arg_name` - The name of the argument in the setter which corresponds to the object being updated. If the name is `parameters` (which is the case for most SDKs), this can be omitted.
 - `custom_func_name` (optional) - The name of a method which accepts the object being updated (must be named `instance`), mutates, and returns that object. This is commonly used to add convenience options to the command by listing them in the method signature, similar to a purely custom method. The difference is that a custom command function returns the command result while a generic update custom function returns only the object being updated. A simple custom function might look like:
 
   ```Python
@@ -762,7 +780,7 @@ class MyCommandsLoader(AzCommandsLoader):
 
 ## Deprecating Commands and Arguments
 
-The CLI has built-in support for deprecating the following: commands, command groups, arguments, option values. Deprecated items will appear with a warning in the help system or when invoked. The following keyword arugments are supported when deprecating an item:
+The CLI has built-in support for deprecating the following: commands, command groups, arguments, option values. Deprecated items will appear with a warning in the help system or when invoked. The following keyword arguments are supported when deprecating an item:
 
 - `target`: The thing being deprecated. This is often not needed as in most cases the CLI can figure out what is being deprecated.
 - `redirect`: This is the alternative that should be used in lieu of the deprecated thing. If not provided, the item is expected to be removed in the future with no replacement.
@@ -885,3 +903,48 @@ def my_test_command(cmd, ...):
 ```
 
 See earlier topics for other kwargs that can be used with multi-API idioms.
+
+## Preview Commands and Arguments
+
+The CLI has built-in support for marking commands, command groups and arguments as being in "preview" status. Preview items will appear with a warning in the help system or when invoked. Items marked preview can be changed, broken or removed at any time without following the deprecation process. 
+
+**Note that ANYTHING not marked "preview" is considered GA and thus a breaking change can only be enacted by following the deprecation mechanism (see earlier topic).**
+
+Items are marked Preview using the `is_preview=True` kwarg. See the following for examples:
+
+***Preview Command Group***
+```Python
+with self.command_group('test', test_sdk, is_preview=True) as g:
+  g.show_command('show', 'get')
+  ...
+```
+
+Additionally, since the command group is in preview then, by extension, all of the commands and arguments within it are in preview as well. No message will be displayed for implicitly in-preview arguments, but a warning will be displayed for implicitly in-preview commands.
+
+***Preview Command***
+```Python
+with self.command_group('test', test_sdk) as g:
+  g.command('show-parameters', 'get_params', is_preview=True)
+```
+
+This will declare just the command `test show-parameters` as being in preview. This command will appear with the `[Preview]` status tag when viewed in group help whereas other commands in the `test` group will not, indicating that only this command (and, by implication, its arguments) are in preview status.
+
+***Preview Argument***
+```Python
+with self.argument_context('test show-parameters') as c:
+  c.argument('cool_flag', help='Something cool new flag.', is_preview=True)
+```
+
+This will mark the argument `--cool-flag` on `test show-parameters` as being in preview, appearing with the `[Preview]` tag.
+
+***Preview Extensions***
+
+Extensions are marked as being in preview using an older mechanism in the `azext_metadata.json` file.
+
+```
+{
+    "azext.isPreview": true,
+}
+```
+
+It is recommended that, if an extension is in preview, that it also uses the above mechanisms to give the same level of visibility to in preview items.

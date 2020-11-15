@@ -8,7 +8,7 @@ from azure.cli.core.commands import CliCommandType
 from azure.cli.core.util import empty_on_404
 
 from ._client_factory import cf_web_client, cf_plans, cf_webapps
-from ._validators import validate_app_exists_in_rg
+from ._validators import validate_app_exists_in_rg, validate_app_or_slot_exists_in_rg, validate_asp_sku
 
 
 def output_slots_in_table(slots):
@@ -43,7 +43,7 @@ def ex_handler_factory(creating_plan=False):
                 if creating_plan:
                     if 'Requested features are not supported in region' in detail:
                         detail = ("Plan with linux worker is not supported in current region. For " +
-                                  "supported regions, please refer to https://docs.microsoft.com/en-us/"
+                                  "supported regions, please refer to https://docs.microsoft.com/"
                                   "azure/app-service-web/app-service-linux-intro")
                     elif 'Not enough available reserved instance servers to satisfy' in detail:
                         detail = ("Plan with Linux worker can only be created in a group " +
@@ -59,7 +59,7 @@ def ex_handler_factory(creating_plan=False):
 # pylint: disable=too-many-statements
 def load_command_table(self, _):
     webclient_sdk = CliCommandType(
-        operations_tmpl='azure.mgmt.web.web_site_management_client#WebSiteManagementClient.{}',
+        operations_tmpl='azure.mgmt.web.operations#WebSiteManagementClientOperationsMixin.{}',
         client_factory=cf_web_client
     )
     appservice_plan_sdk = CliCommandType(
@@ -70,23 +70,35 @@ def load_command_table(self, _):
         operations_tmpl='azure.mgmt.web.operations#WebAppsOperations.{}',
         client_factory=cf_webapps
     )
+
     appservice_custom = CliCommandType(operations_tmpl='azure.cli.command_modules.appservice.custom#{}')
+
+    webapp_access_restrictions = CliCommandType(operations_tmpl='azure.cli.command_modules.appservice.access_restrictions#{}')
+
+    appservice_environment = CliCommandType(operations_tmpl='azure.cli.command_modules.appservice.appservice_environment#{}')
+
+    staticsite_sdk = CliCommandType(operations_tmpl='azure.cli.command_modules.appservice.static_sites#{}')
+
+    appservice_domains = CliCommandType(operations_tmpl='azure.cli.command_modules.appservice.appservice_domains#{}')
 
     with self.command_group('webapp', webapp_sdk) as g:
         g.custom_command('create', 'create_webapp', exception_handler=ex_handler_factory())
         g.custom_command('up', 'webapp_up', exception_handler=ex_handler_factory())
         g.custom_command('ssh', 'ssh_webapp', exception_handler=ex_handler_factory(), is_preview=True)
         g.custom_command('list', 'list_webapp', table_transformer=transform_web_list_output)
-        g.custom_show_command('show', 'show_webapp', table_transformer=transform_web_output)
-        g.custom_command('delete', 'delete_webapp')
-        g.custom_command('stop', 'stop_webapp')
-        g.custom_command('start', 'start_webapp')
-        g.custom_command('restart', 'restart_webapp')
+        g.custom_show_command('show', 'show_webapp', table_transformer=transform_web_output,
+                              validator=validate_app_or_slot_exists_in_rg)
+        g.custom_command('delete', 'delete_webapp', validator=validate_app_or_slot_exists_in_rg)
+        g.custom_command('stop', 'stop_webapp', validator=validate_app_or_slot_exists_in_rg)
+        g.custom_command('start', 'start_webapp', validator=validate_app_or_slot_exists_in_rg)
+        g.custom_command('restart', 'restart_webapp', validator=validate_app_or_slot_exists_in_rg)
         g.custom_command('browse', 'view_in_browser')
-        g.custom_command('list-runtimes', 'list_runtimes')
-        g.custom_command('identity assign', 'assign_identity', validator=validate_app_exists_in_rg)
-        g.custom_show_command('identity show', 'show_identity', validator=validate_app_exists_in_rg)
-        g.custom_command('identity remove', 'remove_identity', validator=validate_app_exists_in_rg)
+        g.custom_command('list-instances', 'list_instances', validator=validate_app_or_slot_exists_in_rg)
+        # Move back to using list_runtimes function once Available Stacks API is updated (it's updated with Antares deployments)
+        g.custom_command('list-runtimes', 'list_runtimes_hardcoded')
+        g.custom_command('identity assign', 'assign_identity', validator=validate_app_or_slot_exists_in_rg)
+        g.custom_show_command('identity show', 'show_identity', validator=validate_app_or_slot_exists_in_rg)
+        g.custom_command('identity remove', 'remove_identity', validator=validate_app_or_slot_exists_in_rg)
         g.custom_command('create-remote-connection', 'create_tunnel', exception_handler=ex_handler_factory())
         g.generic_update_command('update', getter_name='get_webapp', setter_name='set_webapp', custom_func_name='update_webapp', command_type=appservice_custom)
 
@@ -98,7 +110,7 @@ def load_command_table(self, _):
     with self.command_group('webapp cors') as g:
         g.custom_command('add', 'add_cors')
         g.custom_command('remove', 'remove_cors')
-        g.custom_command('show', 'show_cors')
+        g.custom_show_command('show', 'show_cors')
 
     with self.command_group('webapp config') as g:
         g.custom_command('set', 'update_site_configs')
@@ -115,10 +127,10 @@ def load_command_table(self, _):
         g.custom_command('delete', 'delete_connection_strings')
 
     with self.command_group('webapp config storage-account') as g:
-        g.custom_command('list', 'get_azure_storage_accounts', exception_handler=empty_on_404)
-        g.custom_command('add', 'add_azure_storage_account')
-        g.custom_command('update', 'update_azure_storage_account')
-        g.custom_command('delete', 'delete_azure_storage_accounts')
+        g.custom_command('list', 'get_azure_storage_accounts', exception_handler=empty_on_404, is_preview=True)
+        g.custom_command('add', 'add_azure_storage_account', is_preview=True)
+        g.custom_command('update', 'update_azure_storage_account', is_preview=True)
+        g.custom_command('delete', 'delete_azure_storage_accounts', is_preview=True)
 
     with self.command_group('webapp config hostname') as g:
         g.custom_command('add', 'add_hostname', exception_handler=ex_handler_factory())
@@ -132,11 +144,13 @@ def load_command_table(self, _):
         g.custom_show_command('show', 'show_container_settings')
 
     with self.command_group('webapp config ssl') as g:
-        g.custom_command('upload', 'upload_ssl_cert', exception_handler=ex_handler_factory())
-        g.custom_command('list', 'list_ssl_certs')
-        g.custom_command('bind', 'bind_ssl_cert', exception_handler=ex_handler_factory())
-        g.custom_command('unbind', 'unbind_ssl_cert')
-        g.custom_command('delete', 'delete_ssl_cert')
+        g.custom_command('upload', 'upload_ssl_cert', validator=validate_app_exists_in_rg)
+        g.custom_command('list', 'list_ssl_certs', exception_handler=ex_handler_factory())
+        g.custom_command('bind', 'bind_ssl_cert', exception_handler=ex_handler_factory(), validator=validate_app_or_slot_exists_in_rg)
+        g.custom_command('unbind', 'unbind_ssl_cert', validator=validate_app_or_slot_exists_in_rg)
+        g.custom_command('delete', 'delete_ssl_cert', exception_handler=ex_handler_factory())
+        g.custom_command('import', 'import_ssl_cert', exception_handler=ex_handler_factory())
+        g.custom_command('create', 'create_managed_ssl_cert', exception_handler=ex_handler_factory(), is_preview=True)
 
     with self.command_group('webapp config backup') as g:
         g.custom_command('list', 'list_backups')
@@ -163,7 +177,7 @@ def load_command_table(self, _):
 
     with self.command_group('webapp deployment source') as g:
         g.custom_command('config-local-git', 'enable_local_git')
-        g.custom_command('config-zip', 'enable_zip_deploy')
+        g.custom_command('config-zip', 'enable_zip_deploy_webapp')
         g.custom_command('config', 'config_source_control', exception_handler=ex_handler_factory())
         g.custom_command('sync', 'sync_site_repo', exception_handler=ex_handler_factory())
         g.custom_show_command('show', 'show_source_control')
@@ -171,10 +185,18 @@ def load_command_table(self, _):
         g.custom_command('update-token', 'update_git_token', exception_handler=ex_handler_factory())
 
     with self.command_group('webapp log') as g:
-        g.custom_command('tail', 'get_streaming_log')
+        g.custom_command('tail', 'get_streaming_log', validator=validate_app_or_slot_exists_in_rg)
         g.custom_command('download', 'download_historical_logs')
-        g.custom_command('config', 'config_diagnostics')
-        g.custom_show_command('show', 'show_diagnostic_settings')
+        g.custom_command('config', 'config_diagnostics', validator=validate_app_or_slot_exists_in_rg)
+        g.custom_show_command('show', 'show_diagnostic_settings', validator=validate_app_or_slot_exists_in_rg)
+
+    with self.command_group('webapp log deployment', is_preview=True) as g:
+        g.custom_show_command('show', 'show_deployment_log')
+        g.custom_command('list', 'list_deployment_logs')
+
+    with self.command_group('functionapp log deployment', is_preview=True) as g:
+        g.custom_show_command('show', 'show_deployment_log')
+        g.custom_command('list', 'list_deployment_logs')
 
     with self.command_group('webapp deployment slot') as g:
         g.custom_command('list', 'list_slots', table_transformer=output_slots_in_table)
@@ -188,7 +210,7 @@ def load_command_table(self, _):
         g.custom_command('list-publishing-credentials', 'list_publishing_credentials')
 
     with self.command_group('webapp deployment user', webclient_sdk) as g:
-        g.show_command('show', 'get_publishing_user')
+        g.custom_show_command('show', 'get_publishing_user')
         g.custom_command('set', 'set_deployment_user', exception_handler=ex_handler_factory())
 
     with self.command_group('webapp deployment container') as g:
@@ -203,14 +225,43 @@ def load_command_table(self, _):
         g.custom_command('list', 'list_deleted_webapp')
         g.custom_command('restore', 'restore_deleted_webapp')
 
+    with self.command_group('webapp hybrid-connection') as g:
+        g.custom_command('list', 'list_hc')
+        g.custom_command('add', 'add_hc')
+        g.custom_command('remove', 'remove_hc')
+
+    with self.command_group('functionapp hybrid-connection') as g:
+        g.custom_command('list', 'list_hc')
+        g.custom_command('add', 'add_hc')
+        g.custom_command('remove', 'remove_hc')
+
+    with self.command_group('appservice hybrid-connection') as g:
+        g.custom_command('set-key', 'set_hc_key')
+
+    with self.command_group('webapp vnet-integration') as g:
+        g.custom_command('add', 'add_vnet_integration')
+        g.custom_command('list', 'list_vnet_integration')
+        g.custom_command('remove', 'remove_vnet_integration')
+
+    with self.command_group('functionapp vnet-integration') as g:
+        g.custom_command('add', 'add_vnet_integration')
+        g.custom_command('list', 'list_vnet_integration')
+        g.custom_command('remove', 'remove_vnet_integration')
+
     with self.command_group('appservice plan', appservice_plan_sdk) as g:
-        g.custom_command('create', 'create_app_service_plan', exception_handler=ex_handler_factory(creating_plan=True))
+        g.custom_command('create', 'create_app_service_plan', supports_no_wait=True,
+                         exception_handler=ex_handler_factory(creating_plan=True))
         g.command('delete', 'delete', confirmation=True)
         g.custom_command('list', 'list_app_service_plans')
         g.show_command('show', 'get')
-        g.generic_update_command('update', custom_func_name='update_app_service_plan', setter_arg_name='app_service_plan')
+        g.generic_update_command('update', custom_func_name='update_app_service_plan', setter_arg_name='app_service_plan',
+                                 validator=validate_asp_sku, supports_no_wait=True)
+
     with self.command_group('appservice') as g:
         g.custom_command('list-locations', 'list_locations', transform=transform_list_location_output)
+
+    with self.command_group('appservice vnet-integration') as g:
+        g.custom_command('list', 'appservice_list_vnet')
 
     with self.command_group('functionapp') as g:
         g.custom_command('create', 'create_function', exception_handler=ex_handler_factory())
@@ -248,6 +299,8 @@ def load_command_table(self, _):
         g.custom_command('bind', 'bind_ssl_cert', exception_handler=ex_handler_factory())
         g.custom_command('unbind', 'unbind_ssl_cert')
         g.custom_command('delete', 'delete_ssl_cert')
+        g.custom_command('import', 'import_ssl_cert', exception_handler=ex_handler_factory())
+        g.custom_command('create', 'create_managed_ssl_cert', exception_handler=ex_handler_factory(), is_preview=True)
 
     with self.command_group('functionapp deployment source') as g:
         g.custom_command('config-local-git', 'enable_local_git')
@@ -269,7 +322,7 @@ def load_command_table(self, _):
     with self.command_group('functionapp cors') as g:
         g.custom_command('add', 'add_cors')
         g.custom_command('remove', 'remove_cors')
-        g.custom_command('show', 'show_cors')
+        g.custom_show_command('show', 'show_cors')
 
     with self.command_group('functionapp plan', appservice_plan_sdk) as g:
         g.custom_command('create', 'create_functionapp_app_service_plan', exception_handler=ex_handler_factory())
@@ -297,3 +350,70 @@ def load_command_table(self, _):
         g.custom_command('auto-swap', 'config_slot_auto_swap')
         g.custom_command('swap', 'swap_slot', exception_handler=ex_handler_factory())
         g.custom_command('create', 'create_functionapp_slot', exception_handler=ex_handler_factory())
+
+    with self.command_group('functionapp keys') as g:
+        g.custom_command('set', 'update_host_key')
+        g.custom_command('list', 'list_host_keys')
+        g.custom_command('delete', 'delete_host_key')
+
+    with self.command_group('functionapp function') as g:
+        g.custom_command('show', 'show_function')  # pylint: disable=show-command
+        g.custom_command('delete', 'delete_function')
+
+    with self.command_group('functionapp function keys') as g:
+        g.custom_command('set', 'update_function_key')
+        g.custom_command('list', 'list_function_keys')
+        g.custom_command('delete', 'delete_function_key')
+
+    with self.command_group('webapp config access-restriction', custom_command_type=webapp_access_restrictions) as g:
+        g.custom_show_command('show', 'show_webapp_access_restrictions')
+        g.custom_command('add', 'add_webapp_access_restriction')
+        g.custom_command('remove', 'remove_webapp_access_restriction')
+        g.custom_command('set', 'set_webapp_access_restriction')
+
+    with self.command_group('functionapp config access-restriction', custom_command_type=webapp_access_restrictions) as g:
+        g.custom_show_command('show', 'show_webapp_access_restrictions')
+        g.custom_command('add', 'add_webapp_access_restriction')
+        g.custom_command('remove', 'remove_webapp_access_restriction')
+        g.custom_command('set', 'set_webapp_access_restriction')
+
+    with self.command_group('appservice ase', custom_command_type=appservice_environment) as g:
+        g.custom_command('list', 'list_appserviceenvironments')
+        g.custom_command('list-addresses', 'list_appserviceenvironment_addresses')
+        g.custom_command('list-plans', 'list_appserviceenvironment_plans')
+        g.custom_show_command('show', 'show_appserviceenvironment')
+        g.custom_command('create', 'create_appserviceenvironment_arm', supports_no_wait=True)
+        g.custom_command('update', 'update_appserviceenvironment', supports_no_wait=True)
+        g.custom_command('delete', 'delete_appserviceenvironment', supports_no_wait=True, confirmation=True)
+
+    with self.command_group('appservice domain', custom_command_type=appservice_domains, is_preview=True) as g:
+        g.custom_command('create', 'create_domain')
+        g.custom_command('show-terms', 'show_domain_purchase_terms')
+
+    with self.command_group('staticwebapp', custom_command_type=staticsite_sdk, is_preview=True) as g:
+        g.custom_command('list', 'list_staticsites')
+        g.custom_command('browse', 'show_staticsite')
+        g.custom_command('create', 'create_staticsites', supports_no_wait=True)
+        g.custom_command('delete', 'delete_staticsite', supports_no_wait=True, confirmation=True)
+        g.custom_command('disconnect', 'disconnect_staticsite', supports_no_wait=True)
+        g.custom_command('reconnect', 'reconnect_staticsite', supports_no_wait=True)
+
+    with self.command_group('staticwebapp environment', custom_command_type=staticsite_sdk, is_preview=True) as g:
+        g.custom_command('list', 'list_staticsite_environments')
+        g.custom_show_command('show', 'show_staticsite_environment')
+        g.custom_command('functions', 'list_staticsite_functions')
+
+    with self.command_group('staticwebapp hostname', custom_command_type=staticsite_sdk, is_preview=True) as g:
+        g.custom_command('list', 'list_staticsite_domains')
+        g.custom_command('set', 'set_staticsite_domain', supports_no_wait=True)
+        g.custom_command('delete', 'delete_staticsite_domain', supports_no_wait=True, confirmation=True)
+
+    with self.command_group('staticwebapp appsettings', custom_command_type=staticsite_sdk, is_preview=True) as g:
+        g.custom_command('list', 'list_staticsite_function_app_settings')
+        g.custom_command('set', 'set_staticsite_function_app_settings')
+        g.custom_command('delete', 'delete_staticsite_function_app_settings')
+
+    with self.command_group('staticwebapp users', custom_command_type=staticsite_sdk, is_preview=True) as g:
+        g.custom_command('list', 'list_staticsite_users')
+        g.custom_command('invite', 'invite_staticsite_users')
+        g.custom_command('update', 'update_staticsite_users')

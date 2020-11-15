@@ -8,19 +8,19 @@ from knack.log import get_logger
 from knack.util import CLIError
 from azure.cli.core.commands import LongRunningOperation
 
-from ._constants import ORYX_PACK_BUILDER_IMAGE
+from ._constants import ACR_CACHED_BUILDER_IMAGES
 from ._stream_utils import stream_logs
 from ._utils import (
     get_registry_by_name,
     get_validate_platform,
     get_custom_registry_credentials
 )
-from ._client_factory import cf_acr_registries
+from ._client_factory import cf_acr_registries_tasks
 from .run import prepare_source_location
 
-PACK_TASK_YAML_FMT = '''version: v1.0.0
+PACK_TASK_YAML_FMT = '''version: v1.1.0
 steps:
-  - cmd: mcr.microsoft.com/oryx/pack:stable build {image_name} --builder {builder} {no_pull} --env REGISTRY_NAME={{{{.Run.Registry}}}} -p .
+  - cmd: mcr.microsoft.com/oryx/pack:{pack_image_tag} build {image_name} --builder {builder} {no_pull} --env REGISTRY_NAME=$Registry -p .
     timeout: 28800
   - push: ["{image_name}"]
     timeout: 1800
@@ -34,7 +34,9 @@ def acr_pack_build(cmd,  # pylint: disable=too-many-locals
                    registry_name,
                    image_name,
                    source_location,
-                   builder=ORYX_PACK_BUILDER_IMAGE,
+                   builder,
+                   pack_image_tag='stable',
+                   agent_pool_name=None,
                    pull=False,
                    no_format=False,
                    no_logs=False,
@@ -45,9 +47,9 @@ def acr_pack_build(cmd,  # pylint: disable=too-many-locals
                    auth_mode=None):
     registry, resource_group_name = get_registry_by_name(cmd.cli_ctx, registry_name)
 
-    client_registries = cf_acr_registries(cmd.cli_ctx)
+    client_registries = cf_acr_registries_tasks(cmd.cli_ctx)
     source_location = prepare_source_location(
-        source_location, client_registries, registry_name, resource_group_name)
+        cmd, source_location, client_registries, registry_name, resource_group_name)
     if not source_location:
         raise CLIError('Building with Buildpacks requires a valid source location.')
 
@@ -56,10 +58,10 @@ def acr_pack_build(cmd,  # pylint: disable=too-many-locals
     if platform_os != OS.linux.value.lower():
         raise CLIError('Building with Buildpacks is only supported on Linux.')
 
-    if builder != ORYX_PACK_BUILDER_IMAGE and not pull:
-        logger.warning('Using a non-default builder image; `--pull` is probably needed as well')
+    if builder not in ACR_CACHED_BUILDER_IMAGES and not pull:
+        logger.warning('Using a non-cached builder image; `--pull` is probably needed as well')
 
-    registry_prefixes = '{{.Run.Registry}}/', registry.login_server + '/'
+    registry_prefixes = '$Registry/', registry.login_server + '/'
     # If the image name doesn't have any required prefix, add it
     if all((not image_name.startswith(prefix) for prefix in registry_prefixes)):
         original_image_name = image_name
@@ -67,7 +69,10 @@ def acr_pack_build(cmd,  # pylint: disable=too-many-locals
         logger.debug('Modified image name from %s to %s', original_image_name, image_name)
 
     yaml_body = PACK_TASK_YAML_FMT.format(
-        image_name=image_name, builder=builder, no_pull='--no-pull' if not pull else '')
+        image_name=image_name,
+        builder=builder,
+        pack_image_tag=pack_image_tag,
+        no_pull='--no-pull' if not pull else '')
 
     EncodedTaskRunRequest, PlatformProperties = cmd.get_models('EncodedTaskRunRequest', 'PlatformProperties')
 
@@ -83,7 +88,8 @@ def acr_pack_build(cmd,  # pylint: disable=too-many-locals
         credentials=get_custom_registry_credentials(
             cmd=cmd,
             auth_mode=auth_mode
-        )
+        ),
+        agent_pool_name=agent_pool_name
     )
 
     queued = LongRunningOperation(cmd.cli_ctx)(client_registries.schedule_run(
@@ -103,4 +109,4 @@ def acr_pack_build(cmd,  # pylint: disable=too-many-locals
         from ._run_polling import get_run_with_polling
         return get_run_with_polling(cmd, client, run_id, registry_name, resource_group_name)
 
-    return stream_logs(client, run_id, registry_name, resource_group_name, no_format, True)
+    return stream_logs(cmd, client, run_id, registry_name, resource_group_name, no_format, True)

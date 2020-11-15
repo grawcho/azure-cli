@@ -10,14 +10,42 @@ def servicefabric_client_factory(cli_ctx, **_):
     return get_mgmt_service_client(cli_ctx, ServiceFabricManagementClient)
 
 
-def servicefabric_fabric_client_factory(cli_ctx, kwargs):
+def servicefabric_client_factory_all(cli_ctx, kwargs):
+    return servicefabric_client_factory(cli_ctx, **kwargs)
+
+
+def servicefabric_clusters_client_factory(cli_ctx, kwargs):
     return servicefabric_client_factory(cli_ctx, **kwargs).clusters
+
+
+def servicefabric_application_type_client_factory(cli_ctx, kwargs):
+    return servicefabric_client_factory(cli_ctx, **kwargs).application_types
+
+
+def servicefabric_application_type_version_client_factory(cli_ctx, kwargs):
+    return servicefabric_client_factory(cli_ctx, **kwargs).application_type_versions
+
+
+def servicefabric_application_client_factory(cli_ctx, kwargs):
+    return servicefabric_client_factory(cli_ctx, **kwargs).applications
+
+
+def servicefabric_service_client_factory(cli_ctx, kwargs):
+    return servicefabric_client_factory(cli_ctx, **kwargs).services
+
+
+def servicefabric_managed_clusters_client_factory(cli_ctx, kwargs):
+    return servicefabric_client_factory(cli_ctx, **kwargs).managed_clusters
+
+
+def servicefabric_node_types_client_factory(cli_ctx, kwargs):
+    return servicefabric_client_factory(cli_ctx, **kwargs).node_types
 
 
 def resource_client_factory(cli_ctx, **_):
     from azure.cli.core.commands.client_factory import get_mgmt_service_client
-    from azure.mgmt.resource import ResourceManagementClient
-    return get_mgmt_service_client(cli_ctx, ResourceManagementClient)
+    from azure.cli.core.profiles import ResourceType
+    return get_mgmt_service_client(cli_ctx, ResourceType.MGMT_RESOURCE_RESOURCES)
 
 
 def keyvault_client_factory(cli_ctx, **_):

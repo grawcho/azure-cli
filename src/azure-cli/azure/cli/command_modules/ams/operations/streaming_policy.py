@@ -6,7 +6,8 @@
 import json
 
 from azure.cli.core.util import CLIError
-
+from azure.cli.command_modules.ams._client_factory import get_streaming_policies_client
+from azure.cli.command_modules.ams._utils import show_resource_not_found_message
 from azure.mgmt.media.models import (StreamingPolicy, NoEncryption,
                                      CommonEncryptionCenc, TrackSelection, TrackPropertyCondition,
                                      StreamingPolicyContentKeys, DefaultKey, StreamingPolicyContentKey,
@@ -14,7 +15,6 @@ from azure.mgmt.media.models import (StreamingPolicy, NoEncryption,
                                      CencDrmConfiguration, StreamingPolicyPlayReadyConfiguration,
                                      StreamingPolicyWidevineConfiguration, EnabledProtocols,
                                      EnvelopeEncryption, StreamingPolicyFairPlayConfiguration)
-from azure.cli.command_modules.ams._client_factory import get_streaming_policies_client
 
 
 def create_streaming_policy(cmd,  # pylint: disable=too-many-locals
@@ -261,3 +261,11 @@ def _envelope_encryption_factory(envelope_clear_tracks,
                                              custom_key_acquisition_url_template=envelope_template)
 
     return envelope_encryption
+
+
+def get_streaming_policy(client, resource_group_name, account_name, streaming_policy_name):
+    streaming_policy = client.get(resource_group_name, account_name, streaming_policy_name)
+    if not streaming_policy:
+        show_resource_not_found_message(resource_group_name, account_name, 'streamingPolicies', streaming_policy_name)
+
+    return streaming_policy

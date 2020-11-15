@@ -44,6 +44,7 @@ app_creds_real.py
 *.user
 *.sln.docstates
 .vs/
+.vscode/*
 
 # Windows image file caches
 Thumbs.db
@@ -111,5 +112,7 @@ pip.log
 # Tox
 .tox/
 
-az_command_coverage.txt
+# exe
+*.exe
 
+az_command_coverage.txt

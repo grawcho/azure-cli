@@ -7,43 +7,62 @@
 
 from msrestazure.azure_exceptions import CloudError
 from msrestazure.tools import resource_id, is_valid_resource_id, parse_resource_id  # pylint: disable=import-error
+from knack.log import get_logger
 from azure.cli.core.commands.client_factory import get_subscription_id
 from azure.cli.core.util import CLIError, sdk_no_wait
-from azure.mgmt.rdbms.mysql.operations.servers_operations import ServersOperations as MySqlServersOperations
-from azure.mgmt.rdbms.mariadb.operations.servers_operations import ServersOperations as MariaDBServersOperations
-from ._client_factory import get_mariadb_management_client, get_mysql_management_client, get_postgresql_management_client
+from azure.cli.core.local_context import ALL
+from azure.mgmt.rdbms.mysql.operations._servers_operations import ServersOperations as MySqlServersOperations
+from azure.mgmt.rdbms.mariadb.operations._servers_operations import ServersOperations as MariaDBServersOperations
+from ._client_factory import get_mariadb_management_client, get_mysql_management_client, cf_mysql_db, cf_mariadb_db, \
+    get_postgresql_management_client, cf_postgres_check_resource_availability_sterling, \
+    cf_mysql_check_resource_availability_sterling, cf_mariadb_check_resource_availability_sterling
+from ._flexible_server_util import generate_missing_parameters, generate_password, resolve_poller
+from ._util import parse_public_network_access_input, create_firewall_rule
+
+logger = get_logger(__name__)
+
 
 SKU_TIER_MAP = {'Basic': 'b', 'GeneralPurpose': 'gp', 'MemoryOptimized': 'mo'}
+DEFAULT_DB_NAME = 'defaultdb'
 
 
-def _server_create(cmd, client, resource_group_name, server_name, sku_name, no_wait=False,
+# pylint: disable=too-many-locals, too-many-statements
+def _server_create(cmd, client, resource_group_name=None, server_name=None, sku_name=None, no_wait=False,
                    location=None, administrator_login=None, administrator_login_password=None, backup_retention=None,
-                   geo_redundant_backup=None, ssl_enforcement=None, storage_mb=None, tags=None, version=None, auto_grow='Enabled'):
+                   geo_redundant_backup=None, ssl_enforcement=None, storage_mb=None, tags=None, version=None, auto_grow='Enabled',
+                   assign_identity=False, public_network_access=None, infrastructure_encryption=None, minimal_tls_version=None):
     provider = 'Microsoft.DBforPostgreSQL'
     if isinstance(client, MySqlServersOperations):
         provider = 'Microsoft.DBforMySQL'
     elif isinstance(client, MariaDBServersOperations):
         provider = 'Microsoft.DBforMariaDB'
 
-    parameters = None
-    if provider == 'Microsoft.DBforMySQL':
-        from azure.mgmt.rdbms import mysql
-        parameters = mysql.models.ServerForCreate(
-            sku=mysql.models.Sku(name=sku_name),
-            properties=mysql.models.ServerPropertiesForDefaultCreate(
-                administrator_login=administrator_login,
-                administrator_login_password=administrator_login_password,
-                version=version,
-                ssl_enforcement=ssl_enforcement,
-                storage_profile=mysql.models.StorageProfile(
-                    backup_retention_days=backup_retention,
-                    geo_redundant_backup=geo_redundant_backup,
-                    storage_mb=storage_mb,
-                    storage_autogrow=auto_grow)),
-            location=location,
-            tags=tags)
-    elif provider == 'Microsoft.DBforPostgreSQL':
+    server_result = firewall_id = None
+    administrator_login_password = generate_password(administrator_login_password)
+    engine_name = 'postgres'
+    pricing_link = 'https://aka.ms/postgres-pricing'
+    start_ip = end_ip = ''
+
+    if public_network_access is not None and str(public_network_access).lower() != 'enabled' and str(public_network_access).lower() != 'disabled':
+        if str(public_network_access).lower() == 'all':
+            start_ip, end_ip = '0.0.0.0', '255.255.255.255'
+        else:
+            start_ip, end_ip = parse_public_network_access_input(public_network_access)
+        # if anything but 'disabled' is passed on to the args,
+        # then the public network access value passed on to the API is Enabled.
+        public_network_access = 'Enabled'
+
+    # Check availability for server name if it is supplied by the user
+    if provider == 'Microsoft.DBforPostgreSQL':
         from azure.mgmt.rdbms import postgresql
+        # Populate desired parameters
+        location, resource_group_name, server_name = generate_missing_parameters(cmd, location, resource_group_name,
+                                                                                 server_name, engine_name)
+        check_name_client = cf_postgres_check_resource_availability_sterling(cmd.cli_ctx, None)
+        check_server_name_availability(check_name_client, server_name, "Microsoft.DBforPostgreSQL/servers")
+        logger.warning('Creating %s Server \'%s\' in group \'%s\'...', engine_name, server_name, resource_group_name)
+        logger.warning('Your server \'%s\' is using sku \'%s\' (Paid Tier). '
+                       'Please refer to %s  for pricing details', server_name, sku_name, pricing_link)
         parameters = postgresql.models.ServerForCreate(
             sku=postgresql.models.Sku(name=sku_name),
             properties=postgresql.models.ServerPropertiesForDefaultCreate(
@@ -51,6 +70,9 @@ def _server_create(cmd, client, resource_group_name, server_name, sku_name, no_w
                 administrator_login_password=administrator_login_password,
                 version=version,
                 ssl_enforcement=ssl_enforcement,
+                minimal_tls_version=minimal_tls_version,
+                public_network_access=public_network_access,
+                infrastructure_encryption=infrastructure_encryption,
                 storage_profile=postgresql.models.StorageProfile(
                     backup_retention_days=backup_retention,
                     geo_redundant_backup=geo_redundant_backup,
@@ -58,8 +80,50 @@ def _server_create(cmd, client, resource_group_name, server_name, sku_name, no_w
                     storage_autogrow=auto_grow)),
             location=location,
             tags=tags)
+        if assign_identity:
+            parameters.identity = postgresql.models.ResourceIdentity(
+                type=postgresql.models.IdentityType.system_assigned.value)
+    elif provider == 'Microsoft.DBforMySQL':
+        from azure.mgmt.rdbms import mysql
+        engine_name = 'mysql'
+        pricing_link = 'https://aka.ms/mysql-pricing'
+        location, resource_group_name, server_name = generate_missing_parameters(cmd, location, resource_group_name,
+                                                                                 server_name, engine_name)
+        check_name_client = cf_mysql_check_resource_availability_sterling(cmd.cli_ctx, None)
+        check_server_name_availability(check_name_client, server_name, "Microsoft.DBforMySQL/servers")
+        logger.warning('Creating %s Server \'%s\' in group \'%s\'...', engine_name, server_name, resource_group_name)
+        logger.warning('Your server \'%s\' is using sku \'%s\' (Paid Tier). '
+                       'Please refer to %s  for pricing details', server_name, sku_name, pricing_link)
+        parameters = mysql.models.ServerForCreate(
+            sku=mysql.models.Sku(name=sku_name),
+            properties=mysql.models.ServerPropertiesForDefaultCreate(
+                administrator_login=administrator_login,
+                administrator_login_password=administrator_login_password,
+                version=version,
+                ssl_enforcement=ssl_enforcement,
+                minimal_tls_version=minimal_tls_version,
+                public_network_access=public_network_access,
+                infrastructure_encryption=infrastructure_encryption,
+                storage_profile=mysql.models.StorageProfile(
+                    backup_retention_days=backup_retention,
+                    geo_redundant_backup=geo_redundant_backup,
+                    storage_mb=storage_mb,
+                    storage_autogrow=auto_grow)),
+            location=location,
+            tags=tags)
+        if assign_identity:
+            parameters.identity = mysql.models.ResourceIdentity(type=mysql.models.IdentityType.system_assigned.value)
     elif provider == 'Microsoft.DBforMariaDB':
         from azure.mgmt.rdbms import mariadb
+        engine_name = 'mariadb'
+        pricing_link = 'https://aka.ms/mariadb-pricing'
+        location, resource_group_name, server_name = generate_missing_parameters(cmd, location, resource_group_name,
+                                                                                 server_name, engine_name)
+        check_name_client = cf_mariadb_check_resource_availability_sterling(cmd.cli_ctx, None)
+        check_server_name_availability(check_name_client, server_name, "Microsoft.DBforMariaDB")
+        logger.warning('Creating %s Server \'%s\' in group \'%s\'...', engine_name, server_name, resource_group_name)
+        logger.warning('Your server \'%s\' is using sku \'%s\' (Paid Tier). '
+                       'Please refer to %s  for pricing details', server_name, sku_name, pricing_link)
         parameters = mariadb.models.ServerForCreate(
             sku=mariadb.models.Sku(name=sku_name),
             properties=mariadb.models.ServerPropertiesForDefaultCreate(
@@ -67,6 +131,7 @@ def _server_create(cmd, client, resource_group_name, server_name, sku_name, no_w
                 administrator_login_password=administrator_login_password,
                 version=version,
                 ssl_enforcement=ssl_enforcement,
+                public_network_access=public_network_access,
                 storage_profile=mariadb.models.StorageProfile(
                     backup_retention_days=backup_retention,
                     geo_redundant_backup=geo_redundant_backup,
@@ -75,7 +140,36 @@ def _server_create(cmd, client, resource_group_name, server_name, sku_name, no_w
             location=location,
             tags=tags)
 
-    return client.create(resource_group_name, server_name, parameters)
+    server_result = resolve_poller(
+        client.create(resource_group_name, server_name, parameters), cmd.cli_ctx,
+        '{} Server Create'.format(engine_name))
+    user = server_result.administrator_login
+    version = server_result.version
+    host = server_result.fully_qualified_domain_name
+
+    # Adding firewall rule
+    if public_network_access is not None and start_ip != '':
+        firewall_id = create_firewall_rule(cmd, resource_group_name, server_name, start_ip, end_ip, engine_name)
+
+    logger.warning('Make a note of your password. If you forget, you would have to '
+                   'reset your password with \'az %s flexible-server update -n %s -g %s -p <new-password>\'.',
+                   engine_name, server_name, resource_group_name)
+
+    update_local_contexts(cmd, server_name, resource_group_name, location, user)
+
+    if engine_name == 'postgres':
+        return form_response(server_result, administrator_login_password if administrator_login_password is not None else '*****',
+                             host=host,
+                             connection_string=create_postgresql_connection_string(server_name, host, user, administrator_login_password),
+                             database_name=None, firewall_id=firewall_id)
+    # Serves both - MySQL and MariaDB
+    # Create mysql database if it does not exist
+    database_name = DEFAULT_DB_NAME
+    create_database(cmd, resource_group_name, server_name, database_name, engine_name)
+    return form_response(server_result, administrator_login_password if administrator_login_password is not None else '*****',
+                         host=host,
+                         connection_string=create_mysql_connection_string(server_name, host, database_name, user, administrator_login_password),
+                         database_name=database_name, firewall_id=firewall_id)
 
 
 # Need to replace source server name with source server id, so customer server restore function
@@ -283,7 +377,10 @@ def _server_update_custom_func(instance,
                                administrator_login_password=None,
                                ssl_enforcement=None,
                                tags=None,
-                               auto_grow=None):
+                               auto_grow=None,
+                               assign_identity=False,
+                               public_network_access=None,
+                               minimal_tls_version=None):
     from importlib import import_module
     server_module_path = instance.__module__
     module = import_module(server_module_path.replace('server', 'server_update_parameters'))
@@ -311,7 +408,21 @@ def _server_update_custom_func(instance,
                                     administrator_login_password=administrator_login_password,
                                     version=None,
                                     ssl_enforcement=ssl_enforcement,
-                                    tags=tags)
+                                    tags=tags,
+                                    public_network_access=public_network_access,
+                                    minimal_tls_version=minimal_tls_version)
+
+    if assign_identity:
+        if server_module_path.find('postgres'):
+            from azure.mgmt.rdbms import postgresql
+            if instance.identity is None:
+                instance.identity = postgresql.models.ResourceIdentity(type=postgresql.models.IdentityType.system_assigned.value)
+            params.identity = instance.identity
+        elif server_module_path.find('mysql'):
+            from azure.mgmt.rdbms import mysql
+            if instance.identity is None:
+                instance.identity = mysql.models.ResourceIdentity(type=mysql.models.IdentityType.system_assigned.value)
+            params.identity = instance.identity
 
     return params
 
@@ -337,6 +448,20 @@ def _server_update_get(client, resource_group_name, server_name):
 
 def _server_update_set(client, resource_group_name, server_name, parameters):
     return client.update(resource_group_name, server_name, parameters)
+
+
+def _server_delete(cmd, client, resource_group_name, server_name):
+    database_engine = 'postgres'
+    if isinstance(client, MySqlServersOperations):
+        database_engine = 'mysql'
+
+    result = client.delete(resource_group_name, server_name)
+
+    if cmd.cli_ctx.local_context.is_on:
+        local_context_file = cmd.cli_ctx.local_context._get_local_context_file()  # pylint: disable=protected-access
+        local_context_file.remove_option('{}'.format(database_engine), 'server_name')
+
+    return result
 
 
 def _get_sku_name(tier, family, capacity):
@@ -425,3 +550,199 @@ def _server_list_custom_func(client, resource_group_name=None):
     if resource_group_name:
         return client.list_by_resource_group(resource_group_name)
     return client.list()
+
+
+# region private_endpoint
+def _update_private_endpoint_connection_status(cmd, client, resource_group_name, server_name,
+                                               private_endpoint_connection_name, is_approved=True, description=None):  # pylint: disable=unused-argument
+    private_endpoint_connection = client.get(resource_group_name=resource_group_name, server_name=server_name,
+                                             private_endpoint_connection_name=private_endpoint_connection_name)
+
+    new_status = 'Approved' if is_approved else 'Rejected'
+    private_endpoint_connection.private_link_service_connection_state.status = new_status
+    private_endpoint_connection.private_link_service_connection_state.description = description
+
+    return client.create_or_update(resource_group_name=resource_group_name,
+                                   server_name=server_name,
+                                   private_endpoint_connection_name=private_endpoint_connection_name,
+                                   private_link_service_connection_state=private_endpoint_connection.private_link_service_connection_state)
+
+
+def approve_private_endpoint_connection(cmd, client, resource_group_name, server_name, private_endpoint_connection_name,
+                                        description=None):
+    """Approve a private endpoint connection request for a server."""
+
+    return _update_private_endpoint_connection_status(
+        cmd, client, resource_group_name, server_name, private_endpoint_connection_name, is_approved=True,
+        description=description)
+
+
+def reject_private_endpoint_connection(cmd, client, resource_group_name, server_name, private_endpoint_connection_name,
+                                       description=None):
+    """Reject a private endpoint connection request for a server."""
+
+    return _update_private_endpoint_connection_status(
+        cmd, client, resource_group_name, server_name, private_endpoint_connection_name, is_approved=False,
+        description=description)
+
+
+def server_key_create(client, resource_group_name, server_name, kid):
+
+    """Create Server Key."""
+
+    key_name = _get_server_key_name_from_uri(kid)
+
+    return client.create_or_update(
+        resource_group_name=resource_group_name,
+        server_name=server_name,
+        key_name=key_name,
+        uri=kid
+    )
+
+
+def server_key_get(client, resource_group_name, server_name, kid):
+
+    """Get Server Key."""
+
+    key_name = _get_server_key_name_from_uri(kid)
+
+    return client.get(
+        resource_group_name=resource_group_name,
+        server_name=server_name,
+        key_name=key_name)
+
+
+def server_key_delete(cmd, client, resource_group_name, server_name, kid):
+
+    """Drop Server Key."""
+    key_name = _get_server_key_name_from_uri(kid)
+
+    return client.delete(
+        resource_group_name=resource_group_name,
+        server_name=server_name,
+        key_name=key_name)
+
+
+def _get_server_key_name_from_uri(uri):
+    '''
+    Gets the key's name to use as a server key.
+
+    The SQL server key API requires that the server key has a specific name
+    based on the vault, key and key version.
+    '''
+    import re
+
+    match = re.match(r'^https(.)+\.vault(.)+\/keys\/[^\/]+\/[0-9a-zA-Z]+$', uri)
+
+    if match is None:
+        raise CLIError('The provided uri is invalid. Please provide a valid Azure Key Vault key id.  For example: '
+                       '"https://YourVaultName.vault.azure.net/keys/YourKeyName/01234567890123456789012345678901"')
+
+    vault = uri.split('.')[0].split('/')[-1]
+    key = uri.split('/')[-2]
+    version = uri.split('/')[-1]
+    return '{}_{}_{}'.format(vault, key, version)
+
+
+def server_ad_admin_set(client, resource_group_name, server_name, login=None, sid=None):
+    '''
+    Sets a server's AD admin.
+    '''
+
+    if isinstance(client, MySqlServersOperations):
+        from azure.mgmt.rdbms import mysql
+        parameters = mysql.models.ServerAdministratorResource(
+            login=login,
+            sid=sid,
+            tenant_id=_get_tenant_id())
+    else:
+        from azure.mgmt.rdbms import postgresql
+        parameters = postgresql.models.ServerAdministratorResource(
+            login=login,
+            sid=sid,
+            tenant_id=_get_tenant_id())
+
+    return client.create_or_update(
+        server_name=server_name,
+        resource_group_name=resource_group_name,
+        properties=parameters)
+
+
+def _get_tenant_id():
+    '''
+    Gets tenantId from current subscription.
+    '''
+    from azure.cli.core._profile import Profile
+
+    profile = Profile()
+    sub = profile.get_subscription()
+    return sub['tenantId']
+# endregion
+
+
+# region new create experience
+def create_mysql_connection_string(server_name, host, database_name, user_name, password):
+    connection_kwargs = {
+        'host': host,
+        'dbname': database_name,
+        'username': user_name,
+        'servername': server_name,
+        'password': password if password is not None else '{password}'
+    }
+    return 'mysql {dbname} --host {host} --user {username}@{servername} --password={password}'.format(**connection_kwargs)
+
+
+def create_database(cmd, resource_group_name, server_name, database_name, engine_name):
+    if engine_name == 'mysql':
+        # check for existing database, create if not present
+        database_client = cf_mysql_db(cmd.cli_ctx, None)
+    elif engine_name == 'mariadb':
+        database_client = cf_mariadb_db(cmd.cli_ctx, None)
+    try:
+        database_client.get(resource_group_name, server_name, database_name).result()
+    except CloudError:
+        logger.warning('Creating %s database \'%s\'...', engine_name, database_name)
+        database_client.create_or_update(resource_group_name, server_name, database_name, 'utf8').result()
+
+
+def form_response(server_result, password, host, connection_string, database_name=None, firewall_id=None):
+    from knack.util import todict
+    result = todict(server_result)
+    result['connectionString'] = connection_string
+    result['password'] = password
+    if firewall_id is not None:
+        result['firewallName'] = firewall_id
+    if database_name is not None:
+        result['databaseName'] = database_name
+    return result
+
+
+def create_postgresql_connection_string(server_name, host, user, password):
+    connection_kwargs = {
+        'user': user,
+        'host': host,
+        'servername': server_name,
+        'password': password if password is not None else '{password}'
+    }
+    return 'postgres://{user}%40{servername}:{password}@{host}/postgres?sslmode=require'.format(**connection_kwargs)
+
+
+def check_server_name_availability(check_name_client, server_name, service_name):
+    server_availability = check_name_client.execute(server_name, service_name)
+    if not server_availability.name_available:
+        raise CLIError("The server name '{}' already exists.Please re-run command with some "
+                       "other server name.".format(server_name))
+    return True
+
+
+def update_local_contexts(cmd, server_name, resource_group_name, location, user):
+    if cmd.cli_ctx.local_context.is_on:
+        cmd.cli_ctx.local_context.set(['postgres server'], 'server_name',
+                                      server_name)  # Setting the server name in the local context
+        cmd.cli_ctx.local_context.set(['postgres server'], 'administrator_login',
+                                      user)  # Setting the server name in the local context
+        cmd.cli_ctx.local_context.set([ALL], 'location',
+                                      location)  # Setting the location in the local context
+        cmd.cli_ctx.local_context.set([ALL], 'resource_group_name', resource_group_name)
+
+# end region

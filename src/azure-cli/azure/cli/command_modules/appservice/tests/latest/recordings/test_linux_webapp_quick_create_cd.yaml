@@ -1,55 +1,5 @@
 interactions:
 - request:
-    body: '{"location": "japanwest", "tags": {"product": "azurecli", "cause": "automation",
-      "date": "2019-06-11T00:26:19Z"}}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - group create
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '113'
-      Content-Type:
-      - application/json; charset=utf-8
-      ParameterSetName:
-      - --location --name --tag
-      User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
-      accept-language:
-      - en-US
-    method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/clitest.rg000001?api-version=2018-05-01
-  response:
-    body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001","name":"clitest.rg000001","location":"japanwest","tags":{"product":"azurecli","cause":"automation","date":"2019-06-11T00:26:19Z"},"properties":{"provisioningState":"Succeeded"}}'
-    headers:
-      cache-control:
-      - no-cache
-      content-length:
-      - '387'
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Tue, 11 Jun 2019 00:26:27 GMT
-      expires:
-      - '-1'
-      pragma:
-      - no-cache
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains
-      x-content-type-options:
-      - nosniff
-      x-ms-ratelimit-remaining-subscription-writes:
-      - '1199'
-    status:
-      code: 201
-      message: Created
-- request:
     body: null
     headers:
       Accept:
@@ -63,24 +13,24 @@ interactions:
       ParameterSetName:
       - -g -n --is-linux
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-resource/10.2.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/clitest.rg000001?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/clitest.rg000001?api-version=2020-06-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001","name":"clitest.rg000001","location":"japanwest","tags":{"product":"azurecli","cause":"automation","date":"2019-06-11T00:26:19Z"},"properties":{"provisioningState":"Succeeded"}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001","name":"clitest.rg000001","type":"Microsoft.Resources/resourceGroups","location":"eastus2","tags":{"product":"azurecli","cause":"automation","date":"2020-10-13T17:33:43Z"},"properties":{"provisioningState":"Succeeded"}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '387'
+      - '429'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 11 Jun 2019 00:26:29 GMT
+      - Tue, 13 Oct 2020 17:33:46 GMT
       expires:
       - '-1'
       pragma:
@@ -96,7 +46,7 @@ interactions:
       message: OK
 - request:
     body: '{"name": "plan-quick-linux-cd", "type": "Microsoft.Web/serverfarms", "location":
-      "japanwest", "properties": {"skuName": "B1", "needLinuxWorkers": true, "capacity":
+      "eastus2", "properties": {"skuName": "B1", "needLinuxWorkers": true, "capacity":
       1}}'
     headers:
       Accept:
@@ -108,18 +58,18 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '167'
+      - '165'
       Content-Type:
       - application/json; charset=utf-8
       ParameterSetName:
       - -g -n --is-linux
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: POST
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/validate?api-version=2018-02-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/validate?api-version=2019-08-01
   response:
     body:
       string: '{"status":"Success","error":null}'
@@ -131,7 +81,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 00:26:30 GMT
+      - Tue, 13 Oct 2020 17:33:46 GMT
       expires:
       - '-1'
       pragma:
@@ -169,24 +119,24 @@ interactions:
       ParameterSetName:
       - -g -n --is-linux
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-resource/10.2.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/clitest.rg000001?api-version=2018-05-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/clitest.rg000001?api-version=2020-06-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001","name":"clitest.rg000001","location":"japanwest","tags":{"product":"azurecli","cause":"automation","date":"2019-06-11T00:26:19Z"},"properties":{"provisioningState":"Succeeded"}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001","name":"clitest.rg000001","type":"Microsoft.Resources/resourceGroups","location":"eastus2","tags":{"product":"azurecli","cause":"automation","date":"2020-10-13T17:33:43Z"},"properties":{"provisioningState":"Succeeded"}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '387'
+      - '429'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 11 Jun 2019 00:26:30 GMT
+      - Tue, 13 Oct 2020 17:33:46 GMT
       expires:
       - '-1'
       pragma:
@@ -201,7 +151,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"location": "japanwest", "properties": {"perSiteScaling": false, "reserved":
+    body: '{"location": "eastus2", "properties": {"perSiteScaling": false, "reserved":
       true, "isXenon": false}, "sku": {"name": "B1", "tier": "BASIC", "capacity":
       1}}'
     headers:
@@ -214,32 +164,32 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '157'
+      - '155'
       Content-Type:
       - application/json; charset=utf-8
       ParameterSetName:
       - -g -n --is-linux
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd?api-version=2018-02-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd?api-version=2019-08-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd","name":"plan-quick-linux-cd","type":"Microsoft.Web/serverfarms","kind":"linux","location":"Japan
-        West","properties":{"serverFarmId":3590,"name":"plan-quick-linux-cd","workerSize":"Default","workerSizeId":0,"workerTierName":null,"numberOfWorkers":1,"currentWorkerSize":"Default","currentWorkerSizeId":0,"currentNumberOfWorkers":1,"status":"Ready","webSpace":"clitest.rg000001-JapanWestwebspace","subscription":"e483435e-282d-4ac1-92b5-d6123f2aa360","adminSiteName":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"maximumNumberOfWorkers":3,"planName":"VirtualDedicatedPlan","adminRuntimeSiteName":null,"computeMode":"Dedicated","siteMode":null,"geoRegion":"Japan
-        West","perSiteScaling":false,"maximumElasticWorkerCount":1,"numberOfSites":0,"hostingEnvironmentId":null,"isSpot":false,"spotExpirationTime":null,"freeOfferExpirationTime":"2019-07-11T00:26:35.3366667","tags":null,"kind":"linux","resourceGroup":"clitest.rg000001","reserved":true,"isXenon":false,"hyperV":false,"mdmId":"waws-prod-os1-009_3590","targetWorkerCount":0,"targetWorkerSizeId":0,"provisioningState":"Succeeded","webSiteId":null},"sku":{"name":"B1","tier":"Basic","size":"B1","family":"B","capacity":1}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd","name":"plan-quick-linux-cd","type":"Microsoft.Web/serverfarms","kind":"linux","location":"East
+        US 2","properties":{"serverFarmId":4164,"name":"plan-quick-linux-cd","workerSize":"Default","workerSizeId":0,"workerTierName":null,"numberOfWorkers":1,"currentWorkerSize":"Default","currentWorkerSizeId":0,"currentNumberOfWorkers":1,"status":"Ready","webSpace":"clitest.rg000001-EastUS2webspace","subscription":"e483435e-282d-4ac1-92b5-d6123f2aa360","adminSiteName":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"maximumNumberOfWorkers":3,"planName":"VirtualDedicatedPlan","adminRuntimeSiteName":null,"computeMode":"Dedicated","siteMode":null,"geoRegion":"East
+        US 2","perSiteScaling":false,"maximumElasticWorkerCount":1,"numberOfSites":0,"hostingEnvironmentId":null,"isSpot":false,"spotExpirationTime":null,"freeOfferExpirationTime":"2020-11-12T17:33:49.47","tags":null,"kind":"linux","resourceGroup":"clitest.rg000001","reserved":true,"isXenon":false,"hyperV":false,"mdmId":"waws-prod-bn1-073_4164","targetWorkerCount":0,"targetWorkerSizeId":0,"provisioningState":"Succeeded","webSiteId":null,"existingServerFarmIds":null},"sku":{"name":"B1","tier":"Basic","size":"B1","family":"B","capacity":1}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '1515'
+      - '1535'
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 00:26:48 GMT
+      - Tue, 13 Oct 2020 17:33:55 GMT
       expires:
       - '-1'
       pragma:
@@ -257,7 +207,7 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-ratelimit-remaining-subscription-writes:
-      - '1199'
+      - '1196'
       x-powered-by:
       - ASP.NET
     status:
@@ -277,26 +227,26 @@ interactions:
       ParameterSetName:
       - -g -n --plan -u -r
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd?api-version=2018-02-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd?api-version=2019-08-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd","name":"plan-quick-linux-cd","type":"Microsoft.Web/serverfarms","kind":"linux","location":"Japan
-        West","properties":{"serverFarmId":3590,"name":"plan-quick-linux-cd","workerSize":"Default","workerSizeId":0,"workerTierName":null,"numberOfWorkers":1,"currentWorkerSize":"Default","currentWorkerSizeId":0,"currentNumberOfWorkers":1,"status":"Ready","webSpace":"clitest.rg000001-JapanWestwebspace","subscription":"e483435e-282d-4ac1-92b5-d6123f2aa360","adminSiteName":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"maximumNumberOfWorkers":3,"planName":"VirtualDedicatedPlan","adminRuntimeSiteName":null,"computeMode":"Dedicated","siteMode":null,"geoRegion":"Japan
-        West","perSiteScaling":false,"maximumElasticWorkerCount":1,"numberOfSites":0,"hostingEnvironmentId":null,"isSpot":false,"spotExpirationTime":null,"freeOfferExpirationTime":"2019-07-11T00:26:35.3366667","tags":null,"kind":"linux","resourceGroup":"clitest.rg000001","reserved":true,"isXenon":false,"hyperV":false,"mdmId":"waws-prod-os1-009_3590","targetWorkerCount":0,"targetWorkerSizeId":0,"provisioningState":"Succeeded","webSiteId":null},"sku":{"name":"B1","tier":"Basic","size":"B1","family":"B","capacity":1}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd","name":"plan-quick-linux-cd","type":"Microsoft.Web/serverfarms","kind":"linux","location":"East
+        US 2","properties":{"serverFarmId":4164,"name":"plan-quick-linux-cd","workerSize":"Default","workerSizeId":0,"workerTierName":null,"numberOfWorkers":1,"currentWorkerSize":"Default","currentWorkerSizeId":0,"currentNumberOfWorkers":1,"status":"Ready","webSpace":"clitest.rg000001-EastUS2webspace","subscription":"e483435e-282d-4ac1-92b5-d6123f2aa360","adminSiteName":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"maximumNumberOfWorkers":3,"planName":"VirtualDedicatedPlan","adminRuntimeSiteName":null,"computeMode":"Dedicated","siteMode":null,"geoRegion":"East
+        US 2","perSiteScaling":false,"maximumElasticWorkerCount":1,"numberOfSites":0,"hostingEnvironmentId":null,"isSpot":false,"spotExpirationTime":null,"freeOfferExpirationTime":"2020-11-12T17:33:49.47","tags":null,"kind":"linux","resourceGroup":"clitest.rg000001","reserved":true,"isXenon":false,"hyperV":false,"mdmId":"waws-prod-bn1-073_4164","targetWorkerCount":0,"targetWorkerSizeId":0,"provisioningState":"Succeeded","webSiteId":null,"existingServerFarmIds":null},"sku":{"name":"B1","tier":"Basic","size":"B1","family":"B","capacity":1}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '1515'
+      - '1535'
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 00:26:49 GMT
+      - Tue, 13 Oct 2020 17:33:55 GMT
       expires:
       - '-1'
       pragma:
@@ -319,8 +269,8 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: 'b''b\''{"name": "webapp-linux-cd000002", "type": "Microsoft.Web/sites",
-      "location": "Japan West", "properties": {"serverFarmId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd"}}\'''''
+    body: '{"name": "webapp-linux-cd000002", "type": "Microsoft.Web/sites", "location":
+      "East US 2", "properties": {"serverFarmId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd"}}'
     headers:
       Accept:
       - application/json
@@ -331,18 +281,18 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '327'
+      - '326'
       Content-Type:
       - application/json; charset=utf-8
       ParameterSetName:
       - -g -n --plan -u -r
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: POST
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/validate?api-version=2018-02-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/validate?api-version=2019-08-01
   response:
     body:
       string: '{"status":"Success","error":null}'
@@ -354,7 +304,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 00:26:49 GMT
+      - Tue, 13 Oct 2020 17:33:55 GMT
       expires:
       - '-1'
       pragma:
@@ -372,7 +322,7 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-ratelimit-remaining-subscription-writes:
-      - '1199'
+      - '1198'
       x-powered-by:
       - ASP.NET
     status:
@@ -392,26 +342,26 @@ interactions:
       ParameterSetName:
       - -g -n --plan -u -r
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd?api-version=2018-02-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd?api-version=2019-08-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd","name":"plan-quick-linux-cd","type":"Microsoft.Web/serverfarms","kind":"linux","location":"Japan
-        West","properties":{"serverFarmId":3590,"name":"plan-quick-linux-cd","workerSize":"Default","workerSizeId":0,"workerTierName":null,"numberOfWorkers":1,"currentWorkerSize":"Default","currentWorkerSizeId":0,"currentNumberOfWorkers":1,"status":"Ready","webSpace":"clitest.rg000001-JapanWestwebspace","subscription":"e483435e-282d-4ac1-92b5-d6123f2aa360","adminSiteName":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"maximumNumberOfWorkers":3,"planName":"VirtualDedicatedPlan","adminRuntimeSiteName":null,"computeMode":"Dedicated","siteMode":null,"geoRegion":"Japan
-        West","perSiteScaling":false,"maximumElasticWorkerCount":1,"numberOfSites":0,"hostingEnvironmentId":null,"isSpot":false,"spotExpirationTime":null,"freeOfferExpirationTime":"2019-07-11T00:26:35.3366667","tags":null,"kind":"linux","resourceGroup":"clitest.rg000001","reserved":true,"isXenon":false,"hyperV":false,"mdmId":"waws-prod-os1-009_3590","targetWorkerCount":0,"targetWorkerSizeId":0,"provisioningState":"Succeeded","webSiteId":null},"sku":{"name":"B1","tier":"Basic","size":"B1","family":"B","capacity":1}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd","name":"plan-quick-linux-cd","type":"Microsoft.Web/serverfarms","kind":"linux","location":"East
+        US 2","properties":{"serverFarmId":4164,"name":"plan-quick-linux-cd","workerSize":"Default","workerSizeId":0,"workerTierName":null,"numberOfWorkers":1,"currentWorkerSize":"Default","currentWorkerSizeId":0,"currentNumberOfWorkers":1,"status":"Ready","webSpace":"clitest.rg000001-EastUS2webspace","subscription":"e483435e-282d-4ac1-92b5-d6123f2aa360","adminSiteName":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"maximumNumberOfWorkers":3,"planName":"VirtualDedicatedPlan","adminRuntimeSiteName":null,"computeMode":"Dedicated","siteMode":null,"geoRegion":"East
+        US 2","perSiteScaling":false,"maximumElasticWorkerCount":1,"numberOfSites":0,"hostingEnvironmentId":null,"isSpot":false,"spotExpirationTime":null,"freeOfferExpirationTime":"2020-11-12T17:33:49.47","tags":null,"kind":"linux","resourceGroup":"clitest.rg000001","reserved":true,"isXenon":false,"hyperV":false,"mdmId":"waws-prod-bn1-073_4164","targetWorkerCount":0,"targetWorkerSizeId":0,"provisioningState":"Succeeded","webSiteId":null,"existingServerFarmIds":null},"sku":{"name":"B1","tier":"Basic","size":"B1","family":"B","capacity":1}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '1515'
+      - '1535'
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 00:26:51 GMT
+      - Tue, 13 Oct 2020 17:33:55 GMT
       expires:
       - '-1'
       pragma:
@@ -434,107 +384,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: null
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - webapp create
-      Connection:
-      - keep-alive
-      ParameterSetName:
-      - -g -n --plan -u -r
-      User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
-      accept-language:
-      - en-US
-    method: GET
-    uri: https://management.azure.com/providers/Microsoft.Web/availableStacks?osTypeSelected=Linux&api-version=2018-02-01
-  response:
-    body:
-      string: '{"value":[{"id":null,"name":"ruby","type":"Microsoft.Web/availableStacks?osTypeSelected=Linux","properties":{"name":"ruby","display":"Ruby","dependency":null,"majorVersions":[{"displayVersion":"Ruby
-        2.3","runtimeVersion":"RUBY|2.3","isDefault":false,"minorVersions":[{"displayVersion":"2.3.3","runtimeVersion":"RUBY|2.3.3","isDefault":false,"isRemoteDebuggingEnabled":false},{"displayVersion":"2.3.8","runtimeVersion":"RUBY|2.3.8","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":"Ruby
-        2.4","runtimeVersion":"RUBY|2.4","isDefault":true,"minorVersions":[{"displayVersion":"2.4.5","runtimeVersion":"RUBY|2.4.5","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":"Ruby
-        2.5","runtimeVersion":"RUBY|2.5","isDefault":false,"minorVersions":[{"displayVersion":"2.5.5","runtimeVersion":"RUBY|2.5.5","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":"Ruby
-        2.6","runtimeVersion":"RUBY|2.6","isDefault":false,"minorVersions":[{"displayVersion":"2.6.2","runtimeVersion":"RUBY|2.6.2","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false}],"frameworks":[]}},{"id":null,"name":"node","type":"Microsoft.Web/availableStacks?osTypeSelected=Linux","properties":{"name":"node","display":"Node.js","dependency":null,"majorVersions":[{"displayVersion":"Node.js
-        LTS","runtimeVersion":"NODE|lts","isDefault":true,"minorVersions":[{"displayVersion":"LTS","runtimeVersion":"NODE|lts","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":"Node.js
-        4.4","runtimeVersion":"NODE|4.4","isDefault":false,"minorVersions":[{"displayVersion":"4.4","runtimeVersion":"NODE|4.4","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":"Node.js
-        4.5","runtimeVersion":"NODE|4.5","isDefault":false,"minorVersions":[{"displayVersion":"4.5","runtimeVersion":"NODE|4.5","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":"Node.js
-        4.8","runtimeVersion":"NODE|4.8","isDefault":false,"minorVersions":[{"displayVersion":"4.8","runtimeVersion":"NODE|4.8.7","isDefault":false,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":"Node.js
-        6.2","runtimeVersion":"NODE|6.2","isDefault":false,"minorVersions":[{"displayVersion":"6.2","runtimeVersion":"NODE|6.2","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":"Node.js
-        6.6","runtimeVersion":"NODE|6.6","isDefault":false,"minorVersions":[{"displayVersion":"6.6","runtimeVersion":"NODE|6.6","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":"Node.js
-        6.9","runtimeVersion":"NODE|6.9","isDefault":false,"minorVersions":[{"displayVersion":"6.9","runtimeVersion":"NODE|6.9","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":"Node.js
-        6.10","runtimeVersion":"NODE|6.10","isDefault":false,"minorVersions":[{"displayVersion":"6.10","runtimeVersion":"NODE|6.10","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":"Node.js
-        6.11","runtimeVersion":"NODE|6.11","isDefault":false,"minorVersions":[{"displayVersion":"6.11","runtimeVersion":"NODE|6.11","isDefault":true,"isRemoteDebuggingEnabled":true}],"applicationInsights":false},{"displayVersion":"Node.js
-        8.0","runtimeVersion":"NODE|8.0","isDefault":false,"minorVersions":[{"displayVersion":"8.0","runtimeVersion":"NODE|8.0","isDefault":true,"isRemoteDebuggingEnabled":true}],"applicationInsights":false},{"displayVersion":"Node.js
-        8.1","runtimeVersion":"NODE|8.1","isDefault":false,"minorVersions":[{"displayVersion":"8.1","runtimeVersion":"NODE|8.1","isDefault":true,"isRemoteDebuggingEnabled":true}],"applicationInsights":false},{"displayVersion":"Node.js
-        8.2","runtimeVersion":"NODE|8.2","isDefault":false,"minorVersions":[{"displayVersion":"8.2","runtimeVersion":"NODE|8.2","isDefault":true,"isRemoteDebuggingEnabled":true}],"applicationInsights":false},{"displayVersion":"Node.js
-        8.8","runtimeVersion":"NODE|8.8","isDefault":false,"minorVersions":[{"displayVersion":"8.8","runtimeVersion":"NODE|8.8","isDefault":true,"isRemoteDebuggingEnabled":true}],"applicationInsights":false},{"displayVersion":"Node.js
-        8.9","runtimeVersion":"NODE|8.9","isDefault":false,"minorVersions":[{"displayVersion":"8.9","runtimeVersion":"NODE|8.9","isDefault":true,"isRemoteDebuggingEnabled":true}],"applicationInsights":false},{"displayVersion":"Node.js
-        8.11","runtimeVersion":"NODE|8.11","isDefault":false,"minorVersions":[{"displayVersion":"8.11","runtimeVersion":"NODE|8.11","isDefault":true,"isRemoteDebuggingEnabled":true}],"applicationInsights":false},{"displayVersion":"Node.js
-        8.12","runtimeVersion":"NODE|8.12","isDefault":false,"minorVersions":[{"displayVersion":"8.12","runtimeVersion":"NODE|8.12","isDefault":true,"isRemoteDebuggingEnabled":true}],"applicationInsights":false},{"displayVersion":"Node.js
-        9.4","runtimeVersion":"NODE|9.4","isDefault":false,"minorVersions":[{"displayVersion":"9.4","runtimeVersion":"NODE|9.4","isDefault":true,"isRemoteDebuggingEnabled":true}],"applicationInsights":false},{"displayVersion":"Node.js
-        10.1","runtimeVersion":"NODE|10.1","isDefault":false,"minorVersions":[{"displayVersion":"10.1","runtimeVersion":"NODE|10.1","isDefault":true,"isRemoteDebuggingEnabled":true}],"applicationInsights":false},{"displayVersion":"Node.js
-        10.10","runtimeVersion":"NODE|10.10","isDefault":false,"minorVersions":[{"displayVersion":"10.10","runtimeVersion":"NODE|10.10","isDefault":true,"isRemoteDebuggingEnabled":true}],"applicationInsights":false},{"displayVersion":"Node.js
-        10.12","runtimeVersion":"NODE|10.12","isDefault":false,"minorVersions":[{"displayVersion":"10.12","runtimeVersion":"NODE|10.12","isDefault":true,"isRemoteDebuggingEnabled":true}],"applicationInsights":false},{"displayVersion":"Node.js
-        10.14","runtimeVersion":"NODE|10.14","isDefault":false,"minorVersions":[{"displayVersion":"10.14","runtimeVersion":"NODE|10.14","isDefault":true,"isRemoteDebuggingEnabled":true}],"applicationInsights":false}],"frameworks":[]}},{"id":null,"name":"php","type":"Microsoft.Web/availableStacks?osTypeSelected=Linux","properties":{"name":"php","display":"PHP","dependency":null,"majorVersions":[{"displayVersion":"PHP
-        5.6","runtimeVersion":"PHP|5.6","isDefault":false,"minorVersions":[{"displayVersion":"5.6.40-apache","runtimeVersion":"PHP|5.6","isDefault":true,"isRemoteDebuggingEnabled":false},{"displayVersion":"5.6.40-apache-xdebug","runtimeVersion":"PHP|5.6","isDefault":false,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":"PHP
-        7.0","runtimeVersion":"PHP|7.0","isDefault":false,"minorVersions":[{"displayVersion":"7.0.33-apache","runtimeVersion":"PHP|7.0","isDefault":true,"isRemoteDebuggingEnabled":false},{"displayVersion":"7.0.33-apache-xdebug","runtimeVersion":"PHP|7.0","isDefault":false,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":"PHP
-        7.2","runtimeVersion":"PHP|7.2","isDefault":true,"minorVersions":[{"displayVersion":"7.2.15-apache","runtimeVersion":"PHP|7.2","isDefault":true,"isRemoteDebuggingEnabled":false},{"displayVersion":"7.2.15-apache-xdebug","runtimeVersion":"PHP|7.2","isDefault":false,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":"PHP
-        7.3","runtimeVersion":"PHP|7.3","isDefault":true,"minorVersions":[{"displayVersion":"7.3.2-apache","runtimeVersion":"PHP|7.3","isDefault":true,"isRemoteDebuggingEnabled":false},{"displayVersion":"7.3.2-apache-xdebug","runtimeVersion":"PHP|7.3","isDefault":false,"isRemoteDebuggingEnabled":false},{"displayVersion":"7.3.2-apache","runtimeVersion":"PHP|7.3","isDefault":false,"isRemoteDebuggingEnabled":false}],"applicationInsights":false}],"frameworks":[]}},{"id":null,"name":"dotnetcore","type":"Microsoft.Web/availableStacks?osTypeSelected=Linux","properties":{"name":"dotnetcore","display":".NET
-        Core","dependency":null,"majorVersions":[{"displayVersion":".NET Core 1.0","runtimeVersion":"DOTNETCORE|1.0","isDefault":false,"minorVersions":[{"displayVersion":"1.0.14","runtimeVersion":"DOTNETCORE|1.0","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":".NET
-        Core 1.1","runtimeVersion":"DOTNETCORE|1.1","isDefault":false,"minorVersions":[{"displayVersion":"1.1.11","runtimeVersion":"DOTNETCORE|1.1","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":".NET
-        Core 2.0","runtimeVersion":"DOTNETCORE|2.0","isDefault":false,"minorVersions":[{"displayVersion":"2.0.9","runtimeVersion":"DOTNETCORE|2.0","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":".NET
-        Core 2.1","runtimeVersion":"DOTNETCORE|2.1","isDefault":true,"minorVersions":[{"displayVersion":"2.1.8","runtimeVersion":"DOTNETCORE|2.1","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":".NET
-        Core 2.2","runtimeVersion":"DOTNETCORE|2.2","isDefault":false,"minorVersions":[{"displayVersion":"2.2.2","runtimeVersion":"DOTNETCORE|2.2","isDefault":false,"isRemoteDebuggingEnabled":false}],"applicationInsights":false}],"frameworks":[]}},{"id":null,"name":"java8","type":"Microsoft.Web/availableStacks?osTypeSelected=Linux","properties":{"name":"java8","display":"Java
-        8","dependency":null,"majorVersions":[{"displayVersion":"Tomcat 8.5","runtimeVersion":"TOMCAT|8.5-jre8","isDefault":false,"minorVersions":[{"displayVersion":"8.5","runtimeVersion":"TOMCAT|8.5-jre8","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":true},{"displayVersion":"Tomcat
-        9.0","runtimeVersion":"TOMCAT|9.0-jre8","isDefault":true,"minorVersions":[{"displayVersion":"9.0","runtimeVersion":"TOMCAT|9.0-jre8","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":true},{"displayVersion":"Java
-        SE","runtimeVersion":"JAVA|8-jre8","isDefault":true,"minorVersions":[{"displayVersion":"8","runtimeVersion":"JAVA|8-jre8","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":"WildFly
-        14 - Preview","runtimeVersion":"WILDFLY|14-jre8","isDefault":true,"minorVersions":[{"displayVersion":"14","runtimeVersion":"WILDFLY|14-jre8","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":true}],"frameworks":[]}},{"id":null,"name":"java11","type":"Microsoft.Web/availableStacks?osTypeSelected=Linux","properties":{"name":"java11","display":"Java
-        11","dependency":null,"majorVersions":[{"displayVersion":"Tomcat 8.5","runtimeVersion":"TOMCAT|8.5-java11","isDefault":false,"minorVersions":[{"displayVersion":"8.5","runtimeVersion":"TOMCAT|8.5-java11","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":true},{"displayVersion":"Tomcat
-        9.0","runtimeVersion":"TOMCAT|9.0-java11","isDefault":false,"minorVersions":[{"displayVersion":"9.0","runtimeVersion":"TOMCAT|9.0-java11","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":true},{"displayVersion":"Java
-        SE","runtimeVersion":"JAVA|11-java11","isDefault":true,"minorVersions":[{"displayVersion":"11","runtimeVersion":"JAVA|11-java11","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false}],"frameworks":[]}},{"id":null,"name":"python","type":"Microsoft.Web/availableStacks?osTypeSelected=Linux","properties":{"name":"python","display":"Python","dependency":null,"majorVersions":[{"displayVersion":"Python
-        3.7","runtimeVersion":"PYTHON|3.7","isDefault":true,"minorVersions":[{"displayVersion":"3.7","runtimeVersion":"PYTHON|3.7","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":"Python
-        3.6","runtimeVersion":"PYTHON|3.6","isDefault":false,"minorVersions":[{"displayVersion":"3.6","runtimeVersion":"PYTHON|3.6","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false},{"displayVersion":"Python
-        2.7","runtimeVersion":"PYTHON|2.7","isDefault":false,"minorVersions":[{"displayVersion":"2.7","runtimeVersion":"PYTHON|2.7","isDefault":true,"isRemoteDebuggingEnabled":false}],"applicationInsights":false}],"frameworks":[]}}],"nextLink":null,"id":null}'
-    headers:
-      cache-control:
-      - no-cache
-      content-length:
-      - '12309'
-      content-type:
-      - application/json
-      date:
-      - Tue, 11 Jun 2019 00:26:53 GMT
-      expires:
-      - '-1'
-      pragma:
-      - no-cache
-      server:
-      - Microsoft-IIS/10.0
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
-      x-aspnet-version:
-      - 4.0.30319
-      x-content-type-options:
-      - nosniff
-      x-powered-by:
-      - ASP.NET
-    status:
-      code: 200
-      message: OK
-- request:
-    body: 'b''{"location": "Japan West", "properties": {"serverFarmId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd",
-      "reserved": false, "isXenon": false, "hyperV": false, "siteConfig": {"netFrameworkVersion":
-      "v4.6", "linuxFxVersion": "node|10.14", "appSettings": [], "localMySqlEnabled":
-      false, "http20Enabled": true}, "scmSiteAlsoStopped": false}}'''
+    body: '{"name": "webapp-linux-cd000002", "type": "Site"}'
     headers:
       Accept:
       - application/json
@@ -545,33 +395,95 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '492'
+      - '52'
       Content-Type:
       - application/json; charset=utf-8
       ParameterSetName:
       - -g -n --plan -u -r
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
-    method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002?api-version=2018-11-01
+    method: POST
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Web/checknameavailability?api-version=2019-08-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002","name":"webapp-linux-cd000002","type":"Microsoft.Web/sites","kind":"app,linux","location":"Japan
-        West","properties":{"name":"webapp-linux-cd000002","state":"Running","hostNames":["webapp-linux-cd000002.azurewebsites.net"],"webSpace":"clitest.rg000001-JapanWestwebspace","selfLink":"https://waws-prod-os1-009.api.azurewebsites.windows.net:454/subscriptions/00000000-0000-0000-0000-000000000000/webspaces/clitest.rg000001-JapanWestwebspace/sites/webapp-linux-cd000002","repositorySiteName":"webapp-linux-cd000002","owner":null,"usageState":"Normal","enabled":true,"adminEnabled":true,"enabledHostNames":["webapp-linux-cd000002.azurewebsites.net","webapp-linux-cd000002.scm.azurewebsites.net"],"siteProperties":{"metadata":null,"properties":[{"name":"LinuxFxVersion","value":"node|10.14"},{"name":"WindowsFxVersion","value":null}],"appSettings":null},"availabilityState":"Normal","sslCertificates":null,"csrs":[],"cers":null,"siteMode":null,"hostNameSslStates":[{"name":"webapp-linux-cd000002.azurewebsites.net","sslState":"Disabled","ipBasedSslResult":null,"virtualIP":null,"thumbprint":null,"toUpdate":null,"toUpdateIpBasedSsl":null,"ipBasedSslState":"NotConfigured","hostType":"Standard"},{"name":"webapp-linux-cd000002.scm.azurewebsites.net","sslState":"Disabled","ipBasedSslResult":null,"virtualIP":null,"thumbprint":null,"toUpdate":null,"toUpdateIpBasedSsl":null,"ipBasedSslState":"NotConfigured","hostType":"Repository"}],"computeMode":null,"serverFarm":null,"serverFarmId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd","reserved":true,"isXenon":false,"hyperV":false,"lastModifiedTimeUtc":"2019-06-11T00:26:57.6866667","storageRecoveryDefaultState":"Running","contentAvailabilityState":"Normal","runtimeAvailabilityState":"Normal","siteConfig":null,"deploymentId":"webapp-linux-cd000002","trafficManagerHostNames":null,"sku":"Basic","scmSiteAlsoStopped":false,"targetSwapSlot":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"clientAffinityEnabled":true,"clientCertEnabled":false,"clientCertExclusionPaths":null,"hostNamesDisabled":false,"domainVerificationIdentifiers":null,"kind":"app,linux","outboundIpAddresses":"104.215.58.230,104.215.53.202,104.215.62.87,104.215.51.91,104.215.63.211","possibleOutboundIpAddresses":"104.215.58.230,104.215.53.202,104.215.62.87,104.215.51.91,104.215.63.211,13.73.235.66,104.215.11.91","containerSize":0,"dailyMemoryTimeQuota":0,"suspendedTill":null,"siteDisabledReason":0,"functionExecutionUnitsCache":null,"maxNumberOfWorkers":null,"homeStamp":"waws-prod-os1-009","cloningInfo":null,"hostingEnvironmentId":null,"tags":null,"resourceGroup":"clitest.rg000001","defaultHostName":"webapp-linux-cd000002.azurewebsites.net","slotSwapStatus":null,"httpsOnly":false,"redundancyMode":"None","inProgressOperationId":null,"geoDistributions":null}}'
+      string: '{"nameAvailable":true,"reason":"","message":""}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '3366'
+      - '47'
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 00:27:16 GMT
+      - Tue, 13 Oct 2020 17:33:56 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-IIS/10.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-aspnet-version:
+      - 4.0.30319
+      x-content-type-options:
+      - nosniff
+      x-powered-by:
+      - ASP.NET
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"location": "East US 2", "properties": {"serverFarmId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd",
+      "reserved": false, "isXenon": false, "hyperV": false, "siteConfig": {"netFrameworkVersion":
+      "v4.6", "linuxFxVersion": "node|10.14", "appSettings": [], "localMySqlEnabled":
+      false, "http20Enabled": true}, "scmSiteAlsoStopped": false, "httpsOnly": false}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - webapp create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '511'
+      Content-Type:
+      - application/json; charset=utf-8
+      ParameterSetName:
+      - -g -n --plan -u -r
+      User-Agent:
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
+      accept-language:
+      - en-US
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002?api-version=2019-08-01
+  response:
+    body:
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002","name":"webapp-linux-cd000002","type":"Microsoft.Web/sites","kind":"app,linux","location":"East
+        US 2","properties":{"name":"webapp-linux-cd000002","state":"Running","hostNames":["webapp-linux-cd000002.azurewebsites.net"],"webSpace":"clitest.rg000001-EastUS2webspace","selfLink":"https://waws-prod-bn1-073.api.azurewebsites.windows.net:454/subscriptions/00000000-0000-0000-0000-000000000000/webspaces/clitest.rg000001-EastUS2webspace/sites/webapp-linux-cd000002","repositorySiteName":"webapp-linux-cd000002","owner":null,"usageState":"Normal","enabled":true,"adminEnabled":true,"enabledHostNames":["webapp-linux-cd000002.azurewebsites.net","webapp-linux-cd000002.scm.azurewebsites.net"],"siteProperties":{"metadata":null,"properties":[{"name":"LinuxFxVersion","value":"node|10.14"},{"name":"WindowsFxVersion","value":null}],"appSettings":null},"availabilityState":"Normal","sslCertificates":null,"csrs":[],"cers":null,"siteMode":null,"hostNameSslStates":[{"name":"webapp-linux-cd000002.azurewebsites.net","sslState":"Disabled","ipBasedSslResult":null,"virtualIP":null,"thumbprint":null,"toUpdate":null,"toUpdateIpBasedSsl":null,"ipBasedSslState":"NotConfigured","hostType":"Standard"},{"name":"webapp-linux-cd000002.scm.azurewebsites.net","sslState":"Disabled","ipBasedSslResult":null,"virtualIP":null,"thumbprint":null,"toUpdate":null,"toUpdateIpBasedSsl":null,"ipBasedSslState":"NotConfigured","hostType":"Repository"}],"computeMode":null,"serverFarm":null,"serverFarmId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd","reserved":true,"isXenon":false,"hyperV":false,"lastModifiedTimeUtc":"2020-10-13T17:34:00.5966667","storageRecoveryDefaultState":"Running","contentAvailabilityState":"Normal","runtimeAvailabilityState":"Normal","siteConfig":{"numberOfWorkers":null,"defaultDocuments":null,"netFrameworkVersion":null,"phpVersion":null,"pythonVersion":null,"nodeVersion":null,"powerShellVersion":null,"linuxFxVersion":null,"windowsFxVersion":null,"requestTracingEnabled":null,"remoteDebuggingEnabled":null,"remoteDebuggingVersion":null,"httpLoggingEnabled":null,"azureMonitorLogCategories":null,"acrUseManagedIdentityCreds":false,"acrUserManagedIdentityID":null,"logsDirectorySizeLimit":null,"detailedErrorLoggingEnabled":null,"publishingUsername":null,"publishingPassword":null,"appSettings":null,"azureStorageAccounts":null,"metadata":null,"connectionStrings":null,"machineKey":null,"handlerMappings":null,"documentRoot":null,"scmType":null,"use32BitWorkerProcess":null,"webSocketsEnabled":null,"alwaysOn":null,"javaVersion":null,"javaContainer":null,"javaContainerVersion":null,"appCommandLine":null,"managedPipelineMode":null,"virtualApplications":null,"winAuthAdminState":null,"winAuthTenantState":null,"customAppPoolIdentityAdminState":null,"customAppPoolIdentityTenantState":null,"runtimeADUser":null,"runtimeADUserPassword":null,"loadBalancing":null,"routingRules":null,"experiments":null,"limits":null,"autoHealEnabled":null,"autoHealRules":null,"tracingOptions":null,"vnetName":null,"vnetRouteAllEnabled":null,"cors":null,"push":null,"apiDefinition":null,"apiManagementConfig":null,"autoSwapSlotName":null,"localMySqlEnabled":null,"managedServiceIdentityId":null,"xManagedServiceIdentityId":null,"ipSecurityRestrictions":[{"ipAddress":"Any","action":"Allow","priority":1,"name":"Allow
+        all","description":"Allow all access"}],"scmIpSecurityRestrictions":[{"ipAddress":"Any","action":"Allow","priority":1,"name":"Allow
+        all","description":"Allow all access"}],"scmIpSecurityRestrictionsUseMain":null,"http20Enabled":null,"minTlsVersion":null,"scmMinTlsVersion":null,"ftpsState":null,"preWarmedInstanceCount":null,"functionAppScaleLimit":null,"healthCheckPath":null,"fileChangeAuditEnabled":null,"functionsRuntimeScaleMonitoringEnabled":null,"websiteTimeZone":null,"minimumElasticInstanceCount":0},"deploymentId":"webapp-linux-cd000002","trafficManagerHostNames":null,"sku":"Basic","scmSiteAlsoStopped":false,"targetSwapSlot":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"clientAffinityEnabled":true,"clientCertEnabled":false,"clientCertMode":"Required","clientCertExclusionPaths":null,"hostNamesDisabled":false,"domainVerificationIdentifiers":null,"customDomainVerificationId":"30E3673979DFB5673924412D39370809E608E2DE4E889BD01C7B80FC38A57EED","kind":"app,linux","inboundIpAddress":"20.49.97.0","possibleInboundIpAddresses":"20.49.97.0","ftpUsername":"webapp-linux-cd000002\\$webapp-linux-cd000002","ftpsHostName":"ftps://waws-prod-bn1-073.ftp.azurewebsites.windows.net/site/wwwroot","outboundIpAddresses":"52.179.221.39,52.179.221.68,52.179.221.249,52.179.221.252,52.179.222.5,52.179.222.11","possibleOutboundIpAddresses":"52.179.221.39,52.179.221.68,52.179.221.249,52.179.221.252,52.179.222.5,52.179.222.11,52.179.222.18,52.179.222.22,52.179.222.29,52.179.222.35,52.179.222.133,52.179.222.134,52.138.105.158,52.138.106.182,52.138.106.227,52.138.106.247,52.138.107.49,52.138.107.161","containerSize":0,"dailyMemoryTimeQuota":0,"suspendedTill":null,"siteDisabledReason":0,"functionExecutionUnitsCache":null,"maxNumberOfWorkers":null,"homeStamp":"waws-prod-bn1-073","cloningInfo":null,"hostingEnvironmentId":null,"tags":null,"resourceGroup":"clitest.rg000001","defaultHostName":"webapp-linux-cd000002.azurewebsites.net","slotSwapStatus":null,"httpsOnly":false,"redundancyMode":"None","inProgressOperationId":null,"geoDistributions":null,"privateEndpointConnections":null,"buildVersion":null,"targetBuildVersion":null,"migrationState":null}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '6042'
+      content-type:
+      - application/json
+      date:
+      - Tue, 13 Oct 2020 17:34:16 GMT
       etag:
-      - '"1D51FEC6143B0AB"'
+      - '"1D6A18709C3EBA0"'
       expires:
       - '-1'
       pragma:
@@ -609,27 +521,27 @@ interactions:
       ParameterSetName:
       - -g -n --plan -u -r
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002?api-version=2018-11-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002?api-version=2019-08-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002","name":"webapp-linux-cd000002","type":"Microsoft.Web/sites","kind":"app,linux","location":"Japan
-        West","properties":{"name":"webapp-linux-cd000002","state":"Running","hostNames":["webapp-linux-cd000002.azurewebsites.net"],"webSpace":"clitest.rg000001-JapanWestwebspace","selfLink":"https://waws-prod-os1-009.api.azurewebsites.windows.net:454/subscriptions/00000000-0000-0000-0000-000000000000/webspaces/clitest.rg000001-JapanWestwebspace/sites/webapp-linux-cd000002","repositorySiteName":"webapp-linux-cd000002","owner":null,"usageState":"Normal","enabled":true,"adminEnabled":true,"enabledHostNames":["webapp-linux-cd000002.azurewebsites.net","webapp-linux-cd000002.scm.azurewebsites.net"],"siteProperties":{"metadata":null,"properties":[{"name":"LinuxFxVersion","value":"node|10.14"},{"name":"WindowsFxVersion","value":null}],"appSettings":null},"availabilityState":"Normal","sslCertificates":null,"csrs":[],"cers":null,"siteMode":null,"hostNameSslStates":[{"name":"webapp-linux-cd000002.azurewebsites.net","sslState":"Disabled","ipBasedSslResult":null,"virtualIP":null,"thumbprint":null,"toUpdate":null,"toUpdateIpBasedSsl":null,"ipBasedSslState":"NotConfigured","hostType":"Standard"},{"name":"webapp-linux-cd000002.scm.azurewebsites.net","sslState":"Disabled","ipBasedSslResult":null,"virtualIP":null,"thumbprint":null,"toUpdate":null,"toUpdateIpBasedSsl":null,"ipBasedSslState":"NotConfigured","hostType":"Repository"}],"computeMode":null,"serverFarm":null,"serverFarmId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd","reserved":true,"isXenon":false,"hyperV":false,"lastModifiedTimeUtc":"2019-06-11T00:26:58.1866667","storageRecoveryDefaultState":"Running","contentAvailabilityState":"Normal","runtimeAvailabilityState":"Normal","siteConfig":null,"deploymentId":"webapp-linux-cd000002","trafficManagerHostNames":null,"sku":"Basic","scmSiteAlsoStopped":false,"targetSwapSlot":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"clientAffinityEnabled":true,"clientCertEnabled":false,"clientCertExclusionPaths":null,"hostNamesDisabled":false,"domainVerificationIdentifiers":null,"kind":"app,linux","outboundIpAddresses":"104.215.58.230,104.215.53.202,104.215.62.87,104.215.51.91,104.215.63.211","possibleOutboundIpAddresses":"104.215.58.230,104.215.53.202,104.215.62.87,104.215.51.91,104.215.63.211,13.73.235.66,104.215.11.91","containerSize":0,"dailyMemoryTimeQuota":0,"suspendedTill":null,"siteDisabledReason":0,"functionExecutionUnitsCache":null,"maxNumberOfWorkers":null,"homeStamp":"waws-prod-os1-009","cloningInfo":null,"hostingEnvironmentId":null,"tags":null,"resourceGroup":"clitest.rg000001","defaultHostName":"webapp-linux-cd000002.azurewebsites.net","slotSwapStatus":null,"httpsOnly":false,"redundancyMode":"None","inProgressOperationId":null,"geoDistributions":null}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002","name":"webapp-linux-cd000002","type":"Microsoft.Web/sites","kind":"app,linux","location":"East
+        US 2","properties":{"name":"webapp-linux-cd000002","state":"Running","hostNames":["webapp-linux-cd000002.azurewebsites.net"],"webSpace":"clitest.rg000001-EastUS2webspace","selfLink":"https://waws-prod-bn1-073.api.azurewebsites.windows.net:454/subscriptions/00000000-0000-0000-0000-000000000000/webspaces/clitest.rg000001-EastUS2webspace/sites/webapp-linux-cd000002","repositorySiteName":"webapp-linux-cd000002","owner":null,"usageState":"Normal","enabled":true,"adminEnabled":true,"enabledHostNames":["webapp-linux-cd000002.azurewebsites.net","webapp-linux-cd000002.scm.azurewebsites.net"],"siteProperties":{"metadata":null,"properties":[{"name":"LinuxFxVersion","value":"node|10.14"},{"name":"WindowsFxVersion","value":null}],"appSettings":null},"availabilityState":"Normal","sslCertificates":null,"csrs":[],"cers":null,"siteMode":null,"hostNameSslStates":[{"name":"webapp-linux-cd000002.azurewebsites.net","sslState":"Disabled","ipBasedSslResult":null,"virtualIP":null,"thumbprint":null,"toUpdate":null,"toUpdateIpBasedSsl":null,"ipBasedSslState":"NotConfigured","hostType":"Standard"},{"name":"webapp-linux-cd000002.scm.azurewebsites.net","sslState":"Disabled","ipBasedSslResult":null,"virtualIP":null,"thumbprint":null,"toUpdate":null,"toUpdateIpBasedSsl":null,"ipBasedSslState":"NotConfigured","hostType":"Repository"}],"computeMode":null,"serverFarm":null,"serverFarmId":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/serverfarms/plan-quick-linux-cd","reserved":true,"isXenon":false,"hyperV":false,"lastModifiedTimeUtc":"2020-10-13T17:34:01.05","storageRecoveryDefaultState":"Running","contentAvailabilityState":"Normal","runtimeAvailabilityState":"Normal","siteConfig":{"numberOfWorkers":null,"defaultDocuments":null,"netFrameworkVersion":null,"phpVersion":null,"pythonVersion":null,"nodeVersion":null,"powerShellVersion":null,"linuxFxVersion":null,"windowsFxVersion":null,"requestTracingEnabled":null,"remoteDebuggingEnabled":null,"remoteDebuggingVersion":null,"httpLoggingEnabled":null,"azureMonitorLogCategories":null,"acrUseManagedIdentityCreds":false,"acrUserManagedIdentityID":null,"logsDirectorySizeLimit":null,"detailedErrorLoggingEnabled":null,"publishingUsername":null,"publishingPassword":null,"appSettings":null,"azureStorageAccounts":null,"metadata":null,"connectionStrings":null,"machineKey":null,"handlerMappings":null,"documentRoot":null,"scmType":null,"use32BitWorkerProcess":null,"webSocketsEnabled":null,"alwaysOn":null,"javaVersion":null,"javaContainer":null,"javaContainerVersion":null,"appCommandLine":null,"managedPipelineMode":null,"virtualApplications":null,"winAuthAdminState":null,"winAuthTenantState":null,"customAppPoolIdentityAdminState":null,"customAppPoolIdentityTenantState":null,"runtimeADUser":null,"runtimeADUserPassword":null,"loadBalancing":null,"routingRules":null,"experiments":null,"limits":null,"autoHealEnabled":null,"autoHealRules":null,"tracingOptions":null,"vnetName":null,"vnetRouteAllEnabled":null,"cors":null,"push":null,"apiDefinition":null,"apiManagementConfig":null,"autoSwapSlotName":null,"localMySqlEnabled":null,"managedServiceIdentityId":null,"xManagedServiceIdentityId":null,"ipSecurityRestrictions":null,"scmIpSecurityRestrictions":null,"scmIpSecurityRestrictionsUseMain":null,"http20Enabled":null,"minTlsVersion":null,"scmMinTlsVersion":null,"ftpsState":null,"preWarmedInstanceCount":null,"functionAppScaleLimit":null,"healthCheckPath":null,"fileChangeAuditEnabled":null,"functionsRuntimeScaleMonitoringEnabled":null,"websiteTimeZone":null,"minimumElasticInstanceCount":0},"deploymentId":"webapp-linux-cd000002","trafficManagerHostNames":null,"sku":"Basic","scmSiteAlsoStopped":false,"targetSwapSlot":null,"hostingEnvironment":null,"hostingEnvironmentProfile":null,"clientAffinityEnabled":true,"clientCertEnabled":false,"clientCertMode":"Required","clientCertExclusionPaths":null,"hostNamesDisabled":false,"domainVerificationIdentifiers":null,"customDomainVerificationId":"30E3673979DFB5673924412D39370809E608E2DE4E889BD01C7B80FC38A57EED","kind":"app,linux","inboundIpAddress":"20.49.97.0","possibleInboundIpAddresses":"20.49.97.0","ftpUsername":"webapp-linux-cd000002\\$webapp-linux-cd000002","ftpsHostName":"ftps://waws-prod-bn1-073.ftp.azurewebsites.windows.net/site/wwwroot","outboundIpAddresses":"52.179.221.39,52.179.221.68,52.179.221.249,52.179.221.252,52.179.222.5,52.179.222.11","possibleOutboundIpAddresses":"52.179.221.39,52.179.221.68,52.179.221.249,52.179.221.252,52.179.222.5,52.179.222.11,52.179.222.18,52.179.222.22,52.179.222.29,52.179.222.35,52.179.222.133,52.179.222.134,52.138.105.158,52.138.106.182,52.138.106.227,52.138.106.247,52.138.107.49,52.138.107.161","containerSize":0,"dailyMemoryTimeQuota":0,"suspendedTill":null,"siteDisabledReason":0,"functionExecutionUnitsCache":null,"maxNumberOfWorkers":null,"homeStamp":"waws-prod-bn1-073","cloningInfo":null,"hostingEnvironmentId":null,"tags":null,"resourceGroup":"clitest.rg000001","defaultHostName":"webapp-linux-cd000002.azurewebsites.net","slotSwapStatus":null,"httpsOnly":false,"redundancyMode":"None","inProgressOperationId":null,"geoDistributions":null,"privateEndpointConnections":[],"buildVersion":null,"targetBuildVersion":null,"migrationState":null}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '3366'
+      - '5837'
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 00:27:18 GMT
+      - Tue, 13 Oct 2020 17:34:16 GMT
       etag:
-      - '"1D51FEC6143B0AB"'
+      - '"1D6A18709C3EBA0"'
       expires:
       - '-1'
       pragma:
@@ -670,27 +582,27 @@ interactions:
       ParameterSetName:
       - -g -n --plan -u -r
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/sourcecontrols/web?api-version=2018-11-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/sourcecontrols/web?api-version=2019-08-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/sourcecontrols/web","name":"webapp-linux-cd000002","type":"Microsoft.Web/sites/sourcecontrols","location":"Japan
-        West","properties":{"repoUrl":"https://github.com/yugangw-msft/azure-site-test.git","branch":"master","isManualIntegration":true,"deploymentRollbackEnabled":false,"isMercurial":false,"provisioningState":"InProgress"}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/sourcecontrols/web","name":"webapp-linux-cd000002","type":"Microsoft.Web/sites/sourcecontrols","location":"East
+        US 2","properties":{"repoUrl":"https://github.com/yugangw-msft/azure-site-test.git","branch":"master","isManualIntegration":true,"isGitHubAction":false,"deploymentRollbackEnabled":false,"isMercurial":false,"provisioningState":"InProgress","gitHubActionConfiguration":null}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '538'
+      - '593'
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 00:27:44 GMT
+      - Tue, 13 Oct 2020 17:35:01 GMT
       etag:
-      - '"1D51FEC7CF8FE15"'
+      - '"1D6A1872E1BB675"'
       expires:
       - '-1'
       pragma:
@@ -704,7 +616,7 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-ratelimit-remaining-subscription-writes:
-      - '1199'
+      - '1197'
       x-powered-by:
       - ASP.NET
     status:
@@ -724,26 +636,26 @@ interactions:
       ParameterSetName:
       - -g -n --plan -u -r
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/sourcecontrols/web?api-version=2018-11-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/sourcecontrols/web?api-version=2019-08-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/sourcecontrols/web","name":"webapp-linux-cd000002","type":"Microsoft.Web/sites/sourcecontrols","location":"Japan
-        West","properties":{"repoUrl":"https://github.com/yugangw-msft/azure-site-test.git","branch":"master","isManualIntegration":true,"deploymentRollbackEnabled":false,"isMercurial":false,"provisioningState":"InProgress","provisioningDetails":"2019-06-11T00:28:14.2115531
-        http://webapp-linux-cd000002.scm.azurewebsites.net:80/api/deployments/latest?deployer=GitHub&time=2019-06-11_00-28-13Z"}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/sourcecontrols/web","name":"webapp-linux-cd000002","type":"Microsoft.Web/sites/sourcecontrols","location":"East
+        US 2","properties":{"repoUrl":"https://github.com/yugangw-msft/azure-site-test.git","branch":"master","isManualIntegration":true,"isGitHubAction":false,"deploymentRollbackEnabled":false,"isMercurial":false,"provisioningState":"InProgress","provisioningDetails":"2020-10-13T17:35:32.9879586
+        Ensuring ScmType done with True","gitHubActionConfiguration":null}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '712'
+      - '677'
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 00:28:16 GMT
+      - Tue, 13 Oct 2020 17:35:32 GMT
       etag:
-      - '"1D51FEC7CF8FE15"'
+      - '"1D6A1872E1BB675"'
       expires:
       - '-1'
       pragma:
@@ -779,26 +691,26 @@ interactions:
       ParameterSetName:
       - -g -n --plan -u -r
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/sourcecontrols/web?api-version=2018-11-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/sourcecontrols/web?api-version=2019-08-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/sourcecontrols/web","name":"webapp-linux-cd000002","type":"Microsoft.Web/sites/sourcecontrols","location":"Japan
-        West","properties":{"repoUrl":"https://github.com/yugangw-msft/azure-site-test.git","branch":"master","isManualIntegration":true,"deploymentRollbackEnabled":false,"isMercurial":false,"provisioningState":"InProgress","provisioningDetails":"2019-06-11T00:28:46.2580754
-        http://webapp-linux-cd000002.scm.azurewebsites.net:80/api/deployments/latest?deployer=GitHub&time=2019-06-11_00-28-13Z"}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/sourcecontrols/web","name":"webapp-linux-cd000002","type":"Microsoft.Web/sites/sourcecontrols","location":"East
+        US 2","properties":{"repoUrl":"https://github.com/yugangw-msft/azure-site-test.git","branch":"master","isManualIntegration":true,"isGitHubAction":false,"deploymentRollbackEnabled":false,"isMercurial":false,"provisioningState":"InProgress","provisioningDetails":"2020-10-13T17:35:54.7672231
+        http://webapp-linux-cd000002.scm.azurewebsites.net:80/api/deployments/latest?deployer=GitHub&time=2020-10-13_17-35-33Z","gitHubActionConfiguration":null}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '712'
+      - '767'
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 00:28:47 GMT
+      - Tue, 13 Oct 2020 17:36:03 GMT
       etag:
-      - '"1D51FEC7CF8FE15"'
+      - '"1D6A1872E1BB675"'
       expires:
       - '-1'
       pragma:
@@ -834,25 +746,25 @@ interactions:
       ParameterSetName:
       - -g -n --plan -u -r
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/sourcecontrols/web?api-version=2018-11-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/sourcecontrols/web?api-version=2019-08-01
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/sourcecontrols/web","name":"webapp-linux-cd000002","type":"Microsoft.Web/sites/sourcecontrols","location":"Japan
-        West","properties":{"repoUrl":"https://github.com/yugangw-msft/azure-site-test.git","branch":"master","isManualIntegration":true,"deploymentRollbackEnabled":false,"isMercurial":false,"provisioningState":"Succeeded"}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/sourcecontrols/web","name":"webapp-linux-cd000002","type":"Microsoft.Web/sites/sourcecontrols","location":"East
+        US 2","properties":{"repoUrl":"https://github.com/yugangw-msft/azure-site-test.git","branch":"master","isManualIntegration":true,"isGitHubAction":false,"deploymentRollbackEnabled":false,"isMercurial":false,"provisioningState":"Succeeded","gitHubActionConfiguration":null}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '537'
+      - '592'
       content-type:
       - application/json
       date:
-      - Tue, 11 Jun 2019 00:29:19 GMT
+      - Tue, 13 Oct 2020 17:36:33 GMT
       etag:
-      - '"1D51FEC7CF8FE15"'
+      - '"1D6A1872E1BB675"'
       expires:
       - '-1'
       pragma:
@@ -892,29 +804,23 @@ interactions:
       ParameterSetName:
       - -g -n --plan -u -r
       User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 azure-mgmt-web/0.42.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
+      - python/3.6.4 (Darwin-19.6.0-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-web/0.48.0 Azure-SDK-For-Python AZURECLI/2.12.1
       accept-language:
       - en-US
     method: POST
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/publishxml?api-version=2018-11-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.Web/sites/webapp-linux-cd000002/publishxml?api-version=2019-08-01
   response:
     body:
       string: <publishData><publishProfile profileName="webapp-linux-cd000002 - Web
         Deploy" publishMethod="MSDeploy" publishUrl="webapp-linux-cd000002.scm.azurewebsites.net:443"
-        msdeploySite="webapp-linux-cd000002" userName="$webapp-linux-cd000002" userPWD="JsFd2pok18M1NKpM3sphYbxxyJkp62lr7ZWnRh782wfBiPsKYflY83wTxoLK"
+        msdeploySite="webapp-linux-cd000002" userName="$webapp-linux-cd000002" userPWD="xa9wY43hBpDjPlM4Rc1GlbGNrxfeQ1kJxenzyJaqevpbklNTDcet6JpZiepc"
         destinationAppUrl="http://webapp-linux-cd000002.azurewebsites.net" SQLServerDBConnectionString=""
         mySQLDBConnectionString="" hostingProviderForumLink="" controlPanelLink="http://windows.azure.com"
         webSystem="WebSites"><databases /></publishProfile><publishProfile profileName="webapp-linux-cd000002
-        - FTP" publishMethod="FTP" publishUrl="ftp://waws-prod-os1-009.ftp.azurewebsites.windows.net/site/wwwroot"
+        - FTP" publishMethod="FTP" publishUrl="ftp://waws-prod-bn1-073.ftp.azurewebsites.windows.net/site/wwwroot"
         ftpPassiveMode="True" userName="webapp-linux-cd000002\$webapp-linux-cd000002"
-        userPWD="JsFd2pok18M1NKpM3sphYbxxyJkp62lr7ZWnRh782wfBiPsKYflY83wTxoLK" destinationAppUrl="http://webapp-linux-cd000002.azurewebsites.net"
-        SQLServerDBConnectionString="" mySQLDBConnectionString="" hostingProviderForumLink=""
-        controlPanelLink="http://windows.azure.com" webSystem="WebSites"><databases
-        /></publishProfile><publishProfile profileName="webapp-linux-cd000002 - ReadOnly
-        - FTP" publishMethod="FTP" publishUrl="ftp://waws-prod-os1-009dr.ftp.azurewebsites.windows.net/site/wwwroot"
-        ftpPassiveMode="True" userName="webapp-linux-cd000002\$webapp-linux-cd000002"
-        userPWD="JsFd2pok18M1NKpM3sphYbxxyJkp62lr7ZWnRh782wfBiPsKYflY83wTxoLK" destinationAppUrl="http://webapp-linux-cd000002.azurewebsites.net"
+        userPWD="xa9wY43hBpDjPlM4Rc1GlbGNrxfeQ1kJxenzyJaqevpbklNTDcet6JpZiepc" destinationAppUrl="http://webapp-linux-cd000002.azurewebsites.net"
         SQLServerDBConnectionString="" mySQLDBConnectionString="" hostingProviderForumLink=""
         controlPanelLink="http://windows.azure.com" webSystem="WebSites"><databases
         /></publishProfile></publishData>
@@ -922,11 +828,11 @@ interactions:
       cache-control:
       - no-cache
       content-length:
-      - '1730'
+      - '1150'
       content-type:
       - application/xml
       date:
-      - Tue, 11 Jun 2019 00:29:21 GMT
+      - Tue, 13 Oct 2020 17:36:35 GMT
       expires:
       - '-1'
       pragma:
@@ -940,7 +846,7 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-ratelimit-remaining-subscription-resource-requests:
-      - '11999'
+      - '11997'
       x-powered-by:
       - ASP.NET
     status:
@@ -961,68 +867,21 @@ interactions:
     uri: http://webapp-linux-cd000002.azurewebsites.net/
   response:
     body:
-      string: Hello world 4 using Node v10.14.1
+      string: Hello world 4 using Node v10.14.2
     headers:
       content-length:
       - '33'
       content-type:
       - text/html; charset=utf-8
       date:
-      - Tue, 11 Jun 2019 00:30:06 GMT
+      - Tue, 13 Oct 2020 17:37:43 GMT
       etag:
-      - W/"21-HH1DcHow4ZiJFv7CM6tYlAmQfNU"
+      - W/"21-Y1/wfdei+S14SZIuhOjhxBTBp94"
       set-cookie:
-      - ARRAffinity=9c77518a7d9129c67c7abafd80c9c5ea851de9b2345a245129e4292deced5c4c;Path=/;HttpOnly;Domain=webapp-linux-cdf6fryl4dx.azurewebsites.net
+      - ARRAffinity=463647d3d52d909394dc325a581498919044b50603eac83f11759d9e8b5651cd;Path=/;HttpOnly;Domain=webapp-linux-cdngboefnoe.azurewebsites.net
       x-powered-by:
       - Express
     status:
       code: 200
       message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      CommandName:
-      - group delete
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '0'
-      ParameterSetName:
-      - --name --yes --no-wait
-      User-Agent:
-      - python/3.6.6 (Windows-10-10.0.18362-SP0) msrest/0.6.6 msrest_azure/0.6.0 resourcemanagementclient/2.1.0
-        Azure-SDK-For-Python AZURECLI/2.0.66
-      accept-language:
-      - en-US
-    method: DELETE
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/clitest.rg000001?api-version=2018-05-01
-  response:
-    body:
-      string: ''
-    headers:
-      cache-control:
-      - no-cache
-      content-length:
-      - '0'
-      date:
-      - Tue, 11 Jun 2019 00:30:11 GMT
-      expires:
-      - '-1'
-      location:
-      - https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/operationresults/eyJqb2JJZCI6IlJFU09VUkNFR1JPVVBERUxFVElPTkpPQi1DTElURVNUOjJFUkdPSU0zM0g1RVJBSURMREozRVNCR1dSV0VRNE5GRVBMVzJVTXxGRUIxMzc1NjU2QjI5NDNELUpBUEFOV0VTVCIsImpvYkxvY2F0aW9uIjoiamFwYW53ZXN0In0?api-version=2018-05-01
-      pragma:
-      - no-cache
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains
-      x-content-type-options:
-      - nosniff
-      x-ms-ratelimit-remaining-subscription-deletes:
-      - '14999'
-    status:
-      code: 202
-      message: Accepted
 version: 1

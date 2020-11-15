@@ -1,48 +1,25 @@
 interactions:
 - request:
-    body: '{"location": "westus", "tags": {"date": "2018-11-29T06:38:21Z", "product":
-      "azurecli", "cause": "automation"}}'
-    headers:
-      Accept: [application/json]
-      Accept-Encoding: ['gzip, deflate']
-      CommandName: [group create]
-      Connection: [keep-alive]
-      Content-Length: ['110']
-      Content-Type: [application/json; charset=utf-8]
-      ParameterSetName: [--location --name --tag]
-      User-Agent: [python/3.5.2 (Windows-10-10.0.15063-SP0) msrest/0.6.2 msrest_azure/0.4.34
-          resourcemanagementclient/2.0.0 Azure-SDK-For-Python AZURECLI/2.0.52]
-      accept-language: [en-US]
-    method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/clitest.rg000001?api-version=2018-05-01
-  response:
-    body: {string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001","name":"clitest.rg000001","location":"westus","tags":{"date":"2018-11-29T06:38:21Z","product":"azurecli","cause":"automation"},"properties":{"provisioningState":"Succeeded"}}'}
-    headers:
-      cache-control: [no-cache]
-      content-length: ['274']
-      content-type: [application/json; charset=utf-8]
-      date: ['Thu, 29 Nov 2018 06:38:22 GMT']
-      expires: ['-1']
-      pragma: [no-cache]
-      strict-transport-security: [max-age=31536000; includeSubDomains]
-      x-content-type-options: [nosniff]
-      x-ms-ratelimit-remaining-subscription-writes: ['1197']
-    status: {code: 201, message: Created}
-- request:
     body: null
     headers:
-      Accept: [application/json]
-      Accept-Encoding: ['gzip, deflate']
-      CommandName: [unknown]
-      Connection: [keep-alive]
-      Content-Type: [application/json; charset=utf-8]
-      User-Agent: [python/3.6.1 (Windows-10-10.0.17134-SP0) requests/2.19.1 msrest/0.5.4
-                     msrest_azure/0.4.34 subscriptionclient/2.0.0 Azure-SDK-For-Python AZURECLI/2.0.46]
-      accept-language: [en-US]
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - unknown
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python/3.7.0 (Windows-10-10.0.18362-SP0) msrest/0.6.8 msrest_azure/0.6.2 azure-mgmt-resource/4.0.0
+        Azure-SDK-For-Python AZURECLI/2.0.77
+      accept-language:
+      - en-US
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/locations?api-version=2016-06-01
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/locations?api-version=2019-11-01
   response:
-    body: {string: '{"value":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/eastasia","name":"eastasia","displayName":"East
+    body:
+      string: '{"value":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/eastasia","name":"eastasia","displayName":"East
         Asia","longitude":"114.188","latitude":"22.267"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/southeastasia","name":"southeastasia","displayName":"Southeast
         Asia","longitude":"103.833","latitude":"1.283"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/centralus","name":"centralus","displayName":"Central
         US","longitude":"-93.6208","latitude":"41.5908"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/eastus","name":"eastus","displayName":"East
@@ -72,67 +49,174 @@ interactions:
         Central","longitude":"2.3730","latitude":"46.3772"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/francesouth","name":"francesouth","displayName":"France
         South","longitude":"2.1972","latitude":"43.8345"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/australiacentral","name":"australiacentral","displayName":"Australia
         Central","longitude":"149.1244","latitude":"-35.3075"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/australiacentral2","name":"australiacentral2","displayName":"Australia
-        Central 2","longitude":"149.1244","latitude":"-35.3075"}]}'}
+        Central 2","longitude":"149.1244","latitude":"-35.3075"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/uaecentral","name":"uaecentral","displayName":"UAE
+        Central","longitude":"54.366669","latitude":"24.466667"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/uaenorth","name":"uaenorth","displayName":"UAE
+        North","longitude":"55.316666","latitude":"25.266666"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/southafricanorth","name":"southafricanorth","displayName":"South
+        Africa North","longitude":"28.218370","latitude":"-25.731340"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/southafricawest","name":"southafricawest","displayName":"South
+        Africa West","longitude":"18.843266","latitude":"-34.075691"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/switzerlandnorth","name":"switzerlandnorth","displayName":"Switzerland
+        North","longitude":"8.564572","latitude":"47.451542"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/switzerlandwest","name":"switzerlandwest","displayName":"Switzerland
+        West","longitude":"6.143158","latitude":"46.204391"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/germanynorth","name":"germanynorth","displayName":"Germany
+        North","longitude":"8.806422","latitude":"53.073635"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/germanywestcentral","name":"germanywestcentral","displayName":"Germany
+        West Central","longitude":"8.682127","latitude":"50.110924"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/norwaywest","name":"norwaywest","displayName":"Norway
+        West","longitude":"5.733107","latitude":"58.969975"},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/norwayeast","name":"norwayeast","displayName":"Norway
+        East","longitude":"10.752245","latitude":"59.913868"}]}'
     headers:
-      cache-control: [no-cache]
-      content-length: ['5269']
-      content-type: [application/json; charset=utf-8]
-      date: ['Thu, 30 Aug 2018 21:32:02 GMT']
-      expires: ['-1']
-      pragma: [no-cache]
-      strict-transport-security: [max-age=31536000; includeSubDomains]
-      vary: [Accept-Encoding]
-      x-content-type-options: [nosniff]
-    status: {code: 200, message: OK}
+      cache-control:
+      - no-cache
+      content-length:
+      - '7129'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Nov 2019 19:57:16 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+    status:
+      code: 200
+      message: OK
 - request:
-    body: 'b''{"location": "global", "sku": {"name": "F0"}, "kind": "bot", "properties":
-      {"msaAppId": "5c262681-4f64-46f7-a8e0-1c098602228e", "endpoint": "https://www.google.com/api/messages",
-      "displayName": "cli000002"}}'''
+    body: '{"name": "cli000002", "type": "bot"}'
     headers:
-      Accept: [application/json]
-      Accept-Encoding: ['gzip, deflate']
-      CommandName: [bot create]
-      Connection: [keep-alive]
-      Content-Length: ['208']
-      Content-Type: [application/json; charset=utf-8]
-      ParameterSetName: [-k -g -n -e --appid]
-      User-Agent: [python/3.5.2 (Windows-10-10.0.15063-SP0) msrest/0.6.2 msrest_azure/0.4.34
-          azure-mgmt-botservice/0.1.0 Azure-SDK-For-Python AZURECLI/2.0.52]
-      accept-language: [en-US]
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - bot create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '37'
+      Content-Type:
+      - application/json; charset=utf-8
+      ParameterSetName:
+      - -k -g -n -e --appid -p
+      User-Agent:
+      - python/3.7.0 (Windows-10-10.0.18362-SP0) msrest/0.6.8 msrest_azure/0.6.2 azure-mgmt-botservice/0.2.0
+        Azure-SDK-For-Python AZURECLI/2.0.77
+      accept-language:
+      - en-US
+    method: POST
+    uri: https://management.azure.com/providers/Microsoft.BotService/checkNameAvailability?api-version=2018-07-12
+  response:
+    body:
+      string: '{"valid":true,"message":""}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '27'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Nov 2019 19:57:17 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-IIS/10.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding,Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-ms-ratelimit-remaining-tenant-writes:
+      - '1199'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"location": "global", "sku": {"name": "F0"}, "kind": "bot", "properties":
+      {"displayName": "cli000002", "endpoint": "https://www.google.com/api/messages",
+      "msaAppId": "be7f2ea2-6cf0-47a4-b05e-5374f7acd4c1"}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - bot create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '208'
+      Content-Type:
+      - application/json; charset=utf-8
+      ParameterSetName:
+      - -k -g -n -e --appid -p
+      User-Agent:
+      - python/3.7.0 (Windows-10-10.0.18362-SP0) msrest/0.6.8 msrest_azure/0.6.2 azure-mgmt-botservice/0.2.0
+        Azure-SDK-For-Python AZURECLI/2.0.77
+      accept-language:
+      - en-US
     method: PUT
     uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.BotService/botServices/cli000002?api-version=2018-07-12
   response:
-    body: {string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.BotService/botServices/cli000002","name":"cli000002","type":"Microsoft.BotService/botServices","etag":"W/\"datetime''2018-11-29T06%3A38%3A24.4303138Z''\"","location":"global","sku":{"name":"F0"},"kind":"bot","tags":{},"properties":{"displayName":"cli000002","description":"","iconUrl":"https://docs.botframework.com/static/devportal/client/images/bot-framework-default.png","endpoint":"https://www.google.com/api/messages","msaAppId":"5c262681-4f64-46f7-a8e0-1c098602228e","developerAppInsightKey":"","developerAppInsightsApplicationId":"","luisAppIds":[],"endpointVersion":"3.0","configuredChannels":["webchat"],"enabledChannels":["webchat","directline"],"isDeveloperAppInsightsApiKeySet":false,"publishingCredentials":null,"parameters":null,"allSettings":null,"manifestUrl":"","storageResourceId":null,"provisioningState":"Succeeded"}}'}
+    body:
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.BotService/botServices/cli000002","name":"cli000002","type":"Microsoft.BotService/botServices","etag":"\"6600f58a-0000-0100-0000-5de0269f0000\"","location":"global","sku":{"name":"F0"},"kind":"bot","tags":{},"properties":{"displayName":"cli000002","description":null,"iconUrl":"https://docs.botframework.com/static/devportal/client/images/bot-framework-default.png","endpoint":"https://www.google.com/api/messages","msaAppId":"be7f2ea2-6cf0-47a4-b05e-5374f7acd4c1","developerAppInsightKey":null,"developerAppInsightsApplicationId":null,"luisAppIds":[],"endpointVersion":"3.0","configuredChannels":["webchat"],"enabledChannels":["webchat","directline"],"isDeveloperAppInsightsApiKeySet":false,"isStreamingSupported":false,"publishingCredentials":null,"parameters":null,"allSettings":null,"manifestUrl":null,"storageResourceId":null,"provisioningState":"Succeeded"}}'
     headers:
-      cache-control: [no-cache]
-      content-length: ['953']
-      content-type: [application/json; charset=utf-8]
-      date: ['Thu, 29 Nov 2018 06:38:24 GMT']
-      etag: [W/"datetime'2018-11-29T06%3A38%3A24.4303138Z'"]
-      expires: ['-1']
-      pragma: [no-cache]
-      server: [Microsoft-IIS/10.0]
-      strict-transport-security: [max-age=31536000; includeSubDomains]
-      x-content-type-options: [nosniff]
-      x-ms-ratelimit-remaining-subscription-writes: ['1198']
-    status: {code: 201, message: Created}
+      cache-control:
+      - no-cache
+      content-length:
+      - '982'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Nov 2019 19:57:19 GMT
+      etag:
+      - '"6600f58a-0000-0100-0000-5de0269f0000"'
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-IIS/10.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-ms-ratelimit-remaining-subscription-writes:
+      - '1199'
+    status:
+      code: 201
+      message: Created
 - request:
     body: null
     headers:
-      Accept: [application/json]
-      Accept-Encoding: ['gzip, deflate']
-      CommandName: [bot authsetting create]
-      Connection: [keep-alive]
-      Content-Length: ['0']
-      ParameterSetName: [-g -n --client-id --client-secret --provider-scope-string
-          --service -c]
-      User-Agent: [python/3.5.2 (Windows-10-10.0.15063-SP0) msrest/0.6.2 msrest_azure/0.4.34
-          azure-mgmt-botservice/0.1.0 Azure-SDK-For-Python AZURECLI/2.0.52]
-      accept-language: [en-US]
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - bot authsetting create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      ParameterSetName:
+      - -g -n --client-id --client-secret --provider-scope-string --service -c
+      User-Agent:
+      - python/3.7.0 (Windows-10-10.0.18362-SP0) msrest/0.6.8 msrest_azure/0.6.2 azure-mgmt-botservice/0.2.0
+        Azure-SDK-For-Python AZURECLI/2.0.77
+      accept-language:
+      - en-US
     method: POST
     uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.BotService/listAuthServiceProviders?api-version=2018-07-12
   response:
-    body: {string: '{"value":[{"properties":{"id":"00ea67de-bfc6-4f45-9ede-083899596b7b","displayName":"Wunderlist","serviceProviderName":"wunderlist","devPortalUrl":null,"iconUrl":null,"parameters":[{"name":"ClientId","type":"string","displayName":"Client
+    body:
+      string: '{"value":[{"properties":{"id":"00ea67de-bfc6-4f45-9ede-083899596b7b","displayName":"Wunderlist","serviceProviderName":"wunderlist","devPortalUrl":null,"iconUrl":null,"parameters":[{"name":"ClientId","type":"string","displayName":"Client
         id","description":"The id used to identify this application with the service
         provider","helpUrl":null,"default":null},{"name":"ClientSecret","type":"securestring","displayName":"Client
         secret","description":"The shared secret used to authenticate this application
@@ -201,14 +285,7 @@ interactions:
         with the service provider","helpUrl":null,"default":null},{"name":"LoginUri","type":"string","displayName":"Login
         URL","description":"The Azure Active Directory login URL.","helpUrl":null,"default":"https://login.windows.net"},{"name":"ResourceUri","type":"string","displayName":"ResourceUri","description":"The
         resource URI for AAD.","helpUrl":null,"default":null},{"name":"TenantId","type":"string","displayName":"TenantId","description":"The
-        AAD tenant ID for this application.","helpUrl":null,"default":null}]}},{"properties":{"id":"48588eaf-3c7A-46db-88B9-0ea77d6C451a","displayName":"Workday","serviceProviderName":"workday","devPortalUrl":null,"iconUrl":null,"parameters":[{"name":"ClientId","type":"string","displayName":"Client
-        id","description":"The id used to identify this application with the service
-        provider","helpUrl":null,"default":null},{"name":"ClientSecret","type":"securestring","displayName":"Client
-        secret","description":"The shared secret used to authenticate this application
-        with the service provider","helpUrl":null,"default":null},{"name":"LoginUri","type":"string","displayName":"Login
-        URL","description":"The Workday login URL.","helpUrl":null,"default":null},{"name":"TokenUri","type":"string","displayName":"Token
-        URL","description":"The Workday token URL.","helpUrl":null,"default":null},{"name":"InstanceName","type":"string","displayName":"Instance
-        Name","description":"The Workday instance name specific for your tenant.","helpUrl":null,"default":null}]}},{"properties":{"id":"4b5c96f6-cca7-4048-bfd2-53e850a183f1","displayName":"Generic
+        AAD tenant ID for this application.","helpUrl":null,"default":null}]}},{"properties":{"id":"4b5c96f6-cca7-4048-bfd2-53e850a183f1","displayName":"Generic
         Oauth 2","serviceProviderName":"oauth2","devPortalUrl":null,"iconUrl":null,"parameters":[{"name":"ClientId","type":"string","displayName":"Client
         id","description":"The id used to identify this application with the service
         provider","helpUrl":null,"default":null},{"name":"ClientSecret","type":"securestring","displayName":"Client
@@ -364,10 +441,6 @@ interactions:
         id","description":"The id used to identify this application with the service
         provider","helpUrl":null,"default":null},{"name":"ClientSecret","type":"securestring","displayName":"Client
         secret","description":"The shared secret used to authenticate this application
-        with the service provider","helpUrl":null,"default":null}]}},{"properties":{"id":"cb4103d0-e5e7-4c7A-9712-eea4edf5b5be","displayName":"Fitbit","serviceProviderName":"fitbit","devPortalUrl":null,"iconUrl":null,"parameters":[{"name":"ClientId","type":"string","displayName":"Client
-        id","description":"The id used to identify this application with the service
-        provider","helpUrl":null,"default":null},{"name":"ClientSecret","type":"securestring","displayName":"Client
-        secret","description":"The shared secret used to authenticate this application
         with the service provider","helpUrl":null,"default":null}]}},{"properties":{"id":"d05eaacf-1593-4603-9c6c-d4d8fffa46cb","displayName":"GitHub","serviceProviderName":"github","devPortalUrl":null,"iconUrl":null,"parameters":[{"name":"ClientId","type":"string","displayName":"Client
         id","description":"The id used to identify this application with the service
         provider","helpUrl":null,"default":null},{"name":"ClientSecret","type":"securestring","displayName":"Client
@@ -396,169 +469,240 @@ interactions:
         provider","helpUrl":null,"default":null},{"name":"ClientSecret","type":"securestring","displayName":"Client
         secret","description":"The shared secret used to authenticate this application
         with the service provider","helpUrl":null,"default":null},{"name":"InstanceName","type":"string","displayName":"InstanceName","description":"Sugar
-        CRM Site InstanceName","helpUrl":null,"default":null}]}}]}'}
+        CRM Site InstanceName","helpUrl":null,"default":null}]}}]}'
     headers:
-      cache-control: [no-cache]
-      content-length: ['36008']
-      content-type: [application/json; charset=utf-8]
-      date: ['Thu, 29 Nov 2018 06:38:24 GMT']
-      expires: ['-1']
-      pragma: [no-cache]
-      server: [Microsoft-IIS/10.0]
-      strict-transport-security: [max-age=31536000; includeSubDomains]
-      transfer-encoding: [chunked]
-      vary: ['Accept-Encoding,Accept-Encoding']
-      x-content-type-options: [nosniff]
-      x-ms-ratelimit-remaining-subscription-writes: ['1196']
-    status: {code: 200, message: OK}
+      cache-control:
+      - no-cache
+      content-length:
+      - '34488'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Nov 2019 19:57:20 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-IIS/10.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding,Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-ms-ratelimit-remaining-subscription-writes:
+      - '1199'
+    status:
+      code: 200
+      message: OK
 - request:
-    body: '{"location": "global", "properties": {"serviceProviderId": "01340562-8c8f-4892-abd4-90daf0e5face",
-      "clientSecret": "secret", "scopes": "scope1 scope2", "parameters": [], "clientId":
-      "clientid"}}'
+    body: '{"location": "global", "properties": {"clientId": "clientid", "clientSecret":
+      "secret", "scopes": "scope1 scope2", "serviceProviderId": "01340562-8c8f-4892-abd4-90daf0e5face",
+      "parameters": []}}'
     headers:
-      Accept: [application/json]
-      Accept-Encoding: ['gzip, deflate']
-      CommandName: [bot authsetting create]
-      Connection: [keep-alive]
-      Content-Length: ['194']
-      Content-Type: [application/json; charset=utf-8]
-      ParameterSetName: [-g -n --client-id --client-secret --provider-scope-string
-          --service -c]
-      User-Agent: [python/3.5.2 (Windows-10-10.0.15063-SP0) msrest/0.6.2 msrest_azure/0.4.34
-          azure-mgmt-botservice/0.1.0 Azure-SDK-For-Python AZURECLI/2.0.52]
-      accept-language: [en-US]
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - bot authsetting create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '194'
+      Content-Type:
+      - application/json; charset=utf-8
+      ParameterSetName:
+      - -g -n --client-id --client-secret --provider-scope-string --service -c
+      User-Agent:
+      - python/3.7.0 (Windows-10-10.0.18362-SP0) msrest/0.6.8 msrest_azure/0.6.2 azure-mgmt-botservice/0.2.0
+        Azure-SDK-For-Python AZURECLI/2.0.77
+      accept-language:
+      - en-US
     method: PUT
     uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.BotService/botServices/cli000002/Connections/myconnname?api-version=2018-07-12
   response:
-    body: {string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.BotService/botServices/cli000002/connections/myconnname","name":"cli000002/myconnname","type":"Microsoft.BotService/botServices/connections","etag":"W/\"2fa1b551fa23a4c78f08e11d5369813911/29/2018
-        6:38:28 AM\"","location":"global","properties":{"settingId":"77256f2d-d63e-4b9b-3b81-367a6763a5fb_195dcb3a-899a-00df-6192","clientId":"clientid","clientSecret":"secret","scopes":"scope1
-        scope2","serviceProviderId":"01340562-8c8f-4892-abd4-90daf0e5face","serviceProviderDisplayName":null,"parameters":[],"provisioningState":"Succeeded"}}'}
+    body:
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.BotService/botServices/cli000002/connections/myconnname","name":"cli000002/myconnname","type":"Microsoft.BotService/botServices/connections","etag":"W/\"fdadcf5e3c8eda67332c1362044ee4fd11/28/2019
+        7:57:21 PM\"","location":"global","properties":{"settingId":"d3ca0c8e-ad0a-a4b3-99ab-ff24e1c84c52_195dcb3a-899a-00df-6192","clientId":"clientid","clientSecret":"secret","scopes":"scope1
+        scope2","serviceProviderId":"01340562-8c8f-4892-abd4-90daf0e5face","serviceProviderDisplayName":null,"parameters":[],"provisioningState":"Succeeded"}}'
     headers:
-      cache-control: [no-cache]
-      content-length: ['649']
-      content-type: [application/json; charset=utf-8]
-      date: ['Thu, 29 Nov 2018 06:38:27 GMT']
-      etag: ['W/"2fa1b551fa23a4c78f08e11d5369813911/29/2018 6:38:28 AM"']
-      expires: ['-1']
-      pragma: [no-cache]
-      server: [Microsoft-IIS/10.0]
-      strict-transport-security: [max-age=31536000; includeSubDomains]
-      x-content-type-options: [nosniff]
-      x-ms-ratelimit-remaining-subscription-writes: ['1199']
-    status: {code: 201, message: Created}
+      cache-control:
+      - no-cache
+      content-length:
+      - '649'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Nov 2019 19:57:21 GMT
+      etag:
+      - W/"fdadcf5e3c8eda67332c1362044ee4fd11/28/2019 7:57:21 PM"
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-IIS/10.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-ms-ratelimit-remaining-subscription-writes:
+      - '1199'
+    status:
+      code: 201
+      message: Created
 - request:
     body: null
     headers:
-      Accept: [application/json]
-      Accept-Encoding: ['gzip, deflate']
-      CommandName: [bot authsetting show]
-      Connection: [keep-alive]
-      ParameterSetName: [-c -g -n]
-      User-Agent: [python/3.5.2 (Windows-10-10.0.15063-SP0) msrest/0.6.2 msrest_azure/0.4.34
-          azure-mgmt-botservice/0.1.0 Azure-SDK-For-Python AZURECLI/2.0.52]
-      accept-language: [en-US]
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - bot authsetting show
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -c -g -n
+      User-Agent:
+      - python/3.7.0 (Windows-10-10.0.18362-SP0) msrest/0.6.8 msrest_azure/0.6.2 azure-mgmt-botservice/0.2.0
+        Azure-SDK-For-Python AZURECLI/2.0.77
+      accept-language:
+      - en-US
     method: GET
     uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.BotService/botServices/cli000002/Connections/myconnname?api-version=2018-07-12
   response:
-    body: {string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.BotService/botServices/cli000002/connections/myconnname","name":"cli000002/myconnname","type":"Microsoft.BotService/botServices/connections","etag":"W/\"2fa1b551fa23a4c78f08e11d5369813911/29/2018
-        6:38:29 AM\"","location":"global","properties":{"settingId":"77256f2d-d63e-4b9b-3b81-367a6763a5fb_195dcb3a-899a-00df-6192","clientId":"clientid","clientSecret":"secret","scopes":"scope1
-        scope2","serviceProviderId":"01340562-8c8f-4892-abd4-90daf0e5face","serviceProviderDisplayName":null,"parameters":[],"provisioningState":"Succeeded"}}'}
+    body:
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.BotService/botServices/cli000002/connections/myconnname","name":"cli000002/myconnname","type":"Microsoft.BotService/botServices/connections","etag":"W/\"32e8aeb21ec30d47cd612d2f7dca2f5511/28/2019
+        7:57:22 PM\"","location":"global","properties":{"settingId":"d3ca0c8e-ad0a-a4b3-99ab-ff24e1c84c52_195dcb3a-899a-00df-6192","clientId":"clientid","clientSecret":"**********","scopes":"scope1
+        scope2","serviceProviderId":"01340562-8c8f-4892-abd4-90daf0e5face","serviceProviderDisplayName":null,"parameters":[],"provisioningState":"Succeeded"}}'
     headers:
-      cache-control: [no-cache]
-      content-length: ['649']
-      content-type: [application/json; charset=utf-8]
-      date: ['Thu, 29 Nov 2018 06:38:28 GMT']
-      etag: ['W/"2fa1b551fa23a4c78f08e11d5369813911/29/2018 6:38:29 AM"']
-      expires: ['-1']
-      pragma: [no-cache]
-      server: [Microsoft-IIS/10.0]
-      strict-transport-security: [max-age=31536000; includeSubDomains]
-      transfer-encoding: [chunked]
-      vary: ['Accept-Encoding,Accept-Encoding']
-      x-content-type-options: [nosniff]
-    status: {code: 200, message: OK}
+      cache-control:
+      - no-cache
+      content-length:
+      - '653'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Nov 2019 19:57:22 GMT
+      etag:
+      - W/"32e8aeb21ec30d47cd612d2f7dca2f5511/28/2019 7:57:22 PM"
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-IIS/10.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding,Accept-Encoding
+      x-content-type-options:
+      - nosniff
+    status:
+      code: 200
+      message: OK
 - request:
     body: null
     headers:
-      Accept: [application/json]
-      Accept-Encoding: ['gzip, deflate']
-      CommandName: [bot authsetting list]
-      Connection: [keep-alive]
-      ParameterSetName: [-n -g]
-      User-Agent: [python/3.5.2 (Windows-10-10.0.15063-SP0) msrest/0.6.2 msrest_azure/0.4.34
-          azure-mgmt-botservice/0.1.0 Azure-SDK-For-Python AZURECLI/2.0.52]
-      accept-language: [en-US]
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - bot authsetting list
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -n -g
+      User-Agent:
+      - python/3.7.0 (Windows-10-10.0.18362-SP0) msrest/0.6.8 msrest_azure/0.6.2 azure-mgmt-botservice/0.2.0
+        Azure-SDK-For-Python AZURECLI/2.0.77
+      accept-language:
+      - en-US
     method: GET
     uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.BotService/botServices/cli000002/connections?api-version=2018-07-12
   response:
-    body: {string: '{"value":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.BotService/botServices/cli000002/connections/myconnname","name":"cli000002/myconnname","type":"Microsoft.BotService/botServices/connections","etag":"W/\"eb8603e5cf33f33b30998e2c0a4d67d111/29/2018
-        6:38:30 AM\"","location":"global","properties":{"serviceProviderDisplayName":"Google","id":"77256f2d-d63e-4b9b-3b81-367a6763a5fb_195dcb3a-899a-00df-6192","name":"myconnname","serviceProviderId":"01340562-8c8f-4892-abd4-90daf0e5face","provisioningState":"Succeeded"}}]}'}
+    body:
+      string: '{"value":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.BotService/botServices/cli000002/connections/myconnname","name":"cli000002/myconnname","type":"Microsoft.BotService/botServices/connections","etag":"W/\"5a04bafb729cd9bf9ca21343f841f26811/28/2019
+        7:57:23 PM\"","location":"global","properties":{"serviceProviderDisplayName":"Google","id":"d3ca0c8e-ad0a-a4b3-99ab-ff24e1c84c52_195dcb3a-899a-00df-6192","name":"myconnname","serviceProviderId":"01340562-8c8f-4892-abd4-90daf0e5face","provisioningState":"Succeeded"}}]}'
     headers:
-      cache-control: [no-cache]
-      content-length: ['591']
-      content-type: [application/json; charset=utf-8]
-      date: ['Thu, 29 Nov 2018 06:38:30 GMT']
-      expires: ['-1']
-      pragma: [no-cache]
-      server: [Microsoft-IIS/10.0]
-      strict-transport-security: [max-age=31536000; includeSubDomains]
-      transfer-encoding: [chunked]
-      vary: ['Accept-Encoding,Accept-Encoding']
-      x-content-type-options: [nosniff]
-    status: {code: 200, message: OK}
+      cache-control:
+      - no-cache
+      content-length:
+      - '591'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Nov 2019 19:57:22 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-IIS/10.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding,Accept-Encoding
+      x-content-type-options:
+      - nosniff
+    status:
+      code: 200
+      message: OK
 - request:
     body: null
     headers:
-      Accept: [application/json]
-      Accept-Encoding: ['gzip, deflate']
-      CommandName: [bot authsetting delete]
-      Connection: [keep-alive]
-      Content-Length: ['0']
-      ParameterSetName: [-g -n -c]
-      User-Agent: [python/3.5.2 (Windows-10-10.0.15063-SP0) msrest/0.6.2 msrest_azure/0.4.34
-          azure-mgmt-botservice/0.1.0 Azure-SDK-For-Python AZURECLI/2.0.52]
-      accept-language: [en-US]
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - bot authsetting delete
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      ParameterSetName:
+      - -g -n -c
+      User-Agent:
+      - python/3.7.0 (Windows-10-10.0.18362-SP0) msrest/0.6.8 msrest_azure/0.6.2 azure-mgmt-botservice/0.2.0
+        Azure-SDK-For-Python AZURECLI/2.0.77
+      accept-language:
+      - en-US
     method: DELETE
     uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.BotService/botServices/cli000002/Connections/myconnname?api-version=2018-07-12
   response:
-    body: {string: ''}
+    body:
+      string: ''
     headers:
-      cache-control: [no-cache]
-      content-length: ['0']
-      date: ['Thu, 29 Nov 2018 06:38:32 GMT']
-      expires: ['-1']
-      pragma: [no-cache]
-      server: [Microsoft-IIS/10.0]
-      strict-transport-security: [max-age=31536000; includeSubDomains]
-      x-content-type-options: [nosniff]
-      x-ms-ratelimit-remaining-subscription-deletes: ['14999']
-    status: {code: 200, message: OK}
-- request:
-    body: null
-    headers:
-      Accept: [application/json]
-      Accept-Encoding: ['gzip, deflate']
-      CommandName: [group delete]
-      Connection: [keep-alive]
-      Content-Length: ['0']
-      Content-Type: [application/json; charset=utf-8]
-      ParameterSetName: [--name --yes --no-wait]
-      User-Agent: [python/3.5.2 (Windows-10-10.0.15063-SP0) msrest/0.6.2 msrest_azure/0.4.34
-          resourcemanagementclient/2.0.0 Azure-SDK-For-Python AZURECLI/2.0.52]
-      accept-language: [en-US]
-    method: DELETE
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/clitest.rg000001?api-version=2018-05-01
-  response:
-    body: {string: ''}
-    headers:
-      cache-control: [no-cache]
-      content-length: ['0']
-      date: ['Thu, 29 Nov 2018 06:38:33 GMT']
-      expires: ['-1']
-      location: ['https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/operationresults/eyJqb2JJZCI6IlJFU09VUkNFR1JPVVBERUxFVElPTkpPQi1DTElURVNUOjJFUkdMWElLVU1PM1dVLVdFU1RVUyIsImpvYkxvY2F0aW9uIjoid2VzdHVzIn0?api-version=2018-05-01']
-      pragma: [no-cache]
-      strict-transport-security: [max-age=31536000; includeSubDomains]
-      x-content-type-options: [nosniff]
-      x-ms-ratelimit-remaining-subscription-deletes: ['14999']
-    status: {code: 202, message: Accepted}
+      cache-control:
+      - no-cache
+      content-length:
+      - '0'
+      date:
+      - Thu, 28 Nov 2019 19:57:24 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-IIS/10.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-ms-ratelimit-remaining-subscription-deletes:
+      - '14999'
+    status:
+      code: 200
+      message: OK
 version: 1

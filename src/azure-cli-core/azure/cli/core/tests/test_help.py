@@ -206,7 +206,7 @@ class TestHelpLoads(unittest.TestCase):
             description: Group yaml description. A.K.A long description
             links:
                 - title: Azure Test Docs
-                  url: "https://docs.microsoft.com/en-us/azure/test"
+                  url: "https://docs.microsoft.com/azure/test"
                 - url: "https://aka.ms/just-a-url"
         - command:
             name: test alpha
@@ -214,7 +214,7 @@ class TestHelpLoads(unittest.TestCase):
             description: Command yaml description. A.K.A long description
             links:
                 - title: Azure Test Alpha Docs
-                  url: "https://docs.microsoft.com/en-us/azure/test/alpha"
+                  url: "https://docs.microsoft.com/azure/test/alpha"
                 - url: "https://aka.ms/just-a-long-url"
             arguments:
                 - name: --arg2 # we do not specify the short option in the name.
@@ -255,7 +255,7 @@ class TestHelpLoads(unittest.TestCase):
                             "hyper-links": [
                                 {
                                     "title": "Azure Json Test Docs",
-                                    "url": "https://docs.microsoft.com/en-us/azure/test"
+                                    "url": "https://docs.microsoft.com/azure/test"
                                 },
                                 {
                                     "url": "https://aka.ms/just-a-url"
@@ -271,7 +271,7 @@ class TestHelpLoads(unittest.TestCase):
                             "hyper-links": [
                                 {
                                     "title": "Azure Json Test Alpha Docs",
-                                    "url": "https://docs.microsoft.com/en-us/azure/test/alpha"
+                                    "url": "https://docs.microsoft.com/azure/test/alpha"
                                 },
                                 {
                                     "url": "https://aka.ms/just-a-long-url"
@@ -365,13 +365,23 @@ class TestHelpLoads(unittest.TestCase):
         self.assertEqual(obj_param_dict["--arg1 -a"].value_sources[0]['link']['command'], "az foo bar")
         self.assertEqual(obj_param_dict["--arg1 -a"].value_sources[1]['link']['command'], "az bar baz")
 
-        self.assertEqual(command_help_obj.examples[0].short_summary, "Alpha Example")
-        self.assertEqual(command_help_obj.examples[0].command, "az test alpha --arg1 a --arg2 b --arg3 c")
-        self.assertEqual(command_help_obj.examples[0].supported_profiles, "2018-03-01-hybrid, latest")
-        self.assertEqual(command_help_obj.examples[0].unsupported_profiles, None)
+        if self.test_cli.cloud.profile in ['2018-03-01-hybrid', 'latest']:
+            self.assertEqual(command_help_obj.examples[0].short_summary, "Alpha Example")
+            self.assertEqual(command_help_obj.examples[0].command, "az test alpha --arg1 a --arg2 b --arg3 c")
+            self.assertEqual(command_help_obj.examples[0].supported_profiles, "2018-03-01-hybrid, latest")
+            self.assertEqual(command_help_obj.examples[0].unsupported_profiles, None)
 
-        self.assertEqual(command_help_obj.examples[1].supported_profiles, None)
-        self.assertEqual(command_help_obj.examples[1].unsupported_profiles, "2017-03-09-profile")
+            self.assertEqual(command_help_obj.examples[1].supported_profiles, None)
+            self.assertEqual(command_help_obj.examples[1].unsupported_profiles, "2017-03-09-profile")
+
+        if self.test_cli.cloud.profile == '2019-03-01-hybrid':
+            self.assertEqual(len(command_help_obj.examples), 1)
+            self.assertEqual(command_help_obj.examples[0].short_summary, "A simple example unsupported on latest")
+            self.assertEqual(command_help_obj.examples[0].command, "az test alpha --arg1 a --arg2 b")
+            self.assertEqual(command_help_obj.examples[0].unsupported_profiles, '2017-03-09-profile')
+
+        if self.test_cli.cloud.profile == '2017-03-09-profile':
+            self.assertEqual(len(command_help_obj.examples), 0)
 
     @mock.patch('pkgutil.iter_modules', side_effect=lambda x: [(None, MOCKED_COMMAND_LOADER_MOD, None)])
     @mock.patch('azure.cli.core.commands._load_command_loader', side_effect=mock_load_command_loader)
@@ -397,7 +407,7 @@ class TestHelpLoads(unittest.TestCase):
         self.assertIsNotNone(group_help_obj)
         self.assertEqual(group_help_obj.short_summary, "Group yaml summary.")
         self.assertEqual(group_help_obj.long_summary, "Group yaml description. A.K.A long description.")
-        self.assertEqual(group_help_obj.links[0], {"title": "Azure Test Docs", "url": "https://docs.microsoft.com/en-us/azure/test"})
+        self.assertEqual(group_help_obj.links[0], {"title": "Azure Test Docs", "url": "https://docs.microsoft.com/azure/test"})
         self.assertEqual(group_help_obj.links[1], {"url": "https://aka.ms/just-a-url"})
 
         # Test command help
@@ -405,7 +415,7 @@ class TestHelpLoads(unittest.TestCase):
         self.assertEqual(command_help_obj.short_summary, "Command yaml summary.")
         self.assertEqual(command_help_obj.long_summary, "Command yaml description. A.K.A long description.")
         self.assertEqual(command_help_obj.links[0], {"title": "Azure Test Alpha Docs",
-                                                     "url": "https://docs.microsoft.com/en-us/azure/test/alpha"})
+                                                     "url": "https://docs.microsoft.com/azure/test/alpha"})
         self.assertEqual(command_help_obj.links[1], {"url": "https://aka.ms/just-a-long-url"})
 
         # test that parameters and help are loaded from command function docstring, argument registry help and help.yaml
@@ -425,14 +435,24 @@ class TestHelpLoads(unittest.TestCase):
         self.assertEqual(obj_param_dict["--arg2 -b"].value_sources[2]['link'], {"command": "az test show",
                                                                                 "title": "Show test details"})
 
-        self.assertEqual(command_help_obj.examples[0].short_summary, "A simple example")
-        self.assertEqual(command_help_obj.examples[0].long_summary, "More detail on the simple example.")
-        self.assertEqual(command_help_obj.examples[0].command, "az test alpha --arg1 apple --arg2 ball --arg3 cat")
-        self.assertEqual(command_help_obj.examples[0].supported_profiles, "2018-03-01-hybrid, latest")
-        self.assertEqual(command_help_obj.examples[0].unsupported_profiles, None)
+        if self.test_cli.cloud.profile in ['2018-03-01-hybrid', 'latest']:
+            self.assertEqual(command_help_obj.examples[0].short_summary, "A simple example")
+            self.assertEqual(command_help_obj.examples[0].long_summary, "More detail on the simple example.")
+            self.assertEqual(command_help_obj.examples[0].command, "az test alpha --arg1 apple --arg2 ball --arg3 cat")
+            self.assertEqual(command_help_obj.examples[0].supported_profiles, "2018-03-01-hybrid, latest")
+            self.assertEqual(command_help_obj.examples[0].unsupported_profiles, None)
 
-        self.assertEqual(command_help_obj.examples[1].supported_profiles, None)
-        self.assertEqual(command_help_obj.examples[1].unsupported_profiles, "2017-03-09-profile")
+            self.assertEqual(command_help_obj.examples[1].supported_profiles, None)
+            self.assertEqual(command_help_obj.examples[1].unsupported_profiles, "2017-03-09-profile")
+
+        if self.test_cli.cloud.profile == '2019-03-01-hybrid':
+            self.assertEqual(len(command_help_obj.examples), 1)
+            self.assertEqual(command_help_obj.examples[0].short_summary, "Another example unsupported on latest")
+            self.assertEqual(command_help_obj.examples[0].command, "az test alpha --arg1 apple --arg2 ball")
+            self.assertEqual(command_help_obj.examples[0].unsupported_profiles, '2017-03-09-profile')
+
+        if self.test_cli.cloud.profile == '2017-03-09-profile':
+            self.assertEqual(len(command_help_obj.examples), 0)
 
     @mock.patch('inspect.getmembers', side_effect=mock_inspect_getmembers)
     @mock.patch('pkgutil.iter_modules', side_effect=lambda x: [(None, MOCKED_COMMAND_LOADER_MOD, None)])
@@ -462,7 +482,7 @@ class TestHelpLoads(unittest.TestCase):
         self.assertEqual(group_help_obj.short_summary, "Group json summary.")
         self.assertEqual(group_help_obj.long_summary, "Group json description. A.K.A long description.")
         self.assertEqual(group_help_obj.links[0], {"title": "Azure Json Test Docs",
-                                                   "url": "https://docs.microsoft.com/en-us/azure/test"})
+                                                   "url": "https://docs.microsoft.com/azure/test"})
         self.assertEqual(group_help_obj.links[1], {"url": "https://aka.ms/just-a-url"})
 
         # Test command help
@@ -470,7 +490,7 @@ class TestHelpLoads(unittest.TestCase):
         self.assertEqual(command_help_obj.short_summary, "Command json summary.")
         self.assertEqual(command_help_obj.long_summary, "Command json description. A.K.A long description.")
         self.assertEqual(command_help_obj.links[0], {"title": "Azure Json Test Alpha Docs",
-                                                     "url": "https://docs.microsoft.com/en-us/azure/test/alpha"})
+                                                     "url": "https://docs.microsoft.com/azure/test/alpha"})
         self.assertEqual(command_help_obj.links[1], {"url": "https://aka.ms/just-a-long-url"})
 
         # test that parameters and help are loaded from command function docstring, argument registry help and help.yaml
@@ -486,10 +506,18 @@ class TestHelpLoads(unittest.TestCase):
         self.assertEqual(obj_param_dict["--arg3"].value_sources[2]['link'],
                          {"command": "az test show", "title": "Show test details. Json file"})
 
-        self.assertEqual(command_help_obj.examples[0].short_summary, "A simple example from json")
-        self.assertEqual(command_help_obj.examples[0].long_summary, "More detail on the simple example.")
-        self.assertEqual(command_help_obj.examples[0].command, "az test alpha --arg1 alpha --arg2 beta --arg3 chi")
-        self.assertEqual(command_help_obj.examples[0].supported_profiles, "2018-03-01-hybrid, latest")
+        if self.test_cli.cloud.profile in ['2018-03-01-hybrid', 'latest']:
+            self.assertEqual(command_help_obj.examples[0].short_summary, "A simple example from json")
+            self.assertEqual(command_help_obj.examples[0].long_summary, "More detail on the simple example.")
+            self.assertEqual(command_help_obj.examples[0].command, "az test alpha --arg1 alpha --arg2 beta --arg3 chi")
+            self.assertEqual(command_help_obj.examples[0].supported_profiles, "2018-03-01-hybrid, latest")
+
+        if self.test_cli.cloud.profile == '2019-03-01-hybrid':
+            # only supported example here
+            self.assertEqual(len(command_help_obj.examples), 0)
+
+        if self.test_cli.cloud.profile == '2017-03-09-profile':
+            self.assertEqual(len(command_help_obj.examples), 0)
 
         # validate other parameters, which have help from help.py and help.yamls
         self.assertEqual(obj_param_dict["--arg1 -a"].short_summary, "A short summary.")

@@ -33,6 +33,8 @@ from azure.cli.command_modules.acr._docker_utils import (
     get_login_credentials,
     get_access_credentials,
     get_authorization_header,
+    RepoAccessTokenPermission,
+    HelmAccessTokenPermission,
     EMPTY_GUID
 )
 from azure.cli.command_modules.acr._docker_utils import ResourceNotFound
@@ -72,6 +74,7 @@ class AcrMockCommandsTests(unittest.TestCase):
                 'orderby': None
             },
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
         # List repositories using Bearer auth
@@ -86,6 +89,7 @@ class AcrMockCommandsTests(unittest.TestCase):
                 'orderby': None
             },
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
     @mock.patch('azure.cli.command_modules.acr.repository.get_access_credentials', autospec=True)
@@ -123,6 +127,7 @@ class AcrMockCommandsTests(unittest.TestCase):
                 'orderby': None
             },
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
         # Show tags using Bearer auth
@@ -140,6 +145,7 @@ class AcrMockCommandsTests(unittest.TestCase):
                 'orderby': 'timedesc'
             },
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
     @mock.patch('azure.cli.command_modules.acr.repository.get_access_credentials', autospec=True)
@@ -174,6 +180,7 @@ class AcrMockCommandsTests(unittest.TestCase):
                 'orderby': None
             },
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
         # Show manifests using Bearer auth with detail
@@ -189,6 +196,7 @@ class AcrMockCommandsTests(unittest.TestCase):
                 'orderby': 'timedesc'
             },
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
     @mock.patch('azure.cli.command_modules.acr.repository.get_access_credentials', autospec=True)
@@ -217,6 +225,7 @@ class AcrMockCommandsTests(unittest.TestCase):
             headers=get_authorization_header('username', 'password'),
             params=None,
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
         # Show attributes for an image by tag
@@ -229,6 +238,7 @@ class AcrMockCommandsTests(unittest.TestCase):
             headers=get_authorization_header('username', 'password'),
             params=None,
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
         # Show attributes for an image by manifest digest
@@ -241,6 +251,7 @@ class AcrMockCommandsTests(unittest.TestCase):
             headers=get_authorization_header('username', 'password'),
             params=None,
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
     @mock.patch('azure.cli.command_modules.acr.repository.get_access_credentials', autospec=True)
@@ -272,6 +283,7 @@ class AcrMockCommandsTests(unittest.TestCase):
             json={
                 'writeEnabled': 'false'
             },
+            timeout=300,
             verify=mock.ANY)
 
         # Update attributes for an image by tag
@@ -287,6 +299,7 @@ class AcrMockCommandsTests(unittest.TestCase):
             json={
                 'writeEnabled': 'false'
             },
+            timeout=300,
             verify=mock.ANY)
 
         # Update attributes for an image by manifest digest
@@ -302,6 +315,7 @@ class AcrMockCommandsTests(unittest.TestCase):
             json={
                 'writeEnabled': 'false'
             },
+            timeout=300,
             verify=mock.ANY)
 
     @mock.patch('azure.cli.command_modules.acr.repository.get_access_credentials', autospec=True)
@@ -329,6 +343,7 @@ class AcrMockCommandsTests(unittest.TestCase):
             headers=get_authorization_header('username', 'password'),
             params=None,
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
         # Delete image by tag
@@ -342,6 +357,7 @@ class AcrMockCommandsTests(unittest.TestCase):
             headers=get_authorization_header('username', 'password'),
             params=None,
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
         # Delete image by manifest digest
@@ -355,6 +371,7 @@ class AcrMockCommandsTests(unittest.TestCase):
             headers=get_authorization_header('username', 'password'),
             params=None,
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
         # Untag image
@@ -367,17 +384,23 @@ class AcrMockCommandsTests(unittest.TestCase):
             headers=get_authorization_header('username', 'password'),
             params=None,
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
+    @mock.patch('azure.cli.core._profile.Profile.get_subscription_id', autospec=True)
     @mock.patch('azure.cli.command_modules.acr._docker_utils.get_registry_by_name', autospec=True)
     @mock.patch('requests.post', autospec=True)
     @mock.patch('requests.get', autospec=True)
     @mock.patch('azure.cli.core._profile.Profile.get_raw_token', autospec=True)
-    def test_get_docker_credentials(self, mock_get_raw_token, mock_requests_get, mock_requests_post, mock_get_registry_by_name):
+    def test_get_docker_credentials(self, mock_get_raw_token, mock_requests_get, mock_requests_post,
+                                    mock_get_registry_by_name, mock_get_subscription):
         test_registry = 'testregistry'
         test_login_server = '{}.azurecr.io'.format(test_registry)
         test_tenant_suffix = 'microsoft'
         test_login_server_with_tenant_suffix = '{}-{}.azurecr.io'.format(test_registry, test_tenant_suffix)
+
+        # Mock as Profile.get_subscription_id fails in CI (CI logs in with a SP)
+        mock_get_subscription.return_value = TEST_SUBSCRIPTION
 
         # Registry found, login server without tenant suffix
         self._core_token_scenarios(mock_get_raw_token,
@@ -437,12 +460,12 @@ class AcrMockCommandsTests(unittest.TestCase):
         self._validate_refresh_token_request(mock_requests_get, mock_requests_post, login_server)
 
         # Test get access token for container image repository
-        get_access_credentials(cmd, registry_name, tenant_suffix=tenant_suffix, repository=TEST_REPOSITORY, permission='pull')
-        self._validate_access_token_request(mock_requests_get, mock_requests_post, login_server, 'repository:{}:pull'.format(TEST_REPOSITORY))
+        get_access_credentials(cmd, registry_name, tenant_suffix=tenant_suffix, repository=TEST_REPOSITORY, permission=RepoAccessTokenPermission.METADATA_READ.value)
+        self._validate_access_token_request(mock_requests_get, mock_requests_post, login_server, 'repository:{}:{}'.format(TEST_REPOSITORY, RepoAccessTokenPermission.METADATA_READ.value))
 
         # Test get access token for artifact image repository
-        get_access_credentials(cmd, registry_name, tenant_suffix=tenant_suffix, artifact_repository=TEST_REPOSITORY, permission='pull')
-        self._validate_access_token_request(mock_requests_get, mock_requests_post, login_server, 'artifact-repository:{}:pull'.format(TEST_REPOSITORY))
+        get_access_credentials(cmd, registry_name, tenant_suffix=tenant_suffix, artifact_repository=TEST_REPOSITORY, permission=HelmAccessTokenPermission.PULL.value)
+        self._validate_access_token_request(mock_requests_get, mock_requests_post, login_server, 'artifact-repository:{}:{}'.format(TEST_REPOSITORY, HelmAccessTokenPermission.PULL.value))
 
     def _setup_mock_token_requests(self, mock_get_aad_token, mock_requests_get, mock_requests_post, login_server):
         # Set up AAD token with only access token
@@ -525,6 +548,7 @@ class AcrMockCommandsTests(unittest.TestCase):
             headers=get_authorization_header(EMPTY_GUID, 'password'),
             params=None,
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
     @mock.patch('azure.cli.command_modules.acr.helm.get_access_credentials', autospec=True)
@@ -558,6 +582,7 @@ class AcrMockCommandsTests(unittest.TestCase):
             headers=get_authorization_header(EMPTY_GUID, 'password'),
             params=None,
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
         # Show one version of a chart
@@ -568,6 +593,7 @@ class AcrMockCommandsTests(unittest.TestCase):
             headers=get_authorization_header(EMPTY_GUID, 'password'),
             params=None,
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
     @mock.patch('azure.cli.command_modules.acr.helm.get_access_credentials', autospec=True)
@@ -590,6 +616,7 @@ class AcrMockCommandsTests(unittest.TestCase):
             headers=get_authorization_header(EMPTY_GUID, 'password'),
             params=None,
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
         # Delete one version of a chart
@@ -600,6 +627,7 @@ class AcrMockCommandsTests(unittest.TestCase):
             headers=get_authorization_header(EMPTY_GUID, 'password'),
             params=None,
             json=None,
+            timeout=300,
             verify=mock.ANY)
 
     @mock.patch('azure.cli.command_modules.acr.helm.get_access_credentials', autospec=True)
@@ -626,6 +654,7 @@ class AcrMockCommandsTests(unittest.TestCase):
                 headers=get_authorization_header(EMPTY_GUID, 'password'),
                 params=None,
                 data=mock_open.return_value.__enter__.return_value,
+                timeout=300,
                 verify=mock.ANY)
 
         # Push a prov file
@@ -638,6 +667,7 @@ class AcrMockCommandsTests(unittest.TestCase):
                 headers=get_authorization_header(EMPTY_GUID, 'password'),
                 params=None,
                 data=mock_open.return_value.__enter__.return_value,
+                timeout=300,
                 verify=mock.ANY)
 
         # Force push a chart
@@ -650,6 +680,7 @@ class AcrMockCommandsTests(unittest.TestCase):
                 headers=get_authorization_header(EMPTY_GUID, 'password'),
                 params=None,
                 data=mock_open.return_value.__enter__.return_value,
+                timeout=300,
                 verify=mock.ANY)
 
     def _setup_cmd(self):

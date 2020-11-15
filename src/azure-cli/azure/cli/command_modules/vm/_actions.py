@@ -6,11 +6,14 @@
 import json
 
 from knack.util import CLIError
+from knack.log import get_logger
 
 from azure.cli.core.commands.parameters import get_one_of_subscription_locations
 from azure.cli.core.commands.arm import resource_exists
 
 from ._client_factory import _compute_client_factory
+
+logger = get_logger(__name__)
 
 
 def _resource_not_exists(cli_ctx, resource_type):
@@ -37,15 +40,28 @@ def load_images_thru_services(cli_ctx, publisher, offer, sku, location):
         location = get_one_of_subscription_locations(cli_ctx)
 
     def _load_images_from_publisher(publisher):
-        offers = client.virtual_machine_images.list_offers(location, publisher)
+        from msrestazure.azure_exceptions import CloudError
+        try:
+            offers = client.virtual_machine_images.list_offers(location, publisher)
+        except CloudError as e:
+            logger.warning(str(e))
+            return
         if offer:
             offers = [o for o in offers if _matched(offer, o.name)]
         for o in offers:
-            skus = client.virtual_machine_images.list_skus(location, publisher, o.name)
+            try:
+                skus = client.virtual_machine_images.list_skus(location, publisher, o.name)
+            except CloudError as e:
+                logger.warning(str(e))
+                continue
             if sku:
                 skus = [s for s in skus if _matched(sku, s.name)]
             for s in skus:
-                images = client.virtual_machine_images.list(location, publisher, o.name, s.name)
+                try:
+                    images = client.virtual_machine_images.list(location, publisher, o.name, s.name)
+                except CloudError as e:
+                    logger.warning(str(e))
+                    continue
                 for i in images:
                     all_images.append({
                         'publisher': publisher,
@@ -73,16 +89,27 @@ def load_images_from_aliases_doc(cli_ctx, publisher=None, offer=None, sku=None):
     import requests
     from azure.cli.core.cloud import CloudEndpointNotSetException
     from azure.cli.core.util import should_disable_connection_verify
+    from azure.cli.command_modules.vm._alias import alias_json
     try:
         target_url = cli_ctx.cloud.endpoints.vm_image_alias_doc
     except CloudEndpointNotSetException:
-        raise CLIError("'endpoint_vm_image_alias_doc' isn't configured. Please invoke 'az cloud update' to configure "
-                       "it or use '--all' to retrieve images from server")
-    # under hack mode(say through proxies with unsigned cert), opt out the cert verification
-    response = requests.get(target_url, verify=(not should_disable_connection_verify()))
-    if response.status_code != 200:
-        raise CLIError("Failed to retrieve image alias doc '{}'. Error: '{}'".format(target_url, response))
-    dic = json.loads(response.content.decode())
+        logger.warning("'endpoint_vm_image_alias_doc' isn't configured. Please invoke 'az cloud update' to configure "
+                       "it or use '--all' to retrieve images from server. Use local copy instead.")
+        dic = json.loads(alias_json)
+    else:
+        # under hack mode(say through proxies with unsigned cert), opt out the cert verification
+        try:
+            response = requests.get(target_url, verify=(not should_disable_connection_verify()))
+            if response.status_code == 200:
+                dic = json.loads(response.content.decode())
+            else:
+                logger.warning("Failed to retrieve image alias doc '%s'. Error: '%s'. Use local copy instead.",
+                               target_url, response)
+                dic = json.loads(alias_json)
+        except requests.exceptions.ConnectionError:
+            logger.warning("Failed to retrieve image alias doc '%s'. Error: 'ConnectionError'. Use local copy instead.",
+                           target_url)
+            dic = json.loads(alias_json)
     try:
         all_images = []
         result = (dic['outputs']['aliases']['value'])
@@ -101,7 +128,7 @@ def load_images_from_aliases_doc(cli_ctx, publisher=None, offer=None, sku=None):
                                                 _matched(sku, i['sku']))]
         return all_images
     except KeyError:
-        raise CLIError('Could not retrieve image list from {}'.format(target_url))
+        raise CLIError('Could not retrieve image list from {} or local copy'.format(target_url))
 
 
 def load_extension_images_thru_services(cli_ctx, publisher, name, version, location,

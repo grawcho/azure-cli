@@ -59,7 +59,7 @@ date_regex_dict = {
 
 _REGEX = {
     'ttl': r'(?P<delim>\$ttl)\s+(?P<val>\d+\w*)',
-    'origin': r'(?P<delim>\$origin)\s+(?P<val>[\w\.]+)',
+    'origin': r'(?P<delim>\$origin)\s+(?P<val>[\w\.-]+)',
     'soa': r'(?P<name>[@\*\w\.-]*)\s+(?:(?P<ttl>\d+\w*)\s+)?(?:(?P<class>in)\s+)?(?P<delim>soa)\s+(?P<host>[\w\.-]+)\s+(?P<email>[\w\.-]+)\s+(?P<serial>\d*)\s+(?P<refresh>\w*)\s+(?P<retry>\w*)\s+(?P<expire>\w*)\s+(?P<minimum>\w*)?',
     'a': r'(?P<name>[@\*\w\.-]*)\s+(?:(?P<ttl>\d+\w*)\s+)?(?:(?P<class>in)\s+)?(?P<delim>a)\s+(?P<ip>[\d\.]+)',
     'ns': r'(?P<name>[@\*\w\.-]*)\s+(?:(?P<ttl>\d+\w*)\s+)?(?:(?P<class>in)\s+)?(?P<delim>ns)\s+(?P<host>[\w\.-]+)',
@@ -442,10 +442,11 @@ def parse_zone_file(text, zone_name, ignore_invalid=False):
             current_ttl = _convert_to_seconds(record['val'])
         else:
             record_name = record['name']
-            if record_name == '@':
-                record_name = current_origin
+            if '@' in record_name:
+                record_name = record_name.replace('@', current_origin)
             elif not record_name.endswith('.'):
                 record_name = '{}.{}'.format(record_name, current_origin)
+            print(current_origin, record_name)
 
             # special record-specific fix-ups
             if record_type == 'ptr':

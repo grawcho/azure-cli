@@ -13,23 +13,49 @@ import azure.cli.command_modules.storage._help  # pylint: disable=unused-import
 class StorageCommandsLoader(AzCommandsLoader):
     def __init__(self, cli_ctx=None):
         from azure.cli.core.commands import CliCommandType
-
+        from azure.cli.core import ModExtensionSuppress
         storage_custom = CliCommandType(operations_tmpl='azure.cli.command_modules.storage.custom#{}')
         super(StorageCommandsLoader, self).__init__(cli_ctx=cli_ctx,
                                                     resource_type=ResourceType.DATA_STORAGE,
                                                     custom_command_type=storage_custom,
                                                     command_group_cls=StorageCommandGroup,
-                                                    argument_context_cls=StorageArgumentContext)
+                                                    argument_context_cls=StorageArgumentContext,
+                                                    suppress_extension=ModExtensionSuppress(
+                                                        __name__, 'storage-or-preview', '0.4.0',
+                                                        reason='The storage account or policy commands are now in CLI.',
+                                                        recommend_remove=True)
+                                                    )
 
     def load_command_table(self, args):
-        super(StorageCommandsLoader, self).load_command_table(args)
         from azure.cli.command_modules.storage.commands import load_command_table
         load_command_table(self, args)
         return self.command_table
 
     def load_arguments(self, command):
-        super(StorageCommandsLoader, self).load_arguments(command)
         from azure.cli.command_modules.storage._params import load_arguments
+        load_arguments(self, command)
+
+
+class AzureStackStorageCommandsLoader(AzCommandsLoader):
+    def __init__(self, cli_ctx=None):
+        from azure.cli.core.commands import CliCommandType
+
+        storage_custom = CliCommandType(operations_tmpl='azure.cli.command_modules.storage.custom#{}')
+        super(AzureStackStorageCommandsLoader, self).__init__(cli_ctx=cli_ctx,
+                                                              resource_type=ResourceType.DATA_STORAGE,
+                                                              custom_command_type=storage_custom,
+                                                              command_group_cls=AzureStackStorageCommandGroup,
+                                                              argument_context_cls=StorageArgumentContext)
+
+    def load_command_table(self, args):
+        super(AzureStackStorageCommandsLoader, self).load_command_table(args)
+        from azure.cli.command_modules.storage.commands_azure_stack import load_command_table
+        load_command_table(self, args)
+        return self.command_table
+
+    def load_arguments(self, command):
+        super(AzureStackStorageCommandsLoader, self).load_arguments(command)
+        from azure.cli.command_modules.storage._params_azure_stack import load_arguments
         load_arguments(self, command)
 
 
@@ -52,6 +78,7 @@ class StorageArgumentContext(AzArgumentContext):
 
     def register_content_settings_argument(self, settings_class, update, arg_group=None, guess_from_file=None):
         from azure.cli.command_modules.storage._validators import get_content_setting_validator
+        from azure.cli.core.commands.parameters import get_three_state_flag
 
         self.ignore('content_settings')
         self.extra('content_type', default=None, help='The content MIME type.', arg_group=arg_group,
@@ -63,6 +90,13 @@ class StorageArgumentContext(AzArgumentContext):
                         'used to attach additional metadata.')
         self.extra('content_cache_control', default=None, help='The cache control string.', arg_group=arg_group)
         self.extra('content_md5', default=None, help='The content\'s MD5 hash.', arg_group=arg_group)
+        if update:
+            self.extra('clear_content_settings', help='If this flag is set, then if any one or more of the '
+                       'following properties (--content-cache-control, --content-disposition, --content-encoding, '
+                       '--content-language, --content-md5, --content-type) is set, then all of these properties are '
+                       'set together. If a value is not provided for a given property when at least one of the '
+                       'properties listed below is set, then that property will be cleared.',
+                       arg_type=get_three_state_flag())
 
     def register_path_argument(self, default_file_param=None, options_list=None):
         from ._validators import get_file_path_validator
@@ -125,6 +159,32 @@ class StorageArgumentContext(AzArgumentContext):
                           resource_type=ResourceType.MGMT_STORAGE, min_api='2016-12-01', nargs='+',
                           validator=validate_encryption_services, help='Specifies which service(s) to encrypt.')
 
+    def register_precondition_options(self):
+        self.extra('if_modified_since')
+        self.extra('if_unmodified_since')
+        self.extra('if_match', help="An ETag value, or the wildcard character (*). Specify this header to perform the "
+                   "operation only if the resource's ETag matches the value specified.")
+        self.extra('if_none_match', help="An ETag value, or the wildcard character (*). Specify this header to perform "
+                   "the operation only if the resource's ETag does not match the value specified. Specify the wildcard "
+                   "character (*) to perform the operation only if the resource does not exist, and fail the operation "
+                   "if it does exist.")
+
+    def register_blob_arguments(self):
+        self.extra('blob_name', required=True)
+        self.extra('container_name', required=True)
+        self.extra('timeout', help='Request timeout in seconds. Applies to each call to the service.', type=int)
+
+    def register_container_arguments(self):
+        self.extra('container_name', required=True)
+        self.extra('timeout', help='Request timeout in seconds. Applies to each call to the service.', type=int)
+
+    def register_fs_directory_arguments(self):
+        self.extra('file_system_name', required=True, options_list=['-f', '--file-system'],
+                   help='File system name.')
+        self.extra('directory_path', required=True, options_list=['-p', '--path'],
+                   help='The path to a file or directory in the specified file system.')
+        self.extra('timeout', help='Request timeout in seconds. Applies to each call to the service.', type=int)
+
 
 class StorageCommandGroup(AzCommandGroup):
     def storage_command(self, name, method_name=None, command_type=None, oauth=False, generic_update=None, **kwargs):
@@ -155,32 +215,36 @@ class StorageCommandGroup(AzCommandGroup):
         _merge_new_exception_handler(kwargs, self.get_handler_suppress_some_400())
         self.storage_custom_command(*args, oauth=True, **kwargs)
 
-    def get_handler_suppress_some_400(self):
+    @classmethod
+    def get_handler_suppress_some_400(cls):
         def handler(ex):
-            from azure.cli.core.profiles import get_sdk
-            from knack.log import get_logger
-
-            logger = get_logger(__name__)
-            t_error = get_sdk(self.command_loader.cli_ctx,
-                              ResourceType.DATA_STORAGE,
-                              'common._error#AzureHttpError')
-            if isinstance(ex, t_error) and ex.status_code == 403:
-                message = """
+            if hasattr(ex, 'status_code') and ex.status_code == 403 and hasattr(ex, 'error_code'):
+                # TODO: Revisit the logic here once the service team updates their response
+                if ex.error_code == 'AuthorizationPermissionMismatch':
+                    message = """
 You do not have the required permissions needed to perform this operation.
 Depending on your operation, you may need to be assigned one of the following roles:
-    "Storage Blob Data Contributor (Preview)"
-    "Storage Blob Data Reader (Preview)"
-    "Storage Queue Data Contributor (Preview)"
-    "Storage Queue Data Reader (Preview)"
+    "Storage Blob Data Contributor"
+    "Storage Blob Data Reader"
+    "Storage Queue Data Contributor"
+    "Storage Queue Data Reader"
 
 If you want to use the old authentication method and allow querying for the right account key, please use the "--auth-mode" parameter and "key" value.
-                """
-                logger.error(message)
-                return
-            if isinstance(ex, t_error) and ex.status_code == 409 and ex.error_code == 'NoPendingCopyOperation':
-                logger.error(ex.args[0])
-                return
-            raise ex
+                    """
+                    ex.args = (message,)
+                elif ex.error_code == 'AuthorizationFailure':
+                    message = """
+The request may be blocked by network rules of storage account. Please check network rule set using 'az storage account show -n accountname --query networkRuleSet'.
+If you want to change the default action to apply when no rule matches, please use 'az storage account update'.
+                    """
+                    ex.args = (message,)
+                elif ex.error_code == 'AuthenticationFailed':
+                    message = """
+Authentication failure. This may be caused by either invalid account key, connection string or sas token value provided for your storage account.
+                    """
+                    ex.args = (message,)
+            if hasattr(ex, 'status_code') and ex.status_code == 409 and ex.error_code == 'NoPendingCopyOperation':
+                pass
 
         return handler
 
@@ -232,17 +296,55 @@ If you want to use the old authentication method and allow querying for the righ
                          'Environment variable: AZURE_STORAGE_AUTH_MODE')
 
 
+class AzureStackStorageCommandGroup(StorageCommandGroup):
+
+    @classmethod
+    def get_handler_suppress_some_400(cls):
+        def handler(ex):
+            if hasattr(ex, 'status_code') and ex.status_code == 403:
+                # TODO: Revisit the logic here once the service team updates their response
+                if 'AuthorizationPermissionMismatch' in ex.args[0]:
+                    message = """
+You do not have the required permissions needed to perform this operation.
+Depending on your operation, you may need to be assigned one of the following roles:
+    "Storage Blob Data Contributor"
+    "Storage Blob Data Reader"
+    "Storage Queue Data Contributor"
+    "Storage Queue Data Reader"
+
+If you want to use the old authentication method and allow querying for the right account key, please use the "--auth-mode" parameter and "key" value.
+                    """
+                    ex.args = (message,)
+                elif 'AuthorizationFailure' in ex.args[0]:
+                    message = """
+The request may be blocked by network rules of storage account. Please check network rule set using 'az storage account show -n accountname --query networkRuleSet'.
+If you want to change the default action to apply when no rule matches, please use 'az storage account update'.
+                    """
+                    ex.args = (message,)
+                elif 'AuthenticationFailed' in ex.args[0]:
+                    message = """
+Authentication failure. This may be caused by either invalid account key, connection string or sas token value provided for your storage account.
+                    """
+                    ex.args = (message,)
+            if hasattr(ex, 'status_code') and ex.status_code == 409 and 'NoPendingCopyOperation' in ex.args[0]:
+                pass
+
+        return handler
+
+
 def _merge_new_exception_handler(kwargs, handler):
     first = kwargs.get('exception_handler')
 
     def new_handler(ex):
-        try:
-            handler(ex)
-        except Exception:  # pylint: disable=broad-except
-            if not first:
-                raise
-            first(ex)
+        handler(ex)
+        if not first:
+            raise ex
+        first(ex)
     kwargs['exception_handler'] = new_handler
 
 
-COMMAND_LOADER_CLS = StorageCommandsLoader
+def get_command_loader(cli_ctx):
+    if cli_ctx.cloud.profile.lower() != 'latest':
+        return AzureStackStorageCommandsLoader
+
+    return StorageCommandsLoader

@@ -6,14 +6,14 @@
 
 def iot_hub_service_factory(cli_ctx, *_):
     from azure.cli.core.commands.client_factory import get_mgmt_service_client
-    from azure.mgmt.iothub.iot_hub_client import IotHubClient
-    return get_mgmt_service_client(cli_ctx, IotHubClient)
+    from azure.cli.core.profiles import ResourceType
+    return get_mgmt_service_client(cli_ctx, ResourceType.MGMT_IOTHUB)
 
 
 def resource_service_factory(cli_ctx, **_):
-    from azure.mgmt.resource import ResourceManagementClient
     from azure.cli.core.commands.client_factory import get_mgmt_service_client
-    return get_mgmt_service_client(cli_ctx, ResourceManagementClient)
+    from azure.cli.core.profiles import ResourceType
+    return get_mgmt_service_client(cli_ctx, ResourceType.MGMT_RESOURCE_RESOURCES)
 
 
 def iot_service_provisioning_factory(cli_ctx, *_):
@@ -22,15 +22,7 @@ def iot_service_provisioning_factory(cli_ctx, *_):
     return get_mgmt_service_client(cli_ctx, IotDpsClient)
 
 
-def iot_digitaltwin_service_factory(cli_ctx, *_):
+def iot_central_service_factory(cli_ctx, *_):
     from azure.cli.core.commands.client_factory import get_mgmt_service_client
-    # pylint: disable=line-too-long
-    from .digitaltwinrepositoryprovisioningservice.digital_twin_repository_provisioning_service import DigitalTwinRepositoryProvisioningService
-    return get_mgmt_service_client(cli_ctx, DigitalTwinRepositoryProvisioningService,
-                                   subscription_bound=False, base_url_bound=False)
-
-
-def get_digitaltwin_client(repo_endpoint):
-    # pylint: disable=line-too-long
-    from .digitaltwinrepositoryprovisioningservice.digital_twin_repository_provisioning_service import DigitalTwinRepositoryProvisioningService
-    return DigitalTwinRepositoryProvisioningService(repo_endpoint)
+    from azure.mgmt.iotcentral import IotCentralClient
+    return get_mgmt_service_client(cli_ctx, IotCentralClient)

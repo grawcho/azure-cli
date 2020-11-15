@@ -5,6 +5,9 @@
 
 # pylint: disable=C0302
 from enum import Enum
+import calendar
+from datetime import datetime
+from dateutil.parser import parse
 
 from azure.cli.core.util import (
     CLIError,
@@ -16,8 +19,6 @@ from azure.mgmt.sql.models import (
     CapabilityGroup,
     CapabilityStatus,
     CreateMode,
-    DatabaseEdition,
-    EncryptionProtector,
     FailoverGroup,
     FailoverGroupReadOnlyEndpoint,
     FailoverGroupReadWriteEndpoint,
@@ -27,19 +28,34 @@ from azure.mgmt.sql.models import (
     ReplicationRole,
     ResourceIdentity,
     SecurityAlertPolicyState,
+    SensitivityLabel,
+    SensitivityLabelSource,
     ServerKey,
     ServerKeyType,
     ServiceObjectiveName,
     Sku,
     StorageKeyType,
+    InstanceFailoverGroup,
+    ManagedInstancePairInfo,
+    PartnerRegionInfo,
+    InstanceFailoverGroupReadOnlyEndpoint,
+    InstanceFailoverGroupReadWriteEndpoint,
+    ServerPublicNetworkAccess
 )
 
+from azure.cli.core.profiles import ResourceType
+from azure.cli.core.commands.client_factory import get_mgmt_service_client
+from azure.cli.command_modules.monitor._client_factory import cf_monitor
+from azure.cli.command_modules.monitor.operations.diagnostics_settings import create_diagnostics_settings
+
 from knack.log import get_logger
+from knack.prompting import prompt_y_n
 
 from ._util import (
     get_sql_capabilities_operations,
     get_sql_servers_operations,
-    get_sql_managed_instances_operations
+    get_sql_managed_instances_operations,
+    get_sql_restorable_dropped_database_managed_backup_short_term_retention_policies_operations,
 )
 
 
@@ -50,7 +66,6 @@ logger = get_logger(__name__)
 ###############################################
 
 
-# Determines server location
 def _get_server_location(cli_ctx, server_name, resource_group_name):
     '''
     Returns the location (i.e. Azure region) that the specified server is in.
@@ -63,7 +78,18 @@ def _get_server_location(cli_ctx, server_name, resource_group_name):
         resource_group_name=resource_group_name).location
 
 
-# Determines managed instance location
+def _get_managed_restorable_dropped_database_backup_short_term_retention_client(cli_ctx):
+    '''
+    Returns client for managed restorable dropped databases.
+    '''
+
+    server_client = \
+        get_sql_restorable_dropped_database_managed_backup_short_term_retention_policies_operations(cli_ctx, None)
+
+    # pylint: disable=no-member
+    return server_client
+
+
 def _get_managed_instance_location(cli_ctx, managed_instance_name, resource_group_name):
     '''
     Returns the location (i.e. Azure region) that the specified managed instance is in.
@@ -76,6 +102,17 @@ def _get_managed_instance_location(cli_ctx, managed_instance_name, resource_grou
         resource_group_name=resource_group_name).location
 
 
+def _get_location_capability(cli_ctx, location, group):
+    '''
+    Gets the location capability for a location and verifies that it is available.
+    '''
+
+    capabilities_client = get_sql_capabilities_operations(cli_ctx, None)
+    location_capability = capabilities_client.list_by_location(location, group)
+    _assert_capability_available(location_capability)
+    return location_capability
+
+
 def _any_sku_values_specified(sku):
     '''
     Returns True if the sku object has any properties that are specified
@@ -83,6 +120,27 @@ def _any_sku_values_specified(sku):
     '''
 
     return any(val for key, val in sku.__dict__.items())
+
+
+def _compute_model_matches(sku_name, compute_model):
+    '''
+    Returns True if sku name matches the compute model.
+    Please update is function if compute_model has more than 2 enums.
+    '''
+
+    if (_is_serverless_slo(sku_name) and compute_model == ComputeModelType.serverless):
+        return True
+    if (not _is_serverless_slo(sku_name) and compute_model != ComputeModelType.serverless):
+        return True
+    return False
+
+
+def _is_serverless_slo(sku_name):
+    '''
+    Returns True if the sku name is a serverless sku.
+    '''
+
+    return "_S_" in sku_name
 
 
 def _get_default_server_version(location_capabilities):
@@ -95,27 +153,57 @@ def _get_default_server_version(location_capabilities):
 
     If there is no default or available server version, falls back to
     server version 12.0 in order to maintain compatibility with older
-    Azure CLI releases.
+    Azure CLI releases (2.0.25 and earlier).
     '''
     server_versions = location_capabilities.supported_server_versions
 
-    try:
-        # Try behavior from azure-cli-sql 2.0.26: get default
-        return _get_default_capability(server_versions)
-    except StopIteration:
-        # No default or available version found.
-        # Fall back to behaviour from azure-cli-sql 2.0.25 and earlier: get version 12.0
-        return next(sv for sv in server_versions if sv.name == "12.0")
+    def is_v12(capability):
+        return capability.name == "12.0"
+
+    return _get_default_capability(server_versions, fallback_predicate=is_v12)
 
 
-def _get_default_capability(capabilities):
+def _get_default_capability(capabilities, fallback_predicate=None):
     '''
     Gets the first capability in the collection that has 'default' status.
     If none have 'default' status, gets the first capability that has 'available' status.
     '''
+    logger.debug('_get_default_capability: %s', capabilities)
 
-    return (next((c for c in capabilities if c.status == CapabilityStatus.default), None) or
-            next(c for c in capabilities if c.status == CapabilityStatus.available))
+    # Get default capability
+    r = next((c for c in capabilities if c.status == CapabilityStatus.default), None)
+    if r:
+        logger.debug('_get_default_capability found default: %s', r)
+        return r
+
+    # No default capability, so fallback to first available capability
+    r = next((c for c in capabilities if c.status == CapabilityStatus.available), None)
+    if r:
+        logger.debug('_get_default_capability found available: %s', r)
+        return r
+
+    # No available capability, so use custom fallback
+    if fallback_predicate:
+        logger.debug('_get_default_capability using fallback')
+        r = next((c for c in capabilities if fallback_predicate(c)), None)
+        if r:
+            logger.debug('_get_default_capability found fallback: %s', r)
+            return r
+
+    # No custom fallback, so we have to throw an error.
+    logger.debug('_get_default_capability failed')
+    raise CLIError('Provisioning is restricted in this region. Please choose a different region.')
+
+
+def _assert_capability_available(capability):
+    '''
+    Asserts that the capability is available (or default). Throws CLIError if the
+    capability is unavailable.
+    '''
+    logger.debug('_assert_capability_available: %s', capability)
+
+    if not is_available(capability.status):
+        raise CLIError(capability.reason)
 
 
 def is_available(status):
@@ -143,15 +231,16 @@ def _find_edition_capability(sku, supported_editions):
 
     (Note: tier and edition mean the same thing.)
     '''
+    logger.debug('_find_edition_capability: %s; %s', sku, supported_editions)
 
     if sku.tier:
         # Find requested edition capability
         try:
             return next(e for e in supported_editions if e.name == sku.tier)
         except StopIteration:
-            candiate_tiers = [e.name for e in supported_editions]
+            candidate_editions = [e.name for e in supported_editions]
             raise CLIError('Could not find tier ''{}''. Supported tiers are: {}'.format(
-                sku.tier, candiate_tiers
+                sku.tier, candidate_editions
             ))
     else:
         # Find default edition capability
@@ -165,11 +254,12 @@ def _find_family_capability(sku, supported_families):
 
     If the edition has no family specified, returns the default family.
     '''
+    logger.debug('_find_family_capability: %s; %s', sku, supported_families)
 
     if sku.family:
-        # Find requested edition capability
+        # Find requested family capability
         try:
-            return next(e for e in supported_families if e.name == sku.family)
+            return next(f for f in supported_families if f.name == sku.family)
         except StopIteration:
             candidate_families = [e.name for e in supported_families]
             raise CLIError('Could not find family ''{}''. Supported families are: {}'.format(
@@ -180,7 +270,7 @@ def _find_family_capability(sku, supported_families):
         return _get_default_capability(supported_families)
 
 
-def _find_performance_level_capability(sku, supported_service_level_objectives, allow_reset_family):
+def _find_performance_level_capability(sku, supported_service_level_objectives, allow_reset_family, compute_model=None):
     '''
     Finds the DB or elastic pool performance level (i.e. service objective) in the
     collection of supported service objectives that matches the requested sku's
@@ -190,7 +280,8 @@ def _find_performance_level_capability(sku, supported_service_level_objectives, 
     objective.
     '''
 
-    logger.debug('_find_performance_level_capability input: %s, allow_reset_family: %s', sku, allow_reset_family)
+    logger.debug('_find_performance_level_capability: %s, %s, allow_reset_family: %s, compute_model: %s',
+                 sku, supported_service_level_objectives, allow_reset_family, compute_model)
 
     if sku.capacity:
         try:
@@ -199,7 +290,8 @@ def _find_performance_level_capability(sku, supported_service_level_objectives, 
             return next(slo for slo in supported_service_level_objectives
                         if ((slo.sku.family == sku.family) or
                             (slo.sku.family is None and allow_reset_family)) and
-                        int(slo.sku.capacity) == int(sku.capacity))
+                        int(slo.sku.capacity) == int(sku.capacity) and
+                        _compute_model_matches(slo.sku.name, compute_model))
         except StopIteration:
             if allow_reset_family:
                 raise CLIError(
@@ -235,7 +327,8 @@ def _db_elastic_pool_update_sku(
         tier,
         family,
         capacity,
-        find_sku_from_capabilities_func):
+        find_sku_from_capabilities_func,
+        compute_model=None):
     '''
     Updates the sku of a DB or elastic pool.
     '''
@@ -273,15 +366,52 @@ def _db_elastic_pool_update_sku(
     if capacity:
         instance.sku.capacity = capacity
 
+    # Wipe out sku name if serverless vs provisioned db offerings changed,
+    # only if sku name has not be wiped by earlier logic, and new compute model has been requested.
+    if instance.sku.name and compute_model:
+        if not _compute_model_matches(instance.sku.name, compute_model):
+            instance.sku.name = None
+
     # If sku name was wiped out by any of the above, resolve the requested sku name
     # using capabilities.
     if not instance.sku.name:
         instance.sku = find_sku_from_capabilities_func(
             cmd.cli_ctx, instance.location, instance.sku,
-            allow_reset_family=allow_reset_family)
+            allow_reset_family=allow_reset_family, compute_model=compute_model)
+
+
+def _get_tenant_id():
+    '''
+    Gets tenantId from current subscription.
+    '''
+    from azure.cli.core._profile import Profile
+
+    profile = Profile()
+    sub = profile.get_subscription()
+    return sub['tenantId']
 
 
 _DEFAULT_SERVER_VERSION = "12.0"
+
+
+def failover_group_update_common(
+        instance,
+        failover_policy=None,
+        grace_period=None,):
+    '''
+    Updates the failover group grace period and failover policy. Common logic for both Sterling and Managed Instance
+    '''
+
+    if failover_policy is not None:
+        instance.read_write_endpoint.failover_policy = failover_policy
+
+    if instance.read_write_endpoint.failover_policy == FailoverPolicyType.manual.value:
+        grace_period = None
+        instance.read_write_endpoint.failover_with_data_loss_grace_period_minutes = grace_period
+
+    if grace_period is not None:
+        grace_period = int(grace_period) * 60
+        instance.read_write_endpoint.failover_with_data_loss_grace_period_minutes = grace_period
 
 ###############################################
 #                sql db                       #
@@ -313,6 +443,54 @@ class ClientAuthenticationType(Enum):
     active_directory_integrated = 'ADIntegrated'
 
 
+class FailoverPolicyType(Enum):
+    automatic = 'Automatic'
+    manual = 'Manual'
+
+
+class SqlServerMinimalTlsVersionType(Enum):
+    tls_1_0 = "1.0"
+    tls_1_1 = "1.1"
+    tls_1_2 = "1.2"
+
+
+class SqlManagedInstanceMinimalTlsVersionType(Enum):
+    no_tls = "None"
+    tls_1_0 = "1.0"
+    tls_1_1 = "1.1"
+    tls_1_2 = "1.2"
+
+
+class ComputeModelType(str, Enum):
+
+    provisioned = "Provisioned"
+    serverless = "Serverless"
+
+
+class DatabaseEdition(str, Enum):
+
+    web = "Web"
+    business = "Business"
+    basic = "Basic"
+    standard = "Standard"
+    premium = "Premium"
+    premium_rs = "PremiumRS"
+    free = "Free"
+    stretch = "Stretch"
+    data_warehouse = "DataWarehouse"
+    system = "System"
+    system2 = "System2"
+    general_purpose = "GeneralPurpose"
+    business_critical = "BusinessCritical"
+    hyperscale = "Hyperscale"
+
+
+class AuthenticationType(str, Enum):
+
+    sql = "SQL"
+    ad_password = "ADPassword"
+
+
 def _get_server_dns_suffx(cli_ctx):
     '''
     Gets the DNS suffix for servers in this Azure environment.
@@ -329,14 +507,62 @@ def _get_managed_db_resource_id(cli_ctx, resource_group_name, managed_instance_n
     '''
 
     # url parse package has different names in Python 2 and 3. 'six' package works cross-version.
+    from azure.cli.core.commands.client_factory import get_subscription_id
+    from msrestazure.tools import resource_id
+
+    return resource_id(
+        subscription=get_subscription_id(cli_ctx),
+        resource_group=resource_group_name,
+        namespace='Microsoft.Sql', type='managedInstances',
+        name=managed_instance_name,
+        child_type_1='databases',
+        child_name_1=database_name)
+
+
+def _to_filetimeutc(dateTime):
+    '''
+    Changes given datetime to filetimeutc string
+    '''
+
+    NET_epoch = datetime(1601, 1, 1)
+    UNIX_epoch = datetime(1970, 1, 1)
+
+    epoch_delta = (UNIX_epoch - NET_epoch)
+
+    log_time = parse(dateTime)
+
+    net_ts = calendar.timegm((log_time + epoch_delta).timetuple())
+
+    # units of seconds since NET epoch
+    filetime_utc_ts = net_ts * (10**7) + log_time.microsecond * 10
+
+    return filetime_utc_ts
+
+
+def _get_managed_dropped_db_resource_id(
+        cli_ctx,
+        resource_group_name,
+        managed_instance_name,
+        database_name,
+        deleted_time):
+    '''
+    Gets the Managed db resource id in this Azure environment.
+    '''
+
+    # url parse package has different names in Python 2 and 3. 'six' package works cross-version.
     from six.moves.urllib.parse import quote  # pylint: disable=import-error
     from azure.cli.core.commands.client_factory import get_subscription_id
+    from msrestazure.tools import resource_id
 
-    return '/subscriptions/{}/resourceGroups/{}/providers/Microsoft.Sql/managedInstances/{}/databases/{}'.format(
-        quote(get_subscription_id(cli_ctx)),
-        quote(resource_group_name),
-        quote(managed_instance_name),
-        quote(database_name))
+    return (resource_id(
+        subscription=get_subscription_id(cli_ctx),
+        resource_group=resource_group_name,
+        namespace='Microsoft.Sql', type='managedInstances',
+        name=managed_instance_name,
+        child_type_1='restorableDroppedDatabases',
+        child_name_1='{},{}'.format(
+            quote(database_name),
+            _to_filetimeutc(deleted_time))))
 
 
 def db_show_conn_str(
@@ -464,7 +690,7 @@ class DatabaseIdentity():  # pylint: disable=too-few-public-methods
             quote(self.database_name))
 
 
-def _find_db_sku_from_capabilities(cli_ctx, location, sku, allow_reset_family=False):
+def _find_db_sku_from_capabilities(cli_ctx, location, sku, allow_reset_family=False, compute_model=None):
     '''
     Given a requested sku which may have some properties filled in
     (e.g. tier and capacity), finds the canonical matching sku
@@ -487,10 +713,11 @@ def _find_db_sku_from_capabilities(cli_ctx, location, sku, allow_reset_family=Fa
     # Some properties of sku are specified, but not name. Use the requested properties
     # to find a matching capability and copy the sku from there.
 
+    # Get location capability
+    loc_capability = _get_location_capability(cli_ctx, location, CapabilityGroup.supported_editions)
+
     # Get default server version capability
-    capabilities_client = get_sql_capabilities_operations(cli_ctx, None)
-    capabilities = capabilities_client.list_by_location(location, CapabilityGroup.supported_editions)
-    server_version_capability = _get_default_server_version(capabilities)
+    server_version_capability = _get_default_server_version(loc_capability)
 
     # Find edition capability, based on requested sku properties
     edition_capability = _find_edition_capability(
@@ -499,7 +726,8 @@ def _find_db_sku_from_capabilities(cli_ctx, location, sku, allow_reset_family=Fa
     # Find performance level capability, based on requested sku properties
     performance_level_capability = _find_performance_level_capability(
         sku, edition_capability.supported_service_level_objectives,
-        allow_reset_family=allow_reset_family)
+        allow_reset_family=allow_reset_family,
+        compute_model=compute_model)
 
     # Ideally, we would return the sku object from capability (`return performance_level_capability.sku`).
     # However not all db create modes support using `capacity` to find slo, so instead we put
@@ -554,6 +782,13 @@ def _db_dw_create(
     Handles common concerns such as setting location and sku properties.
     '''
 
+    # This check needs to be here, because server side logic of
+    # finding a default sku for Serverless is not yet implemented.
+    if kwargs['compute_model'] == ComputeModelType.serverless:
+        if not sku or not sku.tier or not sku.family or not sku.capacity:
+            raise CLIError('When creating a severless database, please pass in edition, '
+                           'family, and capacity parameters through -e -f -c')
+
     # Determine server location
     kwargs['location'] = _get_server_location(
         cli_ctx,
@@ -566,7 +801,11 @@ def _db_dw_create(
 
     # If sku.name is not specified, resolve the requested sku name
     # using capabilities.
-    kwargs['sku'] = _find_db_sku_from_capabilities(cli_ctx, kwargs['location'], sku)
+    kwargs['sku'] = _find_db_sku_from_capabilities(
+        cli_ctx,
+        kwargs['location'],
+        sku,
+        compute_model=kwargs['compute_model'])
 
     # Validate elastic pool id
     kwargs['elastic_pool_id'] = _validate_elastic_pool_id(
@@ -583,6 +822,35 @@ def _db_dw_create(
                        parameters=kwargs)
 
 
+def _should_show_backup_storage_redundancy_warnings(target_db_location):
+    if target_db_location.lower() in ['southeastasia', 'brazilsouth', 'eastasia']:
+        return True
+    return False
+
+
+def _backup_storage_redundancy_specify_geo_warning():
+    print("""Selected value for backup storage redundancy is geo-redundant storage.
+    Note that database backups will be geo-replicated to the paired region.
+    To learn more about Azure Paired Regions visit https://aka.ms/azure-ragrs-regions.""")
+
+
+def _confirm_backup_storage_redundancy_take_geo_warning():
+    # if not storage_account_type:
+    confirmation = prompt_y_n("""You have not specified the value for backup storage redundancy
+    which will default to geo-redundant storage. Note that database backups will be geo-replicated
+    to the paired region. To learn more about Azure Paired Regions visit https://aka.ms/azure-ragrs-regions.
+    Do you want to proceed?""")
+    if not confirmation:
+        return False
+    return True
+
+
+def _backup_storage_redundancy_take_source_warning():
+    print("""You have not specified the value for backup storage redundancy
+    which will default to source's backup storage redundancy.
+    To learn more about Azure Paired Regions visit https://aka.ms/azure-ragrs-regions.""")
+
+
 def db_create(
         cmd,
         client,
@@ -590,10 +858,24 @@ def db_create(
         server_name,
         resource_group_name,
         no_wait=False,
+        yes=None,
         **kwargs):
     '''
     Creates a DB (with 'Default' create mode.)
     '''
+
+    # Check backup storage redundancy configurations
+    location = _get_server_location(
+        cmd.cli_ctx,
+        server_name=server_name,
+        resource_group_name=resource_group_name)
+
+    if not yes and _should_show_backup_storage_redundancy_warnings(location):
+        if not kwargs['storage_account_type']:
+            if not _confirm_backup_storage_redundancy_take_geo_warning():
+                return None
+        if kwargs['storage_account_type'] == 'GRS':
+            _backup_storage_redundancy_specify_geo_warning()
 
     return _db_dw_create(
         cmd.cli_ctx,
@@ -651,6 +933,16 @@ def db_copy(
         resource_group_name,
         kwargs)
 
+    # Check backup storage redundancy configurations
+    location = _get_server_location(cmd.cli_ctx,
+                                    server_name=dest_server_name,
+                                    resource_group_name=dest_resource_group_name)
+    if _should_show_backup_storage_redundancy_warnings(location):
+        if not kwargs['storage_account_type']:
+            _backup_storage_redundancy_take_source_warning()
+        if kwargs['storage_account_type'] == 'GRS':
+            _backup_storage_redundancy_specify_geo_warning()
+
     return _db_dw_create(
         cmd.cli_ctx,
         client,
@@ -666,8 +958,8 @@ def db_create_replica(
         database_name,
         server_name,
         resource_group_name,
-        # Replica must have the same database name as the source db
         partner_server_name,
+        partner_database_name=None,
         partner_resource_group_name=None,
         no_wait=False,
         **kwargs):
@@ -679,6 +971,7 @@ def db_create_replica(
 
     # Determine optional values
     partner_resource_group_name = partner_resource_group_name or resource_group_name
+    partner_database_name = partner_database_name or database_name
 
     # Set create mode
     kwargs['create_mode'] = CreateMode.secondary.value
@@ -693,12 +986,22 @@ def db_create_replica(
         resource_group_name,
         kwargs)
 
+    # Check backup storage redundancy configurations
+    location = _get_server_location(cmd.cli_ctx,
+                                    server_name=partner_server_name,
+                                    resource_group_name=partner_resource_group_name)
+    if _should_show_backup_storage_redundancy_warnings(location):
+        if not kwargs['storage_account_type']:
+            _backup_storage_redundancy_take_source_warning()
+        if kwargs['storage_account_type'] == 'GRS':
+            _backup_storage_redundancy_specify_geo_warning()
+
     # Replica must have the same database name as the source db
     return _db_dw_create(
         cmd.cli_ctx,
         client,
         DatabaseIdentity(cmd.cli_ctx, database_name, server_name, resource_group_name),
-        DatabaseIdentity(cmd.cli_ctx, database_name, partner_server_name, partner_resource_group_name),
+        DatabaseIdentity(cmd.cli_ctx, partner_database_name, partner_server_name, partner_resource_group_name),
         no_wait,
         **kwargs)
 
@@ -760,6 +1063,14 @@ def db_restore(
     kwargs['source_database_deletion_date'] = source_database_deletion_date
     kwargs['create_mode'] = CreateMode.restore.value if is_deleted else CreateMode.point_in_time_restore.value
 
+    # Check backup storage redundancy configurations
+    location = _get_server_location(cmd.cli_ctx, server_name=server_name, resource_group_name=resource_group_name)
+    if _should_show_backup_storage_redundancy_warnings(location):
+        if not kwargs['storage_account_type']:
+            _backup_storage_redundancy_take_source_warning()
+        if kwargs['storage_account_type'] == 'GRS':
+            _backup_storage_redundancy_specify_geo_warning()
+
     return _db_dw_create(
         cmd.cli_ctx,
         client,
@@ -795,7 +1106,7 @@ def db_failover(
 
     # If a replica is primary, then it has 1 or more links (to its secondaries).
     # If a replica is secondary, then it has exactly 1 link (to its primary).
-    primary_link = next((l for l in links if l.partner_role == ReplicationRole.primary), None)
+    primary_link = next((link for link in links if link.partner_role == ReplicationRole.primary), None)
     if not primary_link:
         # No link to a primary, so this must already be a primary. Do nothing.
         return
@@ -923,7 +1234,7 @@ def db_delete_replica_link(
 
     # The link doesn't tell us the partner resource group name, so we just have to count on
     # partner server name being unique
-    link = next((l for l in links if l.partner_server == partner_server_name), None)
+    link = next((link for link in links if link.partner_server == partner_server_name), None)
     if not link:
         # No link exists, nothing to be done
         return
@@ -978,7 +1289,7 @@ def db_import(
     kwargs['storage_key_type'] = storage_key_type
     kwargs['storage_key'] = storage_key
 
-    return client.create_import_operation(
+    return client.import_method(
         database_name=database_name,
         server_name=server_name,
         resource_group_name=resource_group_name,
@@ -1032,7 +1343,13 @@ def db_update(
         zone_redundant=None,
         tier=None,
         family=None,
-        capacity=None):
+        capacity=None,
+        read_scale=None,
+        read_replica_count=None,
+        min_capacity=None,
+        auto_pause_delay=None,
+        compute_model=None,
+        storage_account_type=None):
     '''
     Applies requested parameters to a db resource instance for a DB update.
     '''
@@ -1040,6 +1357,12 @@ def db_update(
     if instance.sku.tier.lower() == DatabaseEdition.data_warehouse.value.lower():  # pylint: disable=no-member
         raise CLIError('Azure SQL Data Warehouse can be updated with the command'
                        ' `az sql dw update`.')
+
+    # Check backup storage redundancy configuration
+    location = _get_server_location(cmd.cli_ctx, server_name=server_name, resource_group_name=resource_group_name)
+    if _should_show_backup_storage_redundancy_warnings(location):
+        if storage_account_type == 'GRS':
+            _backup_storage_redundancy_specify_geo_warning()
 
     #####
     # Set sku-related properties
@@ -1069,6 +1392,12 @@ def db_update(
         server_name,
         resource_group_name)
 
+    # Finding out requesting compute_model
+    if not compute_model:
+        compute_model = (
+            ComputeModelType.serverless if _is_serverless_slo(instance.sku.name)
+            else ComputeModelType.provisioned)
+
     # Update sku
     _db_elastic_pool_update_sku(
         cmd,
@@ -1077,7 +1406,8 @@ def db_update(
         tier,
         family,
         capacity,
-        find_sku_from_capabilities_func=_find_db_sku_from_capabilities)
+        find_sku_from_capabilities_func=_find_db_sku_from_capabilities,
+        compute_model=compute_model)
 
     # TODO Temporary workaround for elastic pool sku name issue
     if instance.elastic_pool_id:
@@ -1092,6 +1422,21 @@ def db_update(
 
     if zone_redundant is not None:
         instance.zone_redundant = zone_redundant
+
+    if read_scale is not None:
+        instance.read_scale = read_scale
+
+    if read_replica_count is not None:
+        instance.read_replica_count = read_replica_count
+
+    #####
+    # Set other (serverless related) properties
+    #####
+    if min_capacity:
+        instance.min_capacity = min_capacity
+
+    if auto_pause_delay:
+        instance.auto_pause_delay = auto_pause_delay
 
     return instance
 
@@ -1111,8 +1456,6 @@ def _find_storage_account_resource_group(cli_ctx, name):
     resource group just to update some unrelated property, which is annoying and makes no sense to
     the customer.
     '''
-    from azure.mgmt.resource import ResourceManagementClient
-    from azure.cli.core.commands.client_factory import get_mgmt_service_client
 
     storage_type = 'Microsoft.Storage/storageAccounts'
     classic_storage_type = 'Microsoft.ClassicStorage/storageAccounts'
@@ -1120,7 +1463,7 @@ def _find_storage_account_resource_group(cli_ctx, name):
     query = "name eq '{}' and (resourceType eq '{}' or resourceType eq '{}')".format(
         name, storage_type, classic_storage_type)
 
-    client = get_mgmt_service_client(cli_ctx, ResourceManagementClient)
+    client = get_mgmt_service_client(cli_ctx, ResourceType.MGMT_RESOURCE_RESOURCES)
     resources = list(client.resources.list(filter=query))
 
     if not resources:
@@ -1157,7 +1500,6 @@ def _get_storage_endpoint(
     Gets storage account endpoint by querying storage ARM API.
     '''
     from azure.mgmt.storage import StorageManagementClient
-    from azure.cli.core.commands.client_factory import get_mgmt_service_client
 
     # Get storage account
     client = get_mgmt_service_client(cli_ctx, StorageManagementClient)
@@ -1184,7 +1526,6 @@ def _get_storage_key(
     Gets storage account key by querying storage ARM API.
     '''
     from azure.mgmt.storage import StorageManagementClient
-    from azure.cli.core.commands.client_factory import get_mgmt_service_client
 
     # Get storage keys
     client = get_mgmt_service_client(cli_ctx, StorageManagementClient)
@@ -1244,42 +1585,1023 @@ def _db_security_policy_update(
             use_secondary_key)
 
 
-def db_audit_policy_update(
+def _check_audit_policy_state(
+        state,
+        value):
+    return state is not None and state.lower() == value.lower()
+
+
+def _is_audit_policy_state_enabled(state):
+    return _check_audit_policy_state(state, BlobAuditingPolicyState.enabled.value)
+
+
+def _is_audit_policy_state_disabled(state):
+    return _check_audit_policy_state(state, BlobAuditingPolicyState.disabled.value)
+
+
+def _is_audit_policy_state_none_or_disabled(state):
+    return state is None or _check_audit_policy_state(state, BlobAuditingPolicyState.disabled.value)
+
+
+def _get_diagnostic_settings_url(
+        cmd,
+        resource_group_name,
+        server_name,
+        database_name=None):
+
+    from azure.cli.core.commands.client_factory import get_subscription_id
+
+    return '/subscriptions/{}/resourceGroups/{}/providers/Microsoft.Sql/servers/{}/databases/{}'.format(
+        get_subscription_id(cmd.cli_ctx),
+        resource_group_name, server_name,
+        database_name if database_name is not None else "master")
+
+
+def _get_diagnostic_settings(
+        cmd,
+        resource_group_name,
+        server_name,
+        database_name=None):
+    '''
+    Common code to get server or database diagnostic settings
+    '''
+
+    diagnostic_settings_url = _get_diagnostic_settings_url(
+        cmd=cmd, resource_group_name=resource_group_name,
+        server_name=server_name, database_name=database_name)
+    azure_monitor_client = cf_monitor(cmd.cli_ctx)
+
+    return azure_monitor_client.diagnostic_settings.list(diagnostic_settings_url)
+
+
+def _fetch_first_audit_diagnostic_setting(diagnostic_settings):
+    return next((ds for ds in diagnostic_settings if hasattr(ds, 'logs') and
+                 next((log for log in ds.logs if log.enabled and
+                       log.category == 'SQLSecurityAuditEvents'), None) is not None), None)
+
+
+def _fetch_all_audit_diagnostic_settings(diagnostic_settings):
+    return [ds for ds in diagnostic_settings if hasattr(ds, 'logs') and
+            next((log for log in ds.logs if log.enabled and
+                  log.category == 'SQLSecurityAuditEvents'), None) is not None]
+
+
+def _audit_policy_show(
+        cmd,
+        client,
+        resource_group_name,
+        server_name,
+        database_name=None):
+    '''
+    Common code to get server or database audit policy including diagnostic settings
+    '''
+
+    # Request audit policy
+    if database_name is None:
+        audit_policy = client.get(
+            resource_group_name=resource_group_name,
+            server_name=server_name)
+    else:
+        audit_policy = client.get(
+            resource_group_name=resource_group_name,
+            server_name=server_name,
+            database_name=database_name)
+
+    audit_policy.blob_storage_target_state = BlobAuditingPolicyState.disabled
+    audit_policy.event_hub_target_state = BlobAuditingPolicyState.disabled
+    audit_policy.log_analytics_target_state = BlobAuditingPolicyState.disabled
+
+    # If audit policy's state is disabled there is nothing to do
+    if _is_audit_policy_state_disabled(audit_policy.state):
+        return audit_policy
+
+    if not audit_policy.storage_endpoint:
+        audit_policy.blob_storage_target_state = BlobAuditingPolicyState.disabled
+    else:
+        audit_policy.blob_storage_target_state = BlobAuditingPolicyState.enabled
+
+    # If 'is_azure_monitor_target_enabled' is false there is no reason to request diagnostic settings
+    if not audit_policy.is_azure_monitor_target_enabled:
+        return audit_policy
+
+    # Request diagnostic settings
+    diagnostic_settings = _get_diagnostic_settings(
+        cmd=cmd, resource_group_name=resource_group_name,
+        server_name=server_name, database_name=database_name)
+
+    # Sort received diagnostic settings by name and get first element to ensure consistency between command executions
+    diagnostic_settings.value.sort(key=lambda d: d.name)
+    audit_diagnostic_setting = _fetch_first_audit_diagnostic_setting(diagnostic_settings.value)
+
+    # Initialize azure monitor properties
+    if audit_diagnostic_setting is not None:
+        if audit_diagnostic_setting.workspace_id is not None:
+            audit_policy.log_analytics_target_state = BlobAuditingPolicyState.enabled
+            audit_policy.log_analytics_workspace_resource_id = audit_diagnostic_setting.workspace_id
+
+        if audit_diagnostic_setting.event_hub_authorization_rule_id is not None:
+            audit_policy.event_hub_target_state = BlobAuditingPolicyState.enabled
+            audit_policy.event_hub_authorization_rule_id = audit_diagnostic_setting.event_hub_authorization_rule_id
+            audit_policy.event_hub_name = audit_diagnostic_setting.event_hub_name
+
+    return audit_policy
+
+
+def server_audit_policy_show(
+        cmd,
+        client,
+        server_name,
+        resource_group_name):
+    '''
+    Show server audit policy
+    '''
+
+    return _audit_policy_show(
+        cmd=cmd,
+        client=client,
+        resource_group_name=resource_group_name,
+        server_name=server_name)
+
+
+def db_audit_policy_show(
+        cmd,
+        client,
+        server_name,
+        resource_group_name,
+        database_name):
+    '''
+    Show database audit policy
+    '''
+
+    return _audit_policy_show(
+        cmd=cmd,
+        client=client,
+        resource_group_name=resource_group_name,
+        server_name=server_name,
+        database_name=database_name)
+
+
+def _audit_policy_validate_arguments(
+        state=None,
+        blob_storage_target_state=None,
+        storage_account=None,
+        storage_endpoint=None,
+        storage_account_access_key=None,
+        retention_days=None,
+        log_analytics_target_state=None,
+        log_analytics_workspace_resource_id=None,
+        event_hub_target_state=None,
+        event_hub_authorization_rule_id=None,
+        event_hub_name=None):
+    '''
+    Validate input agruments
+    '''
+
+    blob_storage_arguments_provided = blob_storage_target_state is not None or\
+        storage_account is not None or storage_endpoint is not None or\
+        storage_account_access_key is not None or\
+        retention_days is not None
+
+    log_analytics_arguments_provided = log_analytics_target_state is not None or\
+        log_analytics_workspace_resource_id is not None
+
+    event_hub_arguments_provided = event_hub_target_state is not None or\
+        event_hub_authorization_rule_id is not None or\
+        event_hub_name is not None
+
+    if not state and not blob_storage_arguments_provided and\
+            not log_analytics_arguments_provided and not event_hub_arguments_provided:
+        raise CLIError('Either state or blob storage or log analytics or event hub arguments are missing')
+
+    if _is_audit_policy_state_enabled(state) and\
+            blob_storage_target_state is None and log_analytics_target_state is None and event_hub_target_state is None:
+        raise CLIError('One of the following arguments must be enabled:'
+                       ' blob-storage-target-state, log-analytics-target-state, event-hub-target-state')
+
+    if _is_audit_policy_state_disabled(state) and\
+            (blob_storage_arguments_provided or
+             log_analytics_arguments_provided or
+             event_hub_name):
+        raise CLIError('No additional arguments should be provided once state is disabled')
+
+    if (_is_audit_policy_state_none_or_disabled(blob_storage_target_state)) and\
+            (storage_account is not None or storage_endpoint is not None or
+             storage_account_access_key is not None or retention_days is not None):
+        raise CLIError('Blob storage account arguments cannot be specified'
+                       ' if blob-storage-target-state is not provided or disabled')
+
+    if _is_audit_policy_state_enabled(blob_storage_target_state):
+        if storage_account is not None and storage_endpoint is not None:
+            raise CLIError('storage-account and storage-endpoint cannot be provided at the same time')
+
+        if storage_account is None and storage_endpoint is None and retention_days is None:
+            raise CLIError('Either storage-account or storage-endpoint or retention-days must be provided')
+
+    # Server upper limit
+    max_retention_days = 3285
+
+    if retention_days is not None and\
+            (not retention_days.isdigit() or int(retention_days) <= 0 or int(retention_days) >= max_retention_days):
+        raise CLIError('retention-days must be a positive number greater than zero and lower than {}'
+                       .format(max_retention_days))
+
+    if _is_audit_policy_state_none_or_disabled(log_analytics_target_state) and\
+            log_analytics_workspace_resource_id is not None:
+        raise CLIError('Log analytics workspace resource id cannot be specified'
+                       ' if log-analytics-target-state is not provided or disabled')
+
+    if _is_audit_policy_state_enabled(log_analytics_target_state) and\
+            log_analytics_workspace_resource_id is None:
+        raise CLIError('Log analytics workspace resource id must be specified'
+                       ' if log-analytics-target-state is enabled')
+
+    if _is_audit_policy_state_none_or_disabled(event_hub_target_state) and\
+            (event_hub_authorization_rule_id is not None or event_hub_name is not None):
+        raise CLIError('Event hub arguments cannot be specified if event-hub-target-state is not provided or disabled')
+
+    if _is_audit_policy_state_enabled(event_hub_target_state) and event_hub_authorization_rule_id is None:
+        raise CLIError('event-hub-authorization-rule-id must be specified if event-hub-target-state is enabled')
+
+
+def _audit_policy_create_diagnostic_setting(
+        cmd,
+        resource_group_name,
+        server_name,
+        database_name=None,
+        log_analytics_target_state=None,
+        log_analytics_workspace_resource_id=None,
+        event_hub_target_state=None,
+        event_hub_authorization_rule_id=None,
+        event_hub_name=None):
+    '''
+    Create audit diagnostic setting, i.e. containing single category - "SQLSecurityAuditEvents"
+    '''
+
+    # Generate diagnostic settings name to be created
+    name = "SQLSecurityAuditEvents"
+
+    import inspect
+    test_mode = next((e for e in inspect.stack() if e.function == "test_sql_db_security_mgmt" or
+                      e.function == "test_sql_server_security_mgmt"), None) is not None
+
+    # For test environment the name should be constant, i.e. match the name written in recorded yaml file
+    if test_mode:
+        name += '_LogAnalytics' if log_analytics_target_state is not None else ''
+        name += '_EventHub' if event_hub_target_state is not None else ''
+    else:
+        import uuid
+        name += '_' + str(uuid.uuid4())
+
+    diagnostic_settings_url = _get_diagnostic_settings_url(
+        cmd=cmd,
+        resource_group_name=resource_group_name,
+        server_name=server_name,
+        database_name=database_name)
+
+    azure_monitor_client = cf_monitor(cmd.cli_ctx)
+
+    LogSettings = cmd.get_models(
+        'LogSettings',
+        resource_type=ResourceType.MGMT_MONITOR,
+        operation_group='diagnostic_settings')
+
+    RetentionPolicy = cmd.get_models(
+        'RetentionPolicy',
+        resource_type=ResourceType.MGMT_MONITOR,
+        operation_group='diagnostic_settings')
+
+    return create_diagnostics_settings(
+        client=azure_monitor_client.diagnostic_settings,
+        name=name,
+        resource_uri=diagnostic_settings_url,
+        logs=[LogSettings(category="SQLSecurityAuditEvents", enabled=True,
+                          retention_policy=RetentionPolicy(enabled=False, days=0))],
+        metrics=None,
+        event_hub=event_hub_name,
+        event_hub_rule=event_hub_authorization_rule_id,
+        storage_account=None,
+        workspace=log_analytics_workspace_resource_id)
+
+
+def _audit_policy_update_diagnostic_settings(
+        cmd,
+        server_name,
+        resource_group_name,
+        database_name=None,
+        diagnostic_settings=None,
+        log_analytics_target_state=None,
+        log_analytics_workspace_resource_id=None,
+        event_hub_target_state=None,
+        event_hub_authorization_rule_id=None,
+        event_hub_name=None):
+    '''
+    Update audit policy's diagnostic settings
+    '''
+
+    # Fetch all audit diagnostic settings
+    audit_diagnostic_settings = _fetch_all_audit_diagnostic_settings(diagnostic_settings.value)
+    num_of_audit_diagnostic_settings = len(audit_diagnostic_settings)
+
+    # If more than 1 audit diagnostic settings found then throw error
+    if num_of_audit_diagnostic_settings > 1:
+        raise CLIError('Multiple audit diagnostics settings are already enabled')
+
+    diagnostic_settings_url = _get_diagnostic_settings_url(
+        cmd=cmd,
+        resource_group_name=resource_group_name,
+        server_name=server_name,
+        database_name=database_name)
+
+    azure_monitor_client = cf_monitor(cmd.cli_ctx)
+
+    # If no audit diagnostic settings found then create one if azure monitor is enabled
+    if num_of_audit_diagnostic_settings == 0:
+        if _is_audit_policy_state_enabled(log_analytics_target_state) or\
+                _is_audit_policy_state_enabled(event_hub_target_state):
+            created_diagnostic_setting = _audit_policy_create_diagnostic_setting(
+                cmd=cmd,
+                resource_group_name=resource_group_name,
+                server_name=server_name,
+                database_name=database_name,
+                log_analytics_target_state=log_analytics_target_state,
+                log_analytics_workspace_resource_id=log_analytics_workspace_resource_id,
+                event_hub_target_state=event_hub_target_state,
+                event_hub_authorization_rule_id=event_hub_authorization_rule_id,
+                event_hub_name=event_hub_name)
+
+            # Return rollback data tuple
+            return [("delete", created_diagnostic_setting)]
+
+        # azure monitor is disabled - there is nothing to do
+        return None
+
+    # This leaves us with case when num_of_audit_diagnostic_settings is 1
+    audit_diagnostic_setting = audit_diagnostic_settings[0]
+
+    # Initialize actually updated azure monitor fields
+    if log_analytics_target_state is None:
+        log_analytics_workspace_resource_id = audit_diagnostic_setting.workspace_id
+    elif _is_audit_policy_state_disabled(log_analytics_target_state):
+        log_analytics_workspace_resource_id = None
+
+    if event_hub_target_state is None:
+        event_hub_authorization_rule_id = audit_diagnostic_setting.event_hub_authorization_rule_id
+        event_hub_name = audit_diagnostic_setting.event_hub_name
+    elif _is_audit_policy_state_disabled(event_hub_target_state):
+        event_hub_authorization_rule_id = None
+        event_hub_name = None
+
+    is_azure_monitor_target_enabled = log_analytics_workspace_resource_id is not None or\
+        event_hub_authorization_rule_id is not None
+
+    has_other_categories = next((log for log in audit_diagnostic_setting.logs
+                                 if log.enabled and log.category != 'SQLSecurityAuditEvents'), None) is not None
+
+    # If there is no other categories except SQLSecurityAuditEvents update or delete
+    # the existing single diagnostic settings
+    if not has_other_categories:
+        # If azure monitor is enabled then update existing single audit diagnostic setting
+        if is_azure_monitor_target_enabled:
+            create_diagnostics_settings(
+                client=azure_monitor_client.diagnostic_settings,
+                name=audit_diagnostic_setting.name,
+                resource_uri=diagnostic_settings_url,
+                logs=audit_diagnostic_setting.logs,
+                metrics=audit_diagnostic_setting.metrics,
+                event_hub=event_hub_name,
+                event_hub_rule=event_hub_authorization_rule_id,
+                storage_account=audit_diagnostic_setting.storage_account_id,
+                workspace=log_analytics_workspace_resource_id)
+
+            # Return rollback data tuple
+            return [("update", audit_diagnostic_setting)]
+
+        # Azure monitor is disabled, delete existing single audit diagnostic setting
+        azure_monitor_client.diagnostic_settings.delete(diagnostic_settings_url, audit_diagnostic_setting.name)
+
+        # Return rollback data tuple
+        return [("create", audit_diagnostic_setting)]
+
+    # In case there are other categories in the existing single audit diagnostic setting a "split" must be performed:
+    #   1. Disable SQLSecurityAuditEvents category in found audit diagnostic setting
+    #   2. Create new diagnostic setting with SQLSecurityAuditEvents category, i.e. audit diagnostic setting
+
+    # Build updated logs list with disabled 'SQLSecurityAuditEvents' category
+    updated_logs = []
+
+    LogSettings = cmd.get_models(
+        'LogSettings',
+        resource_type=ResourceType.MGMT_MONITOR,
+        operation_group='diagnostic_settings')
+
+    RetentionPolicy = cmd.get_models(
+        'RetentionPolicy',
+        resource_type=ResourceType.MGMT_MONITOR,
+        operation_group='diagnostic_settings')
+
+    for log in audit_diagnostic_setting.logs:
+        if log.category == "SQLSecurityAuditEvents":
+            updated_logs.append(LogSettings(category=log.category, enabled=False,
+                                            retention_policy=RetentionPolicy(enabled=False, days=0)))
+        else:
+            updated_logs.append(log)
+
+    # Update existing diagnostic settings
+    create_diagnostics_settings(
+        client=azure_monitor_client.diagnostic_settings,
+        name=audit_diagnostic_setting.name,
+        resource_uri=diagnostic_settings_url,
+        logs=updated_logs,
+        metrics=audit_diagnostic_setting.metrics,
+        event_hub=audit_diagnostic_setting.event_hub_name,
+        event_hub_rule=audit_diagnostic_setting.event_hub_authorization_rule_id,
+        storage_account=audit_diagnostic_setting.storage_account_id,
+        workspace=audit_diagnostic_setting.workspace_id)
+
+    # Add original 'audit_diagnostic_settings' to rollback_data list
+    rollback_data = [("update", audit_diagnostic_setting)]
+
+    # Create new diagnostic settings with enabled 'SQLSecurityAuditEvents' category only if azure monitor is enabled
+    if is_azure_monitor_target_enabled:
+        created_diagnostic_setting = _audit_policy_create_diagnostic_setting(
+            cmd=cmd,
+            resource_group_name=resource_group_name,
+            server_name=server_name,
+            database_name=database_name,
+            log_analytics_target_state=log_analytics_target_state,
+            log_analytics_workspace_resource_id=log_analytics_workspace_resource_id,
+            event_hub_target_state=event_hub_target_state,
+            event_hub_authorization_rule_id=event_hub_authorization_rule_id,
+            event_hub_name=event_hub_name)
+
+        # Add 'created_diagnostic_settings' to rollback_data list in reverse order
+        rollback_data.insert(0, ("delete", created_diagnostic_setting))
+
+    return rollback_data
+
+
+def _audit_policy_update_apply_blob_storage_details(
         cmd,
         instance,
+        blob_storage_target_state,
+        storage_account,
+        storage_endpoint,
+        storage_account_access_key,
+        retention_days):
+    '''
+    Apply blob storage details on policy update
+    '''
+
+    if blob_storage_target_state is None:
+        # Original audit policy has no storage_endpoint
+        if not instance.storage_endpoint:
+            instance.storage_endpoint = None
+            instance.storage_account_access_key = None
+        else:
+            # Resolve storage_account_access_key based on original storage_endpoint
+            storage_account = _get_storage_account_name(instance.storage_endpoint)
+            storage_resource_group = _find_storage_account_resource_group(cmd.cli_ctx, storage_account)
+
+            instance.storage_account_access_key = _get_storage_key(
+                cli_ctx=cmd.cli_ctx,
+                storage_account=storage_account,
+                resource_group_name=storage_resource_group,
+                use_secondary_key=instance.is_storage_secondary_key_in_use)
+    elif _is_audit_policy_state_enabled(blob_storage_target_state):
+        # Resolve storage_endpoint using provided storage_account
+        if storage_account is not None:
+            storage_resource_group = _find_storage_account_resource_group(cmd.cli_ctx, storage_account)
+            storage_endpoint = _get_storage_endpoint(cmd.cli_ctx, storage_account, storage_resource_group)
+
+        if storage_endpoint is not None:
+            instance.storage_endpoint = storage_endpoint
+
+        if storage_account_access_key is not None:
+            instance.storage_account_access_key = storage_account_access_key
+        elif storage_endpoint is not None:
+            # Resolve storage_account if not provided
+            if storage_account is None:
+                storage_account = _get_storage_account_name(storage_endpoint)
+                storage_resource_group = _find_storage_account_resource_group(cmd.cli_ctx, storage_account)
+
+            # Resolve storage_account_access_key based on storage_account
+            instance.storage_account_access_key = _get_storage_key(
+                cli_ctx=cmd.cli_ctx,
+                storage_account=storage_account,
+                resource_group_name=storage_resource_group,
+                use_secondary_key=instance.is_storage_secondary_key_in_use)
+
+        # Apply retenation days
+        if retention_days is not None:
+            instance.retention_days = retention_days
+    else:
+        instance.storage_endpoint = None
+        instance.storage_account_access_key = None
+
+
+def _audit_policy_update_apply_azure_monitor_target_enabled(
+        instance,
+        diagnostic_settings,
+        log_analytics_target_state,
+        event_hub_target_state):
+    '''
+    Apply value of is_azure_monitor_target_enabled on policy update
+    '''
+
+    # If log_analytics_target_state and event_hub_target_state are None there is nothing to do
+    if log_analytics_target_state is None and event_hub_target_state is None:
+        return
+
+    if _is_audit_policy_state_enabled(log_analytics_target_state) or\
+            _is_audit_policy_state_enabled(event_hub_target_state):
+        instance.is_azure_monitor_target_enabled = True
+    else:
+        # Sort received diagnostic settings by name and get first element to ensure consistency
+        # between command executions
+        diagnostic_settings.value.sort(key=lambda d: d.name)
+        audit_diagnostic_setting = _fetch_first_audit_diagnostic_setting(diagnostic_settings.value)
+
+        # Determine value of is_azure_monitor_target_enabled
+        if audit_diagnostic_setting is None:
+            updated_log_analytics_workspace_id = None
+            updated_event_hub_authorization_rule_id = None
+        else:
+            updated_log_analytics_workspace_id = audit_diagnostic_setting.workspace_id
+            updated_event_hub_authorization_rule_id = audit_diagnostic_setting.event_hub_authorization_rule_id
+
+        if _is_audit_policy_state_disabled(log_analytics_target_state):
+            updated_log_analytics_workspace_id = None
+
+        if _is_audit_policy_state_disabled(event_hub_target_state):
+            updated_event_hub_authorization_rule_id = None
+
+        instance.is_azure_monitor_target_enabled = updated_log_analytics_workspace_id is not None or\
+            updated_event_hub_authorization_rule_id is not None
+
+
+def _audit_policy_update_global_settings(
+        cmd,
+        instance,
+        diagnostic_settings=None,
         state=None,
+        blob_storage_target_state=None,
         storage_account=None,
         storage_endpoint=None,
         storage_account_access_key=None,
         audit_actions_and_groups=None,
-        retention_days=None):
+        retention_days=None,
+        log_analytics_target_state=None,
+        event_hub_target_state=None):
     '''
-    Updates an audit policy. Custom update function to apply parameters to instance.
+    Update audit policy's global settings
     '''
 
     # Apply state
-    if state:
+    if state is not None:
         instance.state = BlobAuditingPolicyState[state.lower()]
-    enabled = instance.state.value.lower() == BlobAuditingPolicyState.enabled.value.lower()  # pylint: disable=no-member
 
-    # Set storage-related properties
-    _db_security_policy_update(
-        cmd.cli_ctx,
+    # Apply additional command line arguments only if policy's state is enabled
+    if _is_audit_policy_state_enabled(instance.state):
+        # Apply blob_storage_target_state and all storage account details
+        _audit_policy_update_apply_blob_storage_details(
+            cmd=cmd,
+            instance=instance,
+            blob_storage_target_state=blob_storage_target_state,
+            storage_account=storage_account,
+            storage_endpoint=storage_endpoint,
+            storage_account_access_key=storage_account_access_key,
+            retention_days=retention_days)
+
+        # Apply audit_actions_and_groups
+        if audit_actions_and_groups is not None:
+            instance.audit_actions_and_groups = audit_actions_and_groups
+
+        if not instance.audit_actions_and_groups or instance.audit_actions_and_groups == []:
+            instance.audit_actions_and_groups = [
+                "SUCCESSFUL_DATABASE_AUTHENTICATION_GROUP",
+                "FAILED_DATABASE_AUTHENTICATION_GROUP",
+                "BATCH_COMPLETED_GROUP"]
+
+        # Apply is_azure_monitor_target_enabled
+        _audit_policy_update_apply_azure_monitor_target_enabled(
+            instance=instance,
+            diagnostic_settings=diagnostic_settings,
+            log_analytics_target_state=log_analytics_target_state,
+            event_hub_target_state=event_hub_target_state)
+
+
+def _audit_policy_update_rollback(
+        cmd,
+        server_name,
+        resource_group_name,
+        database_name,
+        rollback_data):
+    '''
+    Rollback diagnostic settings change
+    '''
+
+    diagnostic_settings_url = _get_diagnostic_settings_url(
+        cmd=cmd,
+        resource_group_name=resource_group_name,
+        server_name=server_name,
+        database_name=database_name)
+
+    azure_monitor_client = cf_monitor(cmd.cli_ctx)
+
+    for rd in rollback_data:
+        rollback_diagnostic_setting = rd[1]
+
+        if rd[0] == "create" or rd[0] == "update":
+            create_diagnostics_settings(
+                client=azure_monitor_client.diagnostic_settings,
+                name=rollback_diagnostic_setting.name,
+                resource_uri=diagnostic_settings_url,
+                logs=rollback_diagnostic_setting.logs,
+                metrics=rollback_diagnostic_setting.metrics,
+                event_hub=rollback_diagnostic_setting.event_hub_name,
+                event_hub_rule=rollback_diagnostic_setting.event_hub_authorization_rule_id,
+                storage_account=rollback_diagnostic_setting.storage_account_id,
+                workspace=rollback_diagnostic_setting.workspace_id)
+        else:  # delete
+            azure_monitor_client.diagnostic_settings.delete(diagnostic_settings_url, rollback_diagnostic_setting.name)
+
+
+def _audit_policy_update(
+        cmd,
         instance,
-        enabled,
-        storage_account,
-        storage_endpoint,
-        storage_account_access_key,
-        instance.is_storage_secondary_key_in_use)
+        server_name,
+        resource_group_name,
+        database_name=None,
+        state=None,
+        blob_storage_target_state=None,
+        storage_account=None,
+        storage_endpoint=None,
+        storage_account_access_key=None,
+        audit_actions_and_groups=None,
+        retention_days=None,
+        log_analytics_target_state=None,
+        log_analytics_workspace_resource_id=None,
+        event_hub_target_state=None,
+        event_hub_authorization_rule_id=None,
+        event_hub_name=None):
 
-    # Set other properties
-    if audit_actions_and_groups:
-        instance.audit_actions_and_groups = audit_actions_and_groups
+    # Arguments validation
+    _audit_policy_validate_arguments(
+        state=state,
+        blob_storage_target_state=blob_storage_target_state,
+        storage_account=storage_account,
+        storage_endpoint=storage_endpoint,
+        storage_account_access_key=storage_account_access_key,
+        retention_days=retention_days,
+        log_analytics_target_state=log_analytics_target_state,
+        log_analytics_workspace_resource_id=log_analytics_workspace_resource_id,
+        event_hub_target_state=event_hub_target_state,
+        event_hub_authorization_rule_id=event_hub_authorization_rule_id,
+        event_hub_name=event_hub_name)
 
-    if retention_days:
-        instance.retention_days = retention_days
+    # Get diagnostic settings only if log_analytics_target_state or event_hub_target_state is provided
+    if log_analytics_target_state is not None or event_hub_target_state is not None:
+        diagnostic_settings = _get_diagnostic_settings(
+            cmd=cmd,
+            resource_group_name=resource_group_name,
+            server_name=server_name,
+            database_name=database_name)
 
-    return instance
+        # Update diagnostic settings
+        rollback_data = _audit_policy_update_diagnostic_settings(
+            cmd=cmd,
+            server_name=server_name,
+            resource_group_name=resource_group_name,
+            database_name=database_name,
+            diagnostic_settings=diagnostic_settings,
+            log_analytics_target_state=log_analytics_target_state,
+            log_analytics_workspace_resource_id=log_analytics_workspace_resource_id,
+            event_hub_target_state=event_hub_target_state,
+            event_hub_authorization_rule_id=event_hub_authorization_rule_id,
+            event_hub_name=event_hub_name)
+    else:
+        diagnostic_settings = None
+        rollback_data = None
+
+    # Update auditing global settings
+    try:
+        _audit_policy_update_global_settings(
+            cmd=cmd,
+            instance=instance,
+            diagnostic_settings=diagnostic_settings,
+            state=state,
+            blob_storage_target_state=blob_storage_target_state,
+            storage_account=storage_account,
+            storage_endpoint=storage_endpoint,
+            storage_account_access_key=storage_account_access_key,
+            audit_actions_and_groups=audit_actions_and_groups,
+            retention_days=retention_days,
+            log_analytics_target_state=log_analytics_target_state,
+            event_hub_target_state=event_hub_target_state)
+
+        return instance
+    except Exception as err:
+        logger.debug(err)
+
+        if rollback_data is not None:
+            _audit_policy_update_rollback(
+                cmd=cmd,
+                server_name=server_name,
+                resource_group_name=resource_group_name,
+                database_name=database_name,
+                rollback_data=rollback_data)
+
+        # Reraise the original exception
+        raise err
+
+
+def server_audit_policy_update(
+        cmd,
+        instance,
+        server_name,
+        resource_group_name,
+        state=None,
+        blob_storage_target_state=None,
+        storage_account=None,
+        storage_endpoint=None,
+        storage_account_access_key=None,
+        audit_actions_and_groups=None,
+        retention_days=None,
+        log_analytics_target_state=None,
+        log_analytics_workspace_resource_id=None,
+        event_hub_target_state=None,
+        event_hub_authorization_rule_id=None,
+        event_hub=None):
+    '''
+    Update server audit policy
+    '''
+
+    return _audit_policy_update(
+        cmd=cmd,
+        instance=instance,
+        server_name=server_name,
+        resource_group_name=resource_group_name,
+        database_name=None,
+        state=state,
+        blob_storage_target_state=blob_storage_target_state,
+        storage_account=storage_account,
+        storage_endpoint=storage_endpoint,
+        storage_account_access_key=storage_account_access_key,
+        audit_actions_and_groups=audit_actions_and_groups,
+        retention_days=retention_days,
+        log_analytics_target_state=log_analytics_target_state,
+        log_analytics_workspace_resource_id=log_analytics_workspace_resource_id,
+        event_hub_target_state=event_hub_target_state,
+        event_hub_authorization_rule_id=event_hub_authorization_rule_id,
+        event_hub_name=event_hub)
+
+
+def db_audit_policy_update(
+        cmd,
+        instance,
+        server_name,
+        resource_group_name,
+        database_name,
+        state=None,
+        blob_storage_target_state=None,
+        storage_account=None,
+        storage_endpoint=None,
+        storage_account_access_key=None,
+        audit_actions_and_groups=None,
+        retention_days=None,
+        log_analytics_target_state=None,
+        log_analytics_workspace_resource_id=None,
+        event_hub_target_state=None,
+        event_hub_authorization_rule_id=None,
+        event_hub=None):
+    '''
+    Update database audit policy
+    '''
+
+    return _audit_policy_update(
+        cmd=cmd,
+        instance=instance,
+        server_name=server_name,
+        resource_group_name=resource_group_name,
+        database_name=database_name,
+        state=state,
+        blob_storage_target_state=blob_storage_target_state,
+        storage_account=storage_account,
+        storage_endpoint=storage_endpoint,
+        storage_account_access_key=storage_account_access_key,
+        audit_actions_and_groups=audit_actions_and_groups,
+        retention_days=retention_days,
+        log_analytics_target_state=log_analytics_target_state,
+        log_analytics_workspace_resource_id=log_analytics_workspace_resource_id,
+        event_hub_target_state=event_hub_target_state,
+        event_hub_authorization_rule_id=event_hub_authorization_rule_id,
+        event_hub_name=event_hub)
+
+
+def update_long_term_retention(
+        client,
+        database_name,
+        server_name,
+        resource_group_name,
+        weekly_retention=None,
+        monthly_retention=None,
+        yearly_retention=None,
+        week_of_year=None,
+        **kwargs):
+    '''
+    Updates long term retention for managed database
+    '''
+    if not (weekly_retention or monthly_retention or yearly_retention):
+        raise CLIError('Please specify retention setting(s).  See \'--help\' for more details.')
+
+    if yearly_retention and not week_of_year:
+        raise CLIError('Please specify week of year for yearly retention.')
+
+    kwargs['weekly_retention'] = weekly_retention
+
+    kwargs['monthly_retention'] = monthly_retention
+
+    kwargs['yearly_retention'] = yearly_retention
+
+    kwargs['week_of_year'] = week_of_year
+
+    policy = client.create_or_update(
+        database_name=database_name,
+        server_name=server_name,
+        resource_group_name=resource_group_name,
+        parameters=kwargs)
+
+    return policy
+
+
+def _list_by_database_long_term_retention_backups(
+        client,
+        location_name,
+        long_term_retention_server_name,
+        long_term_retention_database_name,
+        resource_group_name=None,
+        only_latest_per_database=None,
+        database_state=None):
+    '''
+    Gets the long term retention backups for a Managed Database
+    '''
+
+    if resource_group_name:
+        backups = client.list_by_resource_group_database(
+            resource_group_name=resource_group_name,
+            location_name=location_name,
+            long_term_retention_server_name=long_term_retention_server_name,
+            long_term_retention_database_name=long_term_retention_database_name,
+            only_latest_per_database=only_latest_per_database,
+            database_state=database_state)
+    else:
+        backups = client.list_by_database(
+            location_name=location_name,
+            long_term_retention_server_name=long_term_retention_server_name,
+            long_term_retention_database_name=long_term_retention_database_name,
+            only_latest_per_database=only_latest_per_database,
+            database_state=database_state)
+
+    return backups
+
+
+def _list_by_server_long_term_retention_backups(
+        client,
+        location_name,
+        long_term_retention_server_name,
+        resource_group_name=None,
+        only_latest_per_database=None,
+        database_state=None):
+    '''
+    Gets the long term retention backups within a Managed Instance
+    '''
+
+    if resource_group_name:
+        backups = client.list_by_resource_group_server(
+            resource_group_name=resource_group_name,
+            location_name=location_name,
+            long_term_retention_server_name=long_term_retention_server_name,
+            only_latest_per_database=only_latest_per_database,
+            database_state=database_state)
+    else:
+        backups = client.list_by_server(
+            location_name=location_name,
+            long_term_retention_server_name=long_term_retention_server_name,
+            only_latest_per_database=only_latest_per_database,
+            database_state=database_state)
+
+    return backups
+
+
+def _list_by_location_long_term_retention_backups(
+        client,
+        location_name,
+        resource_group_name=None,
+        only_latest_per_database=None,
+        database_state=None):
+    '''
+    Gets the long term retention backups within a specified region.
+    '''
+
+    if resource_group_name:
+        backups = client.list_by_resource_group_location(
+            resource_group_name=resource_group_name,
+            location_name=location_name,
+            only_latest_per_database=only_latest_per_database,
+            database_state=database_state)
+    else:
+        backups = client.list_by_location(
+            location_name=location_name,
+            only_latest_per_database=only_latest_per_database,
+            database_state=database_state)
+
+    return backups
+
+
+def list_long_term_retention_backups(
+        client,
+        location_name,
+        long_term_retention_server_name=None,
+        long_term_retention_database_name=None,
+        resource_group_name=None,
+        only_latest_per_database=None,
+        database_state=None):
+    '''
+    Lists the long term retention backups for a specified location, instance, or database.
+    '''
+
+    if long_term_retention_server_name:
+        if long_term_retention_database_name:
+            backups = _list_by_database_long_term_retention_backups(
+                client,
+                location_name,
+                long_term_retention_server_name,
+                long_term_retention_database_name,
+                resource_group_name,
+                only_latest_per_database,
+                database_state)
+
+        else:
+            backups = _list_by_server_long_term_retention_backups(
+                client,
+                location_name,
+                long_term_retention_server_name,
+                resource_group_name,
+                only_latest_per_database,
+                database_state)
+    else:
+        backups = _list_by_location_long_term_retention_backups(
+            client,
+            location_name,
+            resource_group_name,
+            only_latest_per_database,
+            database_state)
+
+    return backups
+
+
+def restore_long_term_retention_backup(
+        cmd,
+        client,
+        long_term_retention_backup_resource_id,
+        target_database_name,
+        target_server_name,
+        target_resource_group_name,
+        storage_account_type,
+        **kwargs):
+    '''
+    Restores an existing database (i.e. create with 'RestoreLongTermRetentionBackup' create mode.)
+    '''
+
+    if not target_resource_group_name or not target_server_name or not target_database_name:
+        raise CLIError('Please specify target resource(s). '
+                       'Target resource group, target server, and target database '
+                       'are all required to restore LTR backup.')
+
+    if not long_term_retention_backup_resource_id:
+        raise CLIError('Please specify a long term retention backup.')
+
+    kwargs['location'] = _get_server_location(
+        cmd.cli_ctx,
+        server_name=target_server_name,
+        resource_group_name=target_resource_group_name)
+
+    kwargs['create_mode'] = CreateMode.restore_long_term_retention_backup.value
+    kwargs['long_term_retention_backup_resource_id'] = long_term_retention_backup_resource_id
+    kwargs['storage_account_type'] = storage_account_type
+
+    # Check backup storage redundancy configurations
+    if _should_show_backup_storage_redundancy_warnings(kwargs['location']):
+        if not kwargs['storage_account_type']:
+            _backup_storage_redundancy_take_source_warning()
+        if kwargs['storage_account_type'] == 'GRS':
+            _backup_storage_redundancy_specify_geo_warning()
+
+    return client.create_or_update(
+        database_name=target_database_name,
+        server_name=target_server_name,
+        resource_group_name=target_resource_group_name,
+        parameters=kwargs)
 
 
 def db_threat_detection_policy_update(
@@ -1326,6 +2648,98 @@ def db_threat_detection_policy_update(
         instance.email_account_admins = email_account_admins
 
     return instance
+
+
+def db_sensitivity_label_show(
+        client,
+        database_name,
+        server_name,
+        schema_name,
+        table_name,
+        column_name,
+        resource_group_name):
+
+    return client.get(
+        resource_group_name,
+        server_name,
+        database_name,
+        schema_name,
+        table_name,
+        column_name,
+        SensitivityLabelSource.current)
+
+
+def db_sensitivity_label_update(
+        cmd,
+        client,
+        database_name,
+        server_name,
+        schema_name,
+        table_name,
+        column_name,
+        resource_group_name,
+        label_name=None,
+        information_type=None):
+    '''
+    Updates a sensitivity label. Custom update function to apply parameters to instance.
+    '''
+
+    # Get the information protection policy
+    from azure.mgmt.security import SecurityCenter
+    from msrestazure.azure_exceptions import CloudError
+
+    security_center_client = get_mgmt_service_client(cmd.cli_ctx, SecurityCenter, asc_location="centralus")
+
+    information_protection_policy = security_center_client.information_protection_policies.get(
+        scope='/providers/Microsoft.Management/managementGroups/{}'.format(_get_tenant_id()),
+        information_protection_policy_name="effective")
+
+    sensitivity_label = SensitivityLabel()
+
+    # Get the current label
+    try:
+        current_label = client.get(
+            resource_group_name,
+            server_name,
+            database_name,
+            schema_name,
+            table_name,
+            column_name,
+            SensitivityLabelSource.current)
+        # Initialize with existing values
+        sensitivity_label.label_name = current_label.label_name
+        sensitivity_label.label_id = current_label.label_id
+        sensitivity_label.information_type = current_label.information_type
+        sensitivity_label.information_type_id = current_label.information_type_id
+
+    except CloudError as ex:
+        if not(ex.error and ex.error.error and 'SensitivityLabelsLabelNotFound' in ex.error.error):
+            raise ex
+
+    # Find the label id and information type id in the policy by the label name provided
+    label_id = None
+    if label_name:
+        label_id = next((id for id in information_protection_policy.labels
+                         if information_protection_policy.labels[id].display_name.lower() ==
+                         label_name.lower()),
+                        None)
+        if label_id is None:
+            raise CLIError('The provided label name was not found in the information protection policy.')
+        sensitivity_label.label_id = label_id
+        sensitivity_label.label_name = label_name
+    information_type_id = None
+    if information_type:
+        information_type_id = next((id for id in information_protection_policy.information_types
+                                    if information_protection_policy.information_types[id].display_name.lower() ==
+                                    information_type.lower()),
+                                   None)
+        if information_type_id is None:
+            raise CLIError('The provided information type was not found in the information protection policy.')
+        sensitivity_label.information_type_id = information_type_id
+        sensitivity_label.information_type = information_type
+
+    return client.create_or_update(
+        resource_group_name, server_name, database_name, schema_name, table_name, column_name, sensitivity_label)
 
 
 ###############################################
@@ -1431,7 +2845,7 @@ def dw_resume(
 ###############################################
 
 
-def _find_elastic_pool_sku_from_capabilities(cli_ctx, location, sku, allow_reset_family=False):
+def _find_elastic_pool_sku_from_capabilities(cli_ctx, location, sku, allow_reset_family=False, compute_model=None):
     '''
     Given a requested sku which may have some properties filled in
     (e.g. tier and capacity), finds the canonical matching sku
@@ -1454,10 +2868,11 @@ def _find_elastic_pool_sku_from_capabilities(cli_ctx, location, sku, allow_reset
     # Some properties of sku are specified, but not name. Use the requested properties
     # to find a matching capability and copy the sku from there.
 
+    # Get location capability
+    loc_capability = _get_location_capability(cli_ctx, location, CapabilityGroup.supported_elastic_pool_editions)
+
     # Get default server version capability
-    capabilities_client = get_sql_capabilities_operations(cli_ctx, None)
-    capabilities = capabilities_client.list_by_location(location, CapabilityGroup.supported_elastic_pool_editions)
-    server_version_capability = _get_default_server_version(capabilities)
+    server_version_capability = _get_default_server_version(loc_capability)
 
     # Find edition capability, based on requested sku properties
     edition_capability = _find_edition_capability(sku, server_version_capability.supported_elastic_pool_editions)
@@ -1465,7 +2880,8 @@ def _find_elastic_pool_sku_from_capabilities(cli_ctx, location, sku, allow_reset
     # Find performance level capability, based on requested sku properties
     performance_level_capability = _find_performance_level_capability(
         sku, edition_capability.supported_elastic_pool_performance_levels,
-        allow_reset_family=allow_reset_family)
+        allow_reset_family=allow_reset_family,
+        compute_model=compute_model)
 
     # Copy sku object from capability
     result = performance_level_capability.sku
@@ -1637,6 +3053,82 @@ def elastic_pool_list_capabilities(
 
     return editions
 
+###############################################
+#                sql instance-pool            #
+###############################################
+
+
+def instance_pool_list(
+        client,
+        resource_group_name=None):
+    '''
+    Lists servers in a resource group or subscription
+    '''
+
+    if resource_group_name:
+        # List all instance pools in the resource group
+        return client.list_by_resource_group(
+            resource_group_name=resource_group_name)
+
+    # List all instance pools in the subscription
+    return client.list()
+
+
+def instance_pool_create(
+        cmd,
+        client,
+        instance_pool_name,
+        resource_group_name,
+        no_wait=False,
+        sku=None,
+        **kwargs):
+    '''
+    Creates a new instance pool
+    '''
+
+    kwargs['sku'] = _find_instance_pool_sku_from_capabilities(
+        cmd.cli_ctx, kwargs['location'], sku)
+
+    return sdk_no_wait(no_wait, client.create_or_update,
+                       instance_pool_name=instance_pool_name,
+                       resource_group_name=resource_group_name,
+                       parameters=kwargs)
+
+
+def _find_instance_pool_sku_from_capabilities(cli_ctx, location, sku):
+    '''
+    Validate if the sku family and edition input by user are permissible in the region using
+    capabilities API and get the SKU name
+    '''
+
+    logger.debug('_find_instance_pool_sku_from_capabilities input: %s', sku)
+
+    # Get location capability
+    loc_capability = _get_location_capability(
+        cli_ctx, location, CapabilityGroup.supported_managed_instance_versions)
+
+    # Get default server version capability
+    managed_instance_version_capability = _get_default_capability(
+        loc_capability.supported_managed_instance_versions)
+
+    # Find edition capability, based on requested sku properties
+    edition_capability = _find_edition_capability(
+        sku, managed_instance_version_capability.supported_instance_pool_editions)
+
+    # Find family level capability, based on requested sku properties
+    _find_family_capability(
+        sku, edition_capability.supported_families)
+
+    result = Sku(
+        name="instance-pool",
+        tier=sku.tier,
+        family=sku.family)
+
+    logger.debug(
+        '_find_instance_pool_sku_from_capabilities return: %s',
+        result)
+    return result
+
 
 ###############################################
 #                sql server                   #
@@ -1648,6 +3140,7 @@ def server_create(
         server_name,
         assign_identity=False,
         no_wait=False,
+        enable_public_network=None,
         **kwargs):
     '''
     Creates a server.
@@ -1655,6 +3148,11 @@ def server_create(
 
     if assign_identity:
         kwargs['identity'] = ResourceIdentity(type=IdentityType.system_assigned.value)
+
+    if enable_public_network is not None:
+        kwargs['public_network_access'] = (
+            ServerPublicNetworkAccess.enabled if enable_public_network
+            else ServerPublicNetworkAccess.disabled)
 
     # Create
     return sdk_no_wait(no_wait, client.create_or_update,
@@ -1681,7 +3179,9 @@ def server_list(
 def server_update(
         instance,
         administrator_login_password=None,
-        assign_identity=False):
+        assign_identity=False,
+        minimal_tls_version=None,
+        enable_public_network=None):
     '''
     Updates a server. Custom update function to apply parameters to instance.
     '''
@@ -1693,6 +3193,13 @@ def server_update(
     # Apply params to instance
     instance.administrator_login_password = (
         administrator_login_password or instance.administrator_login_password)
+    instance.minimal_tls_version = (
+        minimal_tls_version or instance.minimal_tls_version)
+
+    if enable_public_network is not None:
+        instance.public_network_access = (
+            ServerPublicNetworkAccess.enabled if enable_public_network
+            else ServerPublicNetworkAccess.disabled)
 
     return instance
 
@@ -1703,7 +3210,6 @@ def server_update(
 
 
 def server_ad_admin_set(
-        cmd,
         client,
         resource_group_name,
         server_name,
@@ -1711,16 +3217,13 @@ def server_ad_admin_set(
     '''
     Sets a server's AD admin.
     '''
-    from azure.cli.core._profile import Profile
 
-    profile = Profile(cli_ctx=cmd.cli_ctx)
-    sub = profile.get_subscription()
-    kwargs['tenant_id'] = sub['tenantId']
+    kwargs['tenant_id'] = _get_tenant_id()
 
     return client.create_or_update(
         server_name=server_name,
         resource_group_name=resource_group_name,
-        properties=kwargs)
+        parameters=kwargs)
 
 
 def server_ad_admin_update(
@@ -1738,7 +3241,6 @@ def server_ad_admin_update(
     instance.tenant_id = tenant_id or instance.tenant_id
 
     return instance
-
 
 #####
 #           sql server firewall-rule
@@ -1936,30 +3438,61 @@ def encryption_protector_update(
     return client.create_or_update(
         resource_group_name=resource_group_name,
         server_name=server_name,
-        parameters=EncryptionProtector(
-            server_key_type=server_key_type,
-            server_key_name=key_name
-        )
+        server_key_type=server_key_type,
+        server_key_name=key_name
     )
+
+#####
+#           sql server aad-only
+#####
+
+
+def server_aad_only_disable(
+        client,
+        resource_group_name,
+        server_name):
+    '''
+    Disables a servers aad-only setting
+    '''
+
+    return client.create_or_update(
+        resource_group_name=resource_group_name,
+        server_name=server_name,
+        azure_ad_only_authentication=False
+    )
+
+
+def server_aad_only_enable(
+        client,
+        resource_group_name,
+        server_name):
+    '''
+    Enables a servers aad-only setting
+    '''
+
+    return client.create_or_update(
+        resource_group_name=resource_group_name,
+        server_name=server_name,
+        azure_ad_only_authentication=True
+    )
+
 
 ###############################################
 #                sql managed instance         #
 ###############################################
 
 
-def _find_managed_instance_sku_from_capabilities(cli_ctx, location, sku):
+def _find_managed_instance_sku_from_capabilities(
+        cli_ctx,
+        location,
+        sku):
     '''
     Given a requested sku which may have some properties filled in
-    (e.g. tier and capacity), finds the canonical matching sku
+    (e.g. tier and family), finds the canonical matching sku
     from the given location's capabilities.
     '''
 
     logger.debug('_find_managed_instance_sku_from_capabilities input: %s', sku)
-
-    if sku.name:
-        # User specified sku.name, so nothing else needs to be resolved.
-        logger.debug('_find_managed_instance_sku_from_capabilities return sku as is')
-        return sku
 
     if not _any_sku_values_specified(sku):
         # User did not request any properties of sku, so just wipe it out.
@@ -1970,10 +3503,11 @@ def _find_managed_instance_sku_from_capabilities(cli_ctx, location, sku):
     # Some properties of sku are specified, but not name. Use the requested properties
     # to find a matching capability and copy the sku from there.
 
+    # Get location capability
+    loc_capability = _get_location_capability(cli_ctx, location, CapabilityGroup.supported_managed_instance_versions)
+
     # Get default server version capability
-    capabilities_client = get_sql_capabilities_operations(cli_ctx, None)
-    capabilities = capabilities_client.list_by_location(location, CapabilityGroup.supported_managed_instance_versions)
-    managed_instance_version_capability = _get_default_capability(capabilities.supported_managed_instance_versions)
+    managed_instance_version_capability = _get_default_capability(loc_capability.supported_managed_instance_versions)
 
     # Find edition capability, based on requested sku properties
     edition_capability = _find_edition_capability(sku, managed_instance_version_capability.supported_editions)
@@ -2007,6 +3541,23 @@ def managed_instance_create(
     kwargs['sku'] = _find_managed_instance_sku_from_capabilities(cmd.cli_ctx, kwargs['location'], sku)
     kwargs['subnet_id'] = virtual_network_subnet_id
 
+    if not kwargs['yes'] and kwargs['location'].lower() in ['southeastasia', 'brazilsouth', 'eastasia']:
+        if kwargs['storage_account_type'] == 'GRS':
+            confirmation = prompt_y_n("""Selected value for backup storage redundancy is geo-redundant storage.
+             Note that database backups will be geo-replicated to the paired region.
+             To learn more about Azure Paired Regions visit https://aka.ms/azure-ragrs-regions.
+             Do you want to proceed?""")
+            if not confirmation:
+                return
+
+        if not kwargs['storage_account_type']:
+            confirmation = prompt_y_n("""You have not specified the value for backup storage redundancy
+            which will default to geo-redundant storage. Note that database backups will be geo-replicated
+            to the paired region. To learn more about Azure Paired Regions visit https://aka.ms/azure-ragrs-regions.
+            Do you want to proceed?""")
+            if not confirmation:
+                return
+
     # Create
     return client.create_or_update(
         managed_instance_name=managed_instance_name,
@@ -2030,6 +3581,7 @@ def managed_instance_list(
 
 
 def managed_instance_update(
+        cmd,
         instance,
         administrator_login_password=None,
         license_type=None,
@@ -2037,7 +3589,11 @@ def managed_instance_update(
         storage_size_in_gb=None,
         assign_identity=False,
         proxy_override=None,
-        public_data_endpoint_enabled=None):
+        public_data_endpoint_enabled=None,
+        tier=None,
+        family=None,
+        minimal_tls_version=None,
+        tags=None):
     '''
     Updates a managed instance. Custom update function to apply parameters to instance.
     '''
@@ -2057,11 +3613,187 @@ def managed_instance_update(
         storage_size_in_gb or instance.storage_size_in_gb)
     instance.proxy_override = (
         proxy_override or instance.proxy_override)
+    instance.minimal_tls_version = (
+        minimal_tls_version or instance.minimal_tls_version)
+
+    instance.sku.name = None
+    instance.sku.tier = (
+        tier or instance.sku.tier)
+    instance.sku.family = (
+        family or instance.sku.family)
+    instance.sku = _find_managed_instance_sku_from_capabilities(
+        cmd.cli_ctx,
+        instance.location,
+        instance.sku)
 
     if public_data_endpoint_enabled is not None:
         instance.public_data_endpoint_enabled = public_data_endpoint_enabled
 
+    if tags is not None:
+        instance.tags = tags
+
     return instance
+
+
+#####
+#           sql managed instance key
+#####
+
+
+def managed_instance_key_create(
+        client,
+        resource_group_name,
+        managed_instance_name,
+        kid=None):
+    '''
+    Creates a managed instance key.
+    '''
+
+    key_name = _get_server_key_name_from_uri(kid)
+
+    return client.create_or_update(
+        resource_group_name=resource_group_name,
+        managed_instance_name=managed_instance_name,
+        key_name=key_name,
+        server_key_type=ServerKeyType.azure_key_vault.value,
+        uri=kid
+    )
+
+
+def managed_instance_key_get(
+        client,
+        resource_group_name,
+        managed_instance_name,
+        kid):
+    '''
+    Gets a managed instance key.
+    '''
+
+    key_name = _get_server_key_name_from_uri(kid)
+
+    return client.get(
+        resource_group_name=resource_group_name,
+        managed_instance_name=managed_instance_name,
+        key_name=key_name)
+
+
+def managed_instance_key_delete(
+        client,
+        resource_group_name,
+        managed_instance_name,
+        kid):
+    '''
+    Deletes a managed instance key.
+    '''
+
+    key_name = _get_server_key_name_from_uri(kid)
+
+    return client.delete(
+        resource_group_name=resource_group_name,
+        managed_instance_name=managed_instance_name,
+        key_name=key_name)
+
+#####
+#           sql managed instance encryption-protector
+#####
+
+
+def managed_instance_encryption_protector_update(
+        client,
+        resource_group_name,
+        managed_instance_name,
+        server_key_type,
+        kid=None):
+    '''
+    Updates a server encryption protector.
+    '''
+
+    if server_key_type == ServerKeyType.service_managed.value:
+        key_name = 'ServiceManaged'
+    else:
+        if kid is None:
+            raise CLIError('A uri must be provided if the server_key_type is AzureKeyVault.')
+        key_name = _get_server_key_name_from_uri(kid)
+
+    return client.create_or_update(
+        resource_group_name=resource_group_name,
+        managed_instance_name=managed_instance_name,
+        server_key_type=server_key_type,
+        server_key_name=key_name
+    )
+
+
+#####
+#           sql managed instance ad-admin
+#####
+
+
+def mi_ad_admin_set(
+        client,
+        resource_group_name,
+        managed_instance_name,
+        **kwargs):
+    '''
+    Creates a managed instance active directory administrator.
+    '''
+
+    kwargs['tenant_id'] = _get_tenant_id()
+
+    return client.create_or_update(
+        resource_group_name=resource_group_name,
+        managed_instance_name=managed_instance_name,
+        parameters=kwargs
+    )
+
+
+def mi_ad_admin_delete(
+        client,
+        resource_group_name,
+        managed_instance_name):
+    '''
+    Deletes a managed instance active directory administrator.
+    '''
+
+    return client.delete(
+        resource_group_name=resource_group_name,
+        managed_instance_name=managed_instance_name
+    )
+
+
+#####
+#           sql managed instance aad-only
+#####
+
+
+def mi_aad_only_disable(
+        client,
+        resource_group_name,
+        managed_instance_name):
+    '''
+    Disables the managed instance AAD-only setting
+    '''
+
+    return client.create_or_update(
+        resource_group_name=resource_group_name,
+        managed_instance_name=managed_instance_name,
+        azure_ad_only_authentication=False
+    )
+
+
+def mi_aad_only_enable(
+        client,
+        resource_group_name,
+        managed_instance_name):
+    '''
+    Enables the AAD-only setting
+    '''
+
+    return client.create_or_update(
+        resource_group_name=resource_group_name,
+        managed_instance_name=managed_instance_name,
+        azure_ad_only_authentication=True
+    )
+
 
 ###############################################
 #                sql managed db               #
@@ -2099,6 +3831,7 @@ def managed_db_restore(
         target_managed_database_name,
         target_managed_instance_name=None,
         target_resource_group_name=None,
+        deleted_time=None,
         **kwargs):
     '''
     Restores an existing managed DB (i.e. create with 'PointInTimeRestore' create mode.)
@@ -2118,11 +3851,20 @@ def managed_db_restore(
         resource_group_name=resource_group_name)
 
     kwargs['create_mode'] = CreateMode.point_in_time_restore.value
-    kwargs['source_database_id'] = _get_managed_db_resource_id(
-        cmd.cli_ctx,
-        resource_group_name,
-        managed_instance_name,
-        database_name)
+
+    if deleted_time:
+        kwargs['restorable_dropped_database_id'] = _get_managed_dropped_db_resource_id(
+            cmd.cli_ctx,
+            resource_group_name,
+            managed_instance_name,
+            database_name,
+            deleted_time)
+    else:
+        kwargs['source_database_id'] = _get_managed_db_resource_id(
+            cmd.cli_ctx,
+            resource_group_name,
+            managed_instance_name,
+            database_name)
 
     return client.create_or_update(
         database_name=target_managed_database_name,
@@ -2130,15 +3872,412 @@ def managed_db_restore(
         resource_group_name=target_resource_group_name,
         parameters=kwargs)
 
+
+def update_short_term_retention_mi(
+        cmd,
+        client,
+        database_name,
+        managed_instance_name,
+        resource_group_name,
+        retention_days,
+        deleted_time=None):
+    '''
+    Updates short term retention for database
+    '''
+
+    if deleted_time:
+        database_name = '{},{}'.format(
+            database_name,
+            _to_filetimeutc(deleted_time))
+
+        client = \
+            get_sql_restorable_dropped_database_managed_backup_short_term_retention_policies_operations(
+                cmd.cli_ctx,
+                None)
+
+        policy = client.create_or_update(
+            restorable_dropped_database_id=database_name,
+            managed_instance_name=managed_instance_name,
+            resource_group_name=resource_group_name,
+            retention_days=retention_days)
+    else:
+        policy = client.create_or_update(
+            database_name=database_name,
+            managed_instance_name=managed_instance_name,
+            resource_group_name=resource_group_name,
+            retention_days=retention_days)
+
+    return policy
+
+
+def get_short_term_retention_mi(
+        cmd,
+        client,
+        database_name,
+        managed_instance_name,
+        resource_group_name,
+        deleted_time=None):
+    '''
+    Gets short term retention for database
+    '''
+
+    if deleted_time:
+        database_name = '{},{}'.format(
+            database_name,
+            _to_filetimeutc(deleted_time))
+
+        client = \
+            get_sql_restorable_dropped_database_managed_backup_short_term_retention_policies_operations(
+                cmd.cli_ctx,
+                None)
+
+        policy = client.get(
+            restorable_dropped_database_id=database_name,
+            managed_instance_name=managed_instance_name,
+            resource_group_name=resource_group_name)
+    else:
+        policy = client.get(
+            database_name=database_name,
+            managed_instance_name=managed_instance_name,
+            resource_group_name=resource_group_name)
+
+    return policy
+
+
+def _is_int(retention):
+    try:
+        int(retention)
+        return True
+    except ValueError:
+        return False
+
+
+def update_long_term_retention_mi(
+        client,
+        database_name,
+        managed_instance_name,
+        resource_group_name,
+        weekly_retention=None,
+        monthly_retention=None,
+        yearly_retention=None,
+        week_of_year=None,
+        **kwargs):
+    '''
+    Updates long term retention for managed database
+    '''
+
+    if not (weekly_retention or monthly_retention or yearly_retention):
+        raise CLIError('Please specify retention setting(s).  See \'--help\' for more details.')
+
+    if yearly_retention and not week_of_year:
+        raise CLIError('Please specify week of year for yearly retention.')
+
+    # if an int is provided for retention, convert to ISO 8601 using days
+    if (weekly_retention and _is_int(weekly_retention)):
+        weekly_retention = 'P%sD' % weekly_retention
+        print(weekly_retention)
+
+    if (monthly_retention and _is_int(monthly_retention)):
+        monthly_retention = 'P%sD' % monthly_retention
+
+    if (yearly_retention and _is_int(yearly_retention)):
+        yearly_retention = 'P%sD' % yearly_retention
+
+    kwargs['weekly_retention'] = weekly_retention
+
+    kwargs['monthly_retention'] = monthly_retention
+
+    kwargs['yearly_retention'] = yearly_retention
+
+    kwargs['week_of_year'] = week_of_year
+
+    policy = client.create_or_update(
+        database_name=database_name,
+        managed_instance_name=managed_instance_name,
+        resource_group_name=resource_group_name,
+        parameters=kwargs)
+
+    return policy
+
+
+def _get_backup_id_resource_values(backup_id):
+    '''
+    Extract resource values from the backup id
+    '''
+
+    backup_id = backup_id.replace('\'', '')
+    backup_id = backup_id.replace('"', '')
+
+    if backup_id[0] == '/':
+        # remove leading /
+        backup_id = backup_id[1:]
+
+    resources_list = backup_id.split('/')
+    resources_dict = {resources_list[i]: resources_list[i + 1] for i in range(0, len(resources_list), 2)}
+
+    if not ('locations'.casefold() in resources_dict and
+            'longTermRetentionManagedInstances'.casefold() not in resources_dict and
+            'longTermRetentionDatabases'.casefold() not in resources_dict and
+            'longTermRetentionManagedInstanceBackups'.casefold() not in resources_dict):
+
+        # backup ID should contain all these
+        raise CLIError('Please provide a valid resource URI.  See --help for example.')
+
+    return resources_dict
+
+
+def get_long_term_retention_mi_backup(
+        client,
+        location_name=None,
+        managed_instance_name=None,
+        database_name=None,
+        backup_name=None,
+        backup_id=None):
+    '''
+    Gets the requested long term retention backup.
+    '''
+
+    if backup_id:
+        resources_dict = _get_backup_id_resource_values(backup_id)
+
+        location_name = resources_dict['locations']
+        managed_instance_name = resources_dict['longTermRetentionManagedInstances']
+        database_name = resources_dict['longTermRetentionDatabases']
+        backup_name = resources_dict['longTermRetentionManagedInstanceBackups']
+
+    return client.get(
+        location_name=location_name,
+        managed_instance_name=managed_instance_name,
+        database_name=database_name,
+        backup_name=backup_name)
+
+
+def _list_by_database_long_term_retention_mi_backups(
+        client,
+        location_name,
+        managed_instance_name,
+        database_name,
+        resource_group_name=None,
+        only_latest_per_database=None,
+        database_state=None):
+    '''
+    Gets the long term retention backups for a Managed Database
+    '''
+
+    if resource_group_name:
+        backups = client.list_by_resource_group_database(
+            resource_group_name=resource_group_name,
+            location_name=location_name,
+            managed_instance_name=managed_instance_name,
+            database_name=database_name,
+            only_latest_per_database=only_latest_per_database,
+            database_state=database_state)
+    else:
+        backups = client.list_by_database(
+            location_name=location_name,
+            managed_instance_name=managed_instance_name,
+            database_name=database_name,
+            only_latest_per_database=only_latest_per_database,
+            database_state=database_state)
+
+    return backups
+
+
+def _list_by_instance_long_term_retention_mi_backups(
+        client,
+        location_name,
+        managed_instance_name,
+        resource_group_name=None,
+        only_latest_per_database=None,
+        database_state=None):
+    '''
+    Gets the long term retention backups within a Managed Instance
+    '''
+
+    if resource_group_name:
+        backups = client.list_by_resource_group_instance(
+            resource_group_name=resource_group_name,
+            location_name=location_name,
+            managed_instance_name=managed_instance_name,
+            only_latest_per_database=only_latest_per_database,
+            database_state=database_state)
+    else:
+        backups = client.list_by_instance(
+            location_name=location_name,
+            managed_instance_name=managed_instance_name,
+            only_latest_per_database=only_latest_per_database,
+            database_state=database_state)
+
+    return backups
+
+
+def _list_by_location_long_term_retention_mi_backups(
+        client,
+        location_name,
+        resource_group_name=None,
+        only_latest_per_database=None,
+        database_state=None):
+    '''
+    Gets the long term retention backups within a specified region.
+    '''
+
+    if resource_group_name:
+        backups = client.list_by_resource_group_location(
+            resource_group_name=resource_group_name,
+            location_name=location_name,
+            only_latest_per_database=only_latest_per_database,
+            database_state=database_state)
+    else:
+        backups = client.list_by_location(
+            location_name=location_name,
+            only_latest_per_database=only_latest_per_database,
+            database_state=database_state)
+
+    return backups
+
+
+def list_long_term_retention_mi_backups(
+        client,
+        location_name,
+        managed_instance_name=None,
+        database_name=None,
+        resource_group_name=None,
+        only_latest_per_database=None,
+        database_state=None):
+    '''
+    Lists the long term retention backups for a specified location, instance, or database.
+    '''
+
+    if managed_instance_name:
+        if database_name:
+            backups = _list_by_database_long_term_retention_mi_backups(
+                client,
+                location_name,
+                managed_instance_name,
+                database_name,
+                resource_group_name,
+                only_latest_per_database,
+                database_state)
+
+        else:
+            backups = _list_by_instance_long_term_retention_mi_backups(
+                client,
+                location_name,
+                managed_instance_name,
+                resource_group_name,
+                only_latest_per_database,
+                database_state)
+    else:
+        backups = _list_by_location_long_term_retention_mi_backups(
+            client,
+            location_name,
+            resource_group_name,
+            only_latest_per_database,
+            database_state)
+
+    return backups
+
+
+def delete_long_term_retention_mi_backup(
+        client,
+        location_name=None,
+        managed_instance_name=None,
+        database_name=None,
+        backup_name=None,
+        backup_id=None):
+    '''
+    Deletes the requested long term retention backup.
+    '''
+
+    if backup_id:
+        resources_dict = _get_backup_id_resource_values(backup_id)
+
+        location_name = resources_dict['locations']
+        managed_instance_name = resources_dict['longTermRetentionManagedInstances']
+        database_name = resources_dict['longTermRetentionDatabases']
+        backup_name = resources_dict['longTermRetentionManagedInstanceBackups']
+
+    return client.delete(
+        location_name=location_name,
+        managed_instance_name=managed_instance_name,
+        database_name=database_name,
+        backup_name=backup_name)
+
+
+def restore_long_term_retention_mi_backup(
+        cmd,
+        client,
+        long_term_retention_backup_resource_id,
+        target_managed_database_name,
+        target_managed_instance_name,
+        target_resource_group_name,
+        **kwargs):
+    '''
+    Restores an existing managed DB (i.e. create with 'RestoreLongTermRetentionBackup' create mode.)
+    '''
+
+    if not target_resource_group_name or not target_managed_instance_name or not target_managed_database_name:
+        raise CLIError('Please specify target resource(s). '
+                       'Target resource group, target instance, and target database '
+                       'are all required for restore LTR backup.')
+
+    if not long_term_retention_backup_resource_id:
+        raise CLIError('Please specify a long term retention backup.')
+
+    kwargs['location'] = _get_managed_instance_location(
+        cmd.cli_ctx,
+        managed_instance_name=target_managed_instance_name,
+        resource_group_name=target_resource_group_name)
+
+    kwargs['create_mode'] = CreateMode.restore_long_term_retention_backup.value
+    kwargs['long_term_retention_backup_resource_id'] = long_term_retention_backup_resource_id
+
+    return client.create_or_update(
+        database_name=target_managed_database_name,
+        managed_instance_name=target_managed_instance_name,
+        resource_group_name=target_resource_group_name,
+        parameters=kwargs)
+
+
+def managed_db_log_replay_start(
+        cmd,
+        client,
+        database_name,
+        managed_instance_name,
+        resource_group_name,
+        auto_complete,
+        last_backup_name,
+        storage_container_uri,
+        storage_container_sas_token,
+        **kwargs):
+
+    # Determine managed instance location
+    kwargs['location'] = _get_managed_instance_location(
+        cmd.cli_ctx,
+        managed_instance_name=managed_instance_name,
+        resource_group_name=resource_group_name)
+
+    kwargs['create_mode'] = CreateMode.restore_external_backup.value
+
+    if auto_complete and not last_backup_name:
+        raise CLIError('Please specify a last backup name when using auto complete flag.')
+
+    kwargs['auto_complete'] = auto_complete
+    kwargs['last_backup_name'] = last_backup_name
+
+    kwargs['storageContainerUri'] = storage_container_uri
+    kwargs['storageContainerSasToken'] = storage_container_sas_token
+
+    # Create
+    return client.create_or_update(
+        database_name=database_name,
+        managed_instance_name=managed_instance_name,
+        resource_group_name=resource_group_name,
+        parameters=kwargs)
+
 ###############################################
 #              sql failover-group             #
 ###############################################
-
-
-# pylint: disable=too-few-public-methods
-class FailoverPolicyType(Enum):
-    automatic = 'Automatic'
-    manual = 'Manual'
 
 
 def failover_group_create(
@@ -2211,16 +4350,10 @@ def failover_group_update(
     Updates the failover group.
     '''
 
-    if failover_policy is not None:
-        instance.read_write_endpoint.failover_policy = failover_policy
-
-    if instance.read_write_endpoint.failover_policy == FailoverPolicyType.manual.value:
-        grace_period = None
-        instance.read_write_endpoint.failover_with_data_loss_grace_period_minutes = grace_period
-
-    if grace_period is not None:
-        grace_period = int(grace_period) * 60
-        instance.read_write_endpoint.failover_with_data_loss_grace_period_minutes = grace_period
+    failover_group_update_common(
+        instance,
+        failover_policy,
+        grace_period)
 
     if add_db is None:
         add_db = []
@@ -2312,3 +4445,107 @@ def virtual_cluster_list(
 
     # List all virtual clusters in the subscription
     return client.list()
+
+
+###############################################
+#              sql instance failover group    #
+###############################################
+
+def instance_failover_group_create(
+        cmd,
+        client,
+        resource_group_name,
+        managed_instance,
+        failover_group_name,
+        partner_managed_instance,
+        partner_resource_group,
+        failover_policy=FailoverPolicyType.automatic.value,
+        grace_period=1):
+    '''
+    Creates a failover group.
+    '''
+
+    managed_instance_client = get_sql_managed_instances_operations(cmd.cli_ctx, None)
+    # pylint: disable=no-member
+    primary_server = managed_instance_client.get(
+        managed_instance_name=managed_instance,
+        resource_group_name=resource_group_name)
+
+    partner_server = managed_instance_client.get(
+        managed_instance_name=partner_managed_instance,
+        resource_group_name=partner_resource_group)
+
+    # Build the partner server id
+    managed_server_info_pair = ManagedInstancePairInfo(
+        primary_managed_instance_id=primary_server.id,
+        partner_managed_instance_id=partner_server.id)
+    partner_region_info = PartnerRegionInfo(location=partner_server.location)
+
+    # Convert grace period from hours to minutes
+    grace_period = int(grace_period) * 60
+
+    if failover_policy == FailoverPolicyType.manual.value:
+        grace_period = None
+
+    return client.create_or_update(
+        resource_group_name=resource_group_name,
+        location_name=primary_server.location,
+        failover_group_name=failover_group_name,
+        parameters=InstanceFailoverGroup(
+            managed_instance_pairs=[managed_server_info_pair],
+            partner_regions=[partner_region_info],
+            read_write_endpoint=InstanceFailoverGroupReadWriteEndpoint(
+                failover_policy=failover_policy,
+                failover_with_data_loss_grace_period_minutes=grace_period),
+            read_only_endpoint=InstanceFailoverGroupReadOnlyEndpoint(
+                failover_policy="Disabled")))
+
+
+def instance_failover_group_update(
+        instance,
+        failover_policy=None,
+        grace_period=None,):
+    '''
+    Updates the failover group.
+    '''
+
+    failover_group_update_common(
+        instance,
+        failover_policy,
+        grace_period)
+
+    return instance
+
+
+def instance_failover_group_failover(
+        cmd,
+        client,
+        resource_group_name,
+        failover_group_name,
+        location_name,
+        allow_data_loss=False):
+    '''
+    Failover an instance failover group.
+    '''
+
+    from azure.cli.core.commands.client_factory import get_subscription_id
+
+    failover_group = client.get(
+        resource_group_name=resource_group_name,
+        subscription_id=get_subscription_id(cmd.cli_ctx),
+        failover_group_name=failover_group_name,
+        location_name=location_name)
+
+    if failover_group.replication_role == "Primary":
+        return
+
+    # Choose which failover method to use
+    if allow_data_loss:
+        failover_func = client.force_failover_allow_data_loss
+    else:
+        failover_func = client.failover
+
+    return failover_func(
+        resource_group_name=resource_group_name,
+        failover_group_name=failover_group_name,
+        location_name=location_name)

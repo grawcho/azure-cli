@@ -50,12 +50,47 @@ def task_output_format(result):
     return _output_format(result, _task_format_group)
 
 
+def task_identity_format(result):
+    return _output_format(result, _task_identity_format_group)
+
+
+def taskrun_output_format(result):
+    return _output_format(result, _taskrun_format_group)
+
+
 def build_output_format(result):
     return _output_format(result, _build_format_group)
 
 
 def run_output_format(result):
     return _output_format(result, _run_format_group)
+
+
+def scope_map_output_format(result):
+    return _output_format(result, _scope_map_format_group)
+
+
+def token_output_format(result):
+    return _output_format(result, _token_format_group)
+
+
+def token_credential_output_format(result):
+    return _output_format(result, _token_password_format_group)
+
+
+def endpoints_output_format(result):
+    info = []
+    for e in result['dataEndpoints']:
+        info.append(OrderedDict([
+            ('loginServer', _get_value(result, 'loginServer')),
+            ('region', _get_value(e, 'region')),
+            ('endpoint', _get_value(e, 'endpoint'))
+        ]))
+    return info
+
+
+def agentpool_output_format(result):
+    return _output_format(result, _agentpool_format_group)
 
 
 def helm_list_output_format(result):
@@ -172,6 +207,42 @@ def _task_format_group(item):
     ])
 
 
+def _task_identity_format_group(item):
+    identities = _get_array_value(item, 'userAssignedIdentities')
+    identities_by_line = str('\n'.join(identities)) if identities else ' '
+
+    return OrderedDict([
+        ('PRINCIPAL ID', _get_value(item, 'principalId')),
+        ('TENANT ID', _get_value(item, 'tenantId')),
+        ('TYPE', _get_value(item, 'type')),
+        ('USER ASSIGNED IDENTITIES', identities_by_line)
+    ])
+
+
+def _taskrun_format_group(item):
+    return OrderedDict([
+        ('NAME', _get_value(item, 'name')),
+        ('RUN ID', _get_value(item, 'runResult', 'runId')),
+        ('TASK', _get_value(item, 'runResult', 'task')),
+        ('PLATFORM', _get_value(item, 'runResult', 'platform', 'os')),
+        ('STATUS', _get_value(item, 'runResult', 'status')),
+        ('STARTED', _format_datetime(_get_value(item, 'runResult', 'startTime'))),
+        ('DURATION', _get_duration(_get_value(item, 'runResult', 'startTime'),
+                                   _get_value(item, 'runResult', 'finishTime')))
+    ])
+
+
+def _agentpool_format_group(item):
+    return OrderedDict([
+        ('NAME', _get_value(item, 'name')),
+        ('COUNT', _get_value(item, 'count')),
+        ('TIER', _get_value(item, 'tier')),
+        ('STATE', _get_value(item, 'provisioningState')),
+        ('VNET', _get_value(item, 'virtualNetworkSubnetResourceId')),
+        ('OS', _get_value(item, 'os'))
+    ])
+
+
 def _build_format_group(item):
     return OrderedDict([
         ('BUILD ID', _get_value(item, 'buildId')),
@@ -181,7 +252,8 @@ def _build_format_group(item):
         ("TRIGGER", _get_build_trigger(_get_value(item, 'imageUpdateTrigger'),
                                        _get_value(item, 'sourceTrigger', 'eventType'))),
         ('STARTED', _format_datetime(_get_value(item, 'startTime'))),
-        ('DURATION', _get_duration(_get_value(item, 'startTime'), _get_value(item, 'finishTime')))
+        ('DURATION', _get_duration(_get_value(item, 'startTime'),
+                                   _get_value(item, 'finishTime')))
     ])
 
 
@@ -212,6 +284,61 @@ def _helm_format_group(item):
     ])
 
 
+def _scope_map_format_group(item):
+    description = _get_value(item, 'description')
+    if len(description) > 57:
+        description = description[:57] + '...'
+
+    return OrderedDict([
+        ('NAME', _get_value(item, 'name')),
+        ('TYPE', _get_value(item, 'scopeMapType')),
+        ('CREATION DATE', _format_datetime(_get_value(item, 'creationDate'))),
+        ('DESCRIPTION', description),
+    ])
+
+
+def _token_format_group(item):
+    scope_map_id = _get_value(item, 'scopeMapId')
+    output = OrderedDict([
+        ('NAME', _get_value(item, 'name')),
+        ('SCOPE MAP', scope_map_id.split('/')[-1]),
+        ('PASSWORD1 EXPIRY', ''),
+        ('PASSWORD2 EXPIRY', ''),
+        ('STATUS', _get_value(item, 'status').title()),
+        ('PROVISIONING STATE', _get_value(item, 'provisioningState')),
+        ('CREATION DATE', _format_datetime(_get_value(item, 'creationDate')))
+    ])
+
+    passwords = _get_array_value(item, 'credentials', 'passwords')
+    for password in passwords:
+        password_name = _get_value(password, 'name').upper()
+        # _get_value returns ' ' if item is none.
+        expiry_value = _get_value(password, 'expiry')
+        expiry_value = 'Never' if expiry_value == ' ' else _format_datetime(expiry_value)
+        output_password_column = '{} EXPIRY'.format(password_name)
+        if output_password_column in output:
+            output[output_password_column] = expiry_value
+
+    return output
+
+
+def _token_password_format_group(item):
+    username = _get_value(item, 'username')
+    passwords = _get_array_value(item, 'passwords')
+
+    output = [('USERNAME', username)]
+    for password in passwords:
+        password_name = _get_value(password, 'name').upper()
+        password_value = _get_value(password, 'value')
+        expiry_value = _get_value(password, 'expiry')
+        # _get_value returns ' ' if item is none.
+        expiry_value = 'Never' if expiry_value == ' ' else _format_datetime(expiry_value)
+        output.append((password_name, password_value))
+        output.append(('{} EXPIRY'.format(password_name), expiry_value))
+
+    return OrderedDict(output)
+
+
 def _get_triggers(item):
     """Get a nested value from a dict.
     :param dict item: The dict object
@@ -234,9 +361,21 @@ def _get_value(item, *args):
     try:
         for arg in args:
             item = item[arg]
-        return str(item) if item else ' '
+        return str(item) if item or item == 0 else ' '
     except (KeyError, TypeError, IndexError):
         return ' '
+
+
+def _get_array_value(item, *args):
+    """Get a nested array value from a dict.
+    :param dict item: The dict object
+    """
+    try:
+        for arg in args:
+            item = item[arg]
+        return list(item) if item else []
+    except (KeyError, TypeError, IndexError):
+        return []
 
 
 def _get_trigger_status(item, *args):

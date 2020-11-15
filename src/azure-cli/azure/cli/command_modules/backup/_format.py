@@ -7,7 +7,8 @@ from collections import OrderedDict
 
 
 def transform_container(result):
-    return OrderedDict([('Name', result['properties']['friendlyName']),
+    return OrderedDict([('Name', result['name']),
+                        ('Friendly Name', result['properties']['friendlyName']),
                         ('Resource Group', result['resourceGroup']),
                         ('Type', result['properties']['backupManagementType']),
                         ('Registration Status', result['properties']['registrationStatus'])])
@@ -15,15 +16,19 @@ def transform_container(result):
 
 def transform_item(result):
     columns = []
-    columns.append(('Name', result['properties']['friendlyName']))
+    columns.append(('Name', result['name']))
+    columns.append(('Friendly Name', result['properties']['friendlyName']))
+    columns.append(('Container name', result['properties']['containerName']))
     columns.append(('Resource Group', result['resourceGroup']))
     columns.append(('Type', result['properties']['workloadType']))
     columns.append(('Last Backup Status', result['properties']['lastBackupStatus']))
     columns.append(('Last Recovery Point', result['properties']['lastRecoveryPoint']))
-    columns.append(('Protection Status', result['properties']['protectionStatus']))
-    columns.append(('Health Status', result['properties']['healthStatus']))
+    if 'protectionStatus' in result['properties']:
+        columns.append(('Protection Status', result['properties']['protectionStatus']))
+    if 'healthStatus' in result['properties']:
+        columns.append(('Health Status', result['properties']['healthStatus']))
 
-    if result['properties']['healthDetails'] is not None:
+    if 'healthDetails' in result['properties'] and result['properties']['healthDetails'] is not None:
         recommendations = []
         for health_detail in result['properties']['healthDetails']:
             recommendations.append(', '.join(health_detail['recommendations']))
@@ -44,6 +49,8 @@ def transform_job(result):
         columns.append(('Duration', result['properties']['duration']))
     elif result['properties']['backupManagementType'] == 'AzureStorage':
         columns.append(('Duration', result['properties']['additionalProperties']['duration']))
+    elif result['properties']['backupManagementType'] == 'AzureWorkload':
+        columns.append(('Duration', result['properties']['duration']))
 
     return OrderedDict(columns)
 
@@ -55,9 +62,26 @@ def transform_policy(result):
 
 
 def transform_recovery_point(result):
+    if result['properties']['objectType'][:13] == "AzureWorkload":
+        return OrderedDict([('Name', result['name']),
+                            ('Time', result['properties']['recoveryPointTimeInUtc']),
+                            ('BackupManagementType', 'AzureWorkload'),
+                            ('Item Name', result['id'].split('/')[14]),
+                            ('RecoveryPointType', result['properties']['type'])])
     return OrderedDict([('Name', result['name']),
                         ('Time', result['properties']['recoveryPointTime']),
                         ('Consistency', result['properties']['recoveryPointType'])])
+
+
+def transform_protectable_item(result):
+    columns = []
+    columns.append(('Name', result['name']))
+    columns.append(('Protectable Item Type', result['properties']['protectableItemType']))
+    columns.append(('ParentName', result['properties']['parentName']))
+    columns.append(('ServerName', result['properties']['serverName']))
+    columns.append(('isProtected', result['properties']['protectionState']))
+
+    return OrderedDict(columns)
 
 
 def transform_container_list(container_list):
@@ -78,3 +102,7 @@ def transform_policy_list(policy_list):
 
 def transform_recovery_point_list(recovery_point_list):
     return [transform_recovery_point(rp) for rp in recovery_point_list]
+
+
+def transform_protectable_item_list(protectable_item_list):
+    return [transform_protectable_item(i) for i in protectable_item_list]

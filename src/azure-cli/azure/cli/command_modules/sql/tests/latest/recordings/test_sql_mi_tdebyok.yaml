@@ -1,0 +1,1180 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network route-table create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g -n
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-resource/10.2.0 Azure-SDK-For-Python AZURECLI/2.11.0
+      accept-language:
+      - en-US
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/clitest000001?api-version=2020-06-01
+  response:
+    body:
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001","name":"clitest000001","type":"Microsoft.Resources/resourceGroups","location":"westus","tags":{"product":"azurecli","cause":"automation","date":"2020-08-30T12:10:54Z"},"properties":{"provisioningState":"Succeeded"}}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '312'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:10:59 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"location": "westus"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network route-table create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '22'
+      Content-Type:
+      - application/json; charset=utf-8
+      ParameterSetName:
+      - -g -n
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+      accept-language:
+      - en-US
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"name\": \"vcCliTestRouteTable\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable\",\r\n
+        \ \"etag\": \"W/\\\"f16c33b2-a8fa-432f-9212-0ca5b38ecf58\\\"\",\r\n  \"type\":
+        \"Microsoft.Network/routeTables\",\r\n  \"location\": \"westus\",\r\n  \"properties\":
+        {\r\n    \"provisioningState\": \"Updating\",\r\n    \"resourceGuid\": \"85c5c3a9-b780-408f-b710-e311ec2e0e89\",\r\n
+        \   \"disableBgpRoutePropagation\": false,\r\n    \"routes\": []\r\n  }\r\n}"
+    headers:
+      azure-asyncnotification:
+      - Enabled
+      azure-asyncoperation:
+      - https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/ffb1ba1e-7b6c-473f-a591-2d1dca5bc0aa?api-version=2020-05-01
+      cache-control:
+      - no-cache
+      content-length:
+      - '504'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:11:04 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - b9108389-88b3-4372-9ee6-1a84789461c1
+      x-ms-ratelimit-remaining-subscription-writes:
+      - '1199'
+    status:
+      code: 201
+      message: Created
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network route-table create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g -n
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/ffb1ba1e-7b6c-473f-a591-2d1dca5bc0aa?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"status\": \"Succeeded\"\r\n}"
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '29'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:11:16 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - c1fc6621-3896-4aaf-9476-6b6c884a53cd
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network route-table create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g -n
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"name\": \"vcCliTestRouteTable\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable\",\r\n
+        \ \"etag\": \"W/\\\"da3841ce-3f4c-416b-9dae-3b0d7841a764\\\"\",\r\n  \"type\":
+        \"Microsoft.Network/routeTables\",\r\n  \"location\": \"westus\",\r\n  \"properties\":
+        {\r\n    \"provisioningState\": \"Succeeded\",\r\n    \"resourceGuid\": \"85c5c3a9-b780-408f-b710-e311ec2e0e89\",\r\n
+        \   \"disableBgpRoutePropagation\": false,\r\n    \"routes\": []\r\n  }\r\n}"
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '505'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:11:16 GMT
+      etag:
+      - W/"da3841ce-3f4c-416b-9dae-3b0d7841a764"
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - 87d5b750-3d73-4e63-a085-6edd33c553e9
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"properties": {"addressPrefix": "0.0.0.0/0", "nextHopType": "Internet"},
+      "name": "default"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network route-table route create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '92'
+      Content-Type:
+      - application/json; charset=utf-8
+      ParameterSetName:
+      - -g --route-table-name -n --next-hop-type --address-prefix
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+      accept-language:
+      - en-US
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable/routes/default?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"name\": \"default\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable/routes/default\",\r\n
+        \ \"etag\": \"W/\\\"820b1a30-ca30-4791-894f-90787b0b24c4\\\"\",\r\n  \"properties\":
+        {\r\n    \"provisioningState\": \"Updating\",\r\n    \"addressPrefix\": \"0.0.0.0/0\",\r\n
+        \   \"nextHopType\": \"Internet\",\r\n    \"hasBgpOverride\": false\r\n  },\r\n
+        \ \"type\": \"Microsoft.Network/routeTables/routes\"\r\n}"
+    headers:
+      azure-asyncoperation:
+      - https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/ba7acf4a-4596-40fd-8250-9d8894a104d8?api-version=2020-05-01
+      cache-control:
+      - no-cache
+      content-length:
+      - '464'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:11:17 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - fb965045-be6d-4060-b7b5-a1b77639c072
+      x-ms-ratelimit-remaining-subscription-writes:
+      - '1199'
+    status:
+      code: 201
+      message: Created
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network route-table route create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g --route-table-name -n --next-hop-type --address-prefix
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/ba7acf4a-4596-40fd-8250-9d8894a104d8?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"status\": \"Succeeded\"\r\n}"
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '29'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:11:29 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - 7492b974-0272-4667-b40f-96641c598995
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network route-table route create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g --route-table-name -n --next-hop-type --address-prefix
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable/routes/default?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"name\": \"default\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable/routes/default\",\r\n
+        \ \"etag\": \"W/\\\"307781bd-0579-444d-88ab-79454fc1d752\\\"\",\r\n  \"properties\":
+        {\r\n    \"provisioningState\": \"Succeeded\",\r\n    \"addressPrefix\": \"0.0.0.0/0\",\r\n
+        \   \"nextHopType\": \"Internet\",\r\n    \"hasBgpOverride\": false\r\n  },\r\n
+        \ \"type\": \"Microsoft.Network/routeTables/routes\"\r\n}"
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '465'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:11:29 GMT
+      etag:
+      - W/"307781bd-0579-444d-88ab-79454fc1d752"
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - 86189b71-8282-4d5b-9044-53963ddc5c26
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"properties": {"addressPrefix": "10.0.0.0/24", "nextHopType": "VnetLocal"},
+      "name": "subnet_to_vnet_local"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network route-table route create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '108'
+      Content-Type:
+      - application/json; charset=utf-8
+      ParameterSetName:
+      - -g --route-table-name -n --next-hop-type --address-prefix
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+      accept-language:
+      - en-US
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable/routes/subnet_to_vnet_local?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"name\": \"subnet_to_vnet_local\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable/routes/subnet_to_vnet_local\",\r\n
+        \ \"etag\": \"W/\\\"906dd38e-f5cf-498d-9aaf-80f2ef4f12fc\\\"\",\r\n  \"properties\":
+        {\r\n    \"provisioningState\": \"Updating\",\r\n    \"addressPrefix\": \"10.0.0.0/24\",\r\n
+        \   \"nextHopType\": \"VnetLocal\",\r\n    \"hasBgpOverride\": false\r\n  },\r\n
+        \ \"type\": \"Microsoft.Network/routeTables/routes\"\r\n}"
+    headers:
+      azure-asyncoperation:
+      - https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/ea8caef0-28b0-4e0c-ade1-93b47f689b20?api-version=2020-05-01
+      cache-control:
+      - no-cache
+      content-length:
+      - '493'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:11:31 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - 7589327b-b894-4390-9ed0-44ec9006f068
+      x-ms-ratelimit-remaining-subscription-writes:
+      - '1198'
+    status:
+      code: 201
+      message: Created
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network route-table route create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g --route-table-name -n --next-hop-type --address-prefix
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/ea8caef0-28b0-4e0c-ade1-93b47f689b20?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"status\": \"Succeeded\"\r\n}"
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '29'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:11:42 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - f4f1a27e-cc61-4daa-be06-50747ae9c8ce
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network route-table route create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g --route-table-name -n --next-hop-type --address-prefix
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable/routes/subnet_to_vnet_local?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"name\": \"subnet_to_vnet_local\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable/routes/subnet_to_vnet_local\",\r\n
+        \ \"etag\": \"W/\\\"9073c135-bc29-4039-af77-fae24fc00dde\\\"\",\r\n  \"properties\":
+        {\r\n    \"provisioningState\": \"Succeeded\",\r\n    \"addressPrefix\": \"10.0.0.0/24\",\r\n
+        \   \"nextHopType\": \"VnetLocal\",\r\n    \"hasBgpOverride\": false\r\n  },\r\n
+        \ \"type\": \"Microsoft.Network/routeTables/routes\"\r\n}"
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '494'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:11:43 GMT
+      etag:
+      - W/"9073c135-bc29-4039-af77-fae24fc00dde"
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - ce697bec-bf02-4d52-994f-11f6965aab7f
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"location": "westus", "tags": {}, "properties": {"addressSpace": {"addressPrefixes":
+      ["10.0.0.0/16"]}, "dhcpOptions": {}}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network vnet create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '123'
+      Content-Type:
+      - application/json; charset=utf-8
+      ParameterSetName:
+      - -g -n --location --address-prefix
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+      accept-language:
+      - en-US
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/virtualNetworks/vcCliTestVnet?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"name\": \"vcCliTestVnet\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/virtualNetworks/vcCliTestVnet\",\r\n
+        \ \"etag\": \"W/\\\"4694ddd5-6a1a-4609-bd29-c313dc5c08c7\\\"\",\r\n  \"type\":
+        \"Microsoft.Network/virtualNetworks\",\r\n  \"location\": \"westus\",\r\n
+        \ \"tags\": {},\r\n  \"properties\": {\r\n    \"provisioningState\": \"Updating\",\r\n
+        \   \"resourceGuid\": \"fe22edaa-b91c-41e2-9838-baeb3c58c772\",\r\n    \"addressSpace\":
+        {\r\n      \"addressPrefixes\": [\r\n        \"10.0.0.0/16\"\r\n      ]\r\n
+        \   },\r\n    \"dhcpOptions\": {\r\n      \"dnsServers\": []\r\n    },\r\n
+        \   \"subnets\": [],\r\n    \"virtualNetworkPeerings\": [],\r\n    \"enableDdosProtection\":
+        false,\r\n    \"enableVmProtection\": false\r\n  }\r\n}"
+    headers:
+      azure-asyncnotification:
+      - Enabled
+      azure-asyncoperation:
+      - https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/cd577d89-f02e-4664-8562-e97ff37f0933?api-version=2020-05-01
+      cache-control:
+      - no-cache
+      content-length:
+      - '724'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:11:50 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - 7a5699bb-79b4-49bb-9254-c56a33a2d0b0
+      x-ms-ratelimit-remaining-subscription-writes:
+      - '1199'
+    status:
+      code: 201
+      message: Created
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network vnet create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g -n --location --address-prefix
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/cd577d89-f02e-4664-8562-e97ff37f0933?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"status\": \"Succeeded\"\r\n}"
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '29'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:11:54 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - 38ca8346-0476-4512-8914-8e71e1ca0c12
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network vnet create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g -n --location --address-prefix
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/virtualNetworks/vcCliTestVnet?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"name\": \"vcCliTestVnet\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/virtualNetworks/vcCliTestVnet\",\r\n
+        \ \"etag\": \"W/\\\"dc54be85-98ef-41ba-8d45-e62bf2b7e8be\\\"\",\r\n  \"type\":
+        \"Microsoft.Network/virtualNetworks\",\r\n  \"location\": \"westus\",\r\n
+        \ \"tags\": {},\r\n  \"properties\": {\r\n    \"provisioningState\": \"Succeeded\",\r\n
+        \   \"resourceGuid\": \"fe22edaa-b91c-41e2-9838-baeb3c58c772\",\r\n    \"addressSpace\":
+        {\r\n      \"addressPrefixes\": [\r\n        \"10.0.0.0/16\"\r\n      ]\r\n
+        \   },\r\n    \"dhcpOptions\": {\r\n      \"dnsServers\": []\r\n    },\r\n
+        \   \"subnets\": [],\r\n    \"virtualNetworkPeerings\": [],\r\n    \"enableDdosProtection\":
+        false,\r\n    \"enableVmProtection\": false\r\n  }\r\n}"
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '725'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:11:54 GMT
+      etag:
+      - W/"dc54be85-98ef-41ba-8d45-e62bf2b7e8be"
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - 93cf6c6c-31b7-4334-a054-a1b261602f89
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network vnet subnet create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g --vnet-name -n --address-prefix --route-table
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+      accept-language:
+      - en-US
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"name\": \"vcCliTestRouteTable\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable\",\r\n
+        \ \"etag\": \"W/\\\"9073c135-bc29-4039-af77-fae24fc00dde\\\"\",\r\n  \"type\":
+        \"Microsoft.Network/routeTables\",\r\n  \"location\": \"westus\",\r\n  \"properties\":
+        {\r\n    \"provisioningState\": \"Succeeded\",\r\n    \"resourceGuid\": \"85c5c3a9-b780-408f-b710-e311ec2e0e89\",\r\n
+        \   \"disableBgpRoutePropagation\": false,\r\n    \"routes\": [\r\n      {\r\n
+        \       \"name\": \"default\",\r\n        \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable/routes/default\",\r\n
+        \       \"etag\": \"W/\\\"9073c135-bc29-4039-af77-fae24fc00dde\\\"\",\r\n
+        \       \"properties\": {\r\n          \"provisioningState\": \"Succeeded\",\r\n
+        \         \"addressPrefix\": \"0.0.0.0/0\",\r\n          \"nextHopType\":
+        \"Internet\",\r\n          \"hasBgpOverride\": false\r\n        },\r\n        \"type\":
+        \"Microsoft.Network/routeTables/routes\"\r\n      },\r\n      {\r\n        \"name\":
+        \"subnet_to_vnet_local\",\r\n        \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable/routes/subnet_to_vnet_local\",\r\n
+        \       \"etag\": \"W/\\\"9073c135-bc29-4039-af77-fae24fc00dde\\\"\",\r\n
+        \       \"properties\": {\r\n          \"provisioningState\": \"Succeeded\",\r\n
+        \         \"addressPrefix\": \"10.0.0.0/24\",\r\n          \"nextHopType\":
+        \"VnetLocal\",\r\n          \"hasBgpOverride\": false\r\n        },\r\n        \"type\":
+        \"Microsoft.Network/routeTables/routes\"\r\n      }\r\n    ]\r\n  }\r\n}"
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '1619'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:11:55 GMT
+      etag:
+      - W/"9073c135-bc29-4039-af77-fae24fc00dde"
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - 2b0e91ad-08ab-4117-8184-2d851ac0ef7e
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network vnet subnet create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g --vnet-name -n --address-prefix --route-table
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+      accept-language:
+      - en-US
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/virtualNetworks/vcCliTestVnet?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"name\": \"vcCliTestVnet\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/virtualNetworks/vcCliTestVnet\",\r\n
+        \ \"etag\": \"W/\\\"dc54be85-98ef-41ba-8d45-e62bf2b7e8be\\\"\",\r\n  \"type\":
+        \"Microsoft.Network/virtualNetworks\",\r\n  \"location\": \"westus\",\r\n
+        \ \"tags\": {},\r\n  \"properties\": {\r\n    \"provisioningState\": \"Succeeded\",\r\n
+        \   \"resourceGuid\": \"fe22edaa-b91c-41e2-9838-baeb3c58c772\",\r\n    \"addressSpace\":
+        {\r\n      \"addressPrefixes\": [\r\n        \"10.0.0.0/16\"\r\n      ]\r\n
+        \   },\r\n    \"dhcpOptions\": {\r\n      \"dnsServers\": []\r\n    },\r\n
+        \   \"subnets\": [],\r\n    \"virtualNetworkPeerings\": [],\r\n    \"enableDdosProtection\":
+        false,\r\n    \"enableVmProtection\": false\r\n  }\r\n}"
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '725'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:11:55 GMT
+      etag:
+      - W/"dc54be85-98ef-41ba-8d45-e62bf2b7e8be"
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - 56044dc9-5bb5-46de-8443-3e52e248dd99
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/virtualNetworks/vcCliTestVnet",
+      "location": "westus", "tags": {}, "properties": {"addressSpace": {"addressPrefixes":
+      ["10.0.0.0/16"]}, "dhcpOptions": {"dnsServers": []}, "subnets": [{"properties":
+      {"addressPrefix": "10.0.0.0/24", "routeTable": {"id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable",
+      "location": "westus", "properties": {"routes": [{"id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable/routes/default",
+      "properties": {"addressPrefix": "0.0.0.0/0", "nextHopType": "Internet"}, "name":
+      "default"}, {"id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable/routes/subnet_to_vnet_local",
+      "properties": {"addressPrefix": "10.0.0.0/24", "nextHopType": "VnetLocal"},
+      "name": "subnet_to_vnet_local"}], "disableBgpRoutePropagation": false}}}, "name":
+      "vcCliTestSubnet"}], "virtualNetworkPeerings": [], "enableDdosProtection": false,
+      "enableVmProtection": false}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network vnet subnet create
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1283'
+      Content-Type:
+      - application/json; charset=utf-8
+      ParameterSetName:
+      - -g --vnet-name -n --address-prefix --route-table
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+      accept-language:
+      - en-US
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/virtualNetworks/vcCliTestVnet?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"name\": \"vcCliTestVnet\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/virtualNetworks/vcCliTestVnet\",\r\n
+        \ \"etag\": \"W/\\\"f93989aa-2eda-48bf-8d3d-aede5100a326\\\"\",\r\n  \"type\":
+        \"Microsoft.Network/virtualNetworks\",\r\n  \"location\": \"westus\",\r\n
+        \ \"tags\": {},\r\n  \"properties\": {\r\n    \"provisioningState\": \"Updating\",\r\n
+        \   \"resourceGuid\": \"fe22edaa-b91c-41e2-9838-baeb3c58c772\",\r\n    \"addressSpace\":
+        {\r\n      \"addressPrefixes\": [\r\n        \"10.0.0.0/16\"\r\n      ]\r\n
+        \   },\r\n    \"dhcpOptions\": {\r\n      \"dnsServers\": []\r\n    },\r\n
+        \   \"subnets\": [\r\n      {\r\n        \"name\": \"vcCliTestSubnet\",\r\n
+        \       \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/virtualNetworks/vcCliTestVnet/subnets/vcCliTestSubnet\",\r\n
+        \       \"etag\": \"W/\\\"f93989aa-2eda-48bf-8d3d-aede5100a326\\\"\",\r\n
+        \       \"properties\": {\r\n          \"provisioningState\": \"Updating\",\r\n
+        \         \"addressPrefix\": \"10.0.0.0/24\",\r\n          \"routeTable\":
+        {\r\n            \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable\"\r\n
+        \         },\r\n          \"delegations\": [],\r\n          \"privateEndpointNetworkPolicies\":
+        \"Enabled\",\r\n          \"privateLinkServiceNetworkPolicies\": \"Enabled\"\r\n
+        \       },\r\n        \"type\": \"Microsoft.Network/virtualNetworks/subnets\"\r\n
+        \     }\r\n    ],\r\n    \"virtualNetworkPeerings\": [],\r\n    \"enableDdosProtection\":
+        false,\r\n    \"enableVmProtection\": false\r\n  }\r\n}"
+    headers:
+      azure-asyncoperation:
+      - https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/1e914f5d-52ba-499a-aa2c-f06c456435f7?api-version=2020-05-01
+      cache-control:
+      - no-cache
+      content-length:
+      - '1568'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:11:56 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - 485879cc-fdad-41c1-9b26-3bac69d3563f
+      x-ms-ratelimit-remaining-subscription-writes:
+      - '1198'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network vnet subnet create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g --vnet-name -n --address-prefix --route-table
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/1e914f5d-52ba-499a-aa2c-f06c456435f7?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"status\": \"Succeeded\"\r\n}"
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '29'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:12:00 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - 373ed3d1-5578-4b20-8eae-9ef1b2e210d3
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network vnet subnet create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g --vnet-name -n --address-prefix --route-table
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/virtualNetworks/vcCliTestVnet?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"name\": \"vcCliTestVnet\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/virtualNetworks/vcCliTestVnet\",\r\n
+        \ \"etag\": \"W/\\\"89629643-eaff-4ed9-a201-0964d6285d89\\\"\",\r\n  \"type\":
+        \"Microsoft.Network/virtualNetworks\",\r\n  \"location\": \"westus\",\r\n
+        \ \"tags\": {},\r\n  \"properties\": {\r\n    \"provisioningState\": \"Succeeded\",\r\n
+        \   \"resourceGuid\": \"fe22edaa-b91c-41e2-9838-baeb3c58c772\",\r\n    \"addressSpace\":
+        {\r\n      \"addressPrefixes\": [\r\n        \"10.0.0.0/16\"\r\n      ]\r\n
+        \   },\r\n    \"dhcpOptions\": {\r\n      \"dnsServers\": []\r\n    },\r\n
+        \   \"subnets\": [\r\n      {\r\n        \"name\": \"vcCliTestSubnet\",\r\n
+        \       \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/virtualNetworks/vcCliTestVnet/subnets/vcCliTestSubnet\",\r\n
+        \       \"etag\": \"W/\\\"89629643-eaff-4ed9-a201-0964d6285d89\\\"\",\r\n
+        \       \"properties\": {\r\n          \"provisioningState\": \"Succeeded\",\r\n
+        \         \"addressPrefix\": \"10.0.0.0/24\",\r\n          \"routeTable\":
+        {\r\n            \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable\"\r\n
+        \         },\r\n          \"delegations\": [],\r\n          \"privateEndpointNetworkPolicies\":
+        \"Enabled\",\r\n          \"privateLinkServiceNetworkPolicies\": \"Enabled\"\r\n
+        \       },\r\n        \"type\": \"Microsoft.Network/virtualNetworks/subnets\"\r\n
+        \     }\r\n    ],\r\n    \"virtualNetworkPeerings\": [],\r\n    \"enableDdosProtection\":
+        false,\r\n    \"enableVmProtection\": false\r\n  }\r\n}"
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '1570'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:12:00 GMT
+      etag:
+      - W/"89629643-eaff-4ed9-a201-0964d6285d89"
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - b42c2516-8428-4f50-bfb3-350557f1d3ad
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - network vnet subnet show
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g --vnet-name -n
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-network/11.0.0 Azure-SDK-For-Python AZURECLI/2.11.0
+      accept-language:
+      - en-US
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/virtualNetworks/vcCliTestVnet/subnets/vcCliTestSubnet?api-version=2020-05-01
+  response:
+    body:
+      string: "{\r\n  \"name\": \"vcCliTestSubnet\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/virtualNetworks/vcCliTestVnet/subnets/vcCliTestSubnet\",\r\n
+        \ \"etag\": \"W/\\\"89629643-eaff-4ed9-a201-0964d6285d89\\\"\",\r\n  \"properties\":
+        {\r\n    \"provisioningState\": \"Succeeded\",\r\n    \"addressPrefix\": \"10.0.0.0/24\",\r\n
+        \   \"routeTable\": {\r\n      \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest000001/providers/Microsoft.Network/routeTables/vcCliTestRouteTable\"\r\n
+        \   },\r\n    \"delegations\": [],\r\n    \"privateEndpointNetworkPolicies\":
+        \"Enabled\",\r\n    \"privateLinkServiceNetworkPolicies\": \"Enabled\"\r\n
+        \ },\r\n  \"type\": \"Microsoft.Network/virtualNetworks/subnets\"\r\n}"
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '741'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:12:01 GMT
+      etag:
+      - W/"89629643-eaff-4ed9-a201-0964d6285d89"
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-ms-arm-service-request-id:
+      - dd947ac0-39ba-4bb2-8b4b-4f2b52dff9b3
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      CommandName:
+      - sql mi create
+      Connection:
+      - keep-alive
+      ParameterSetName:
+      - -g -n -l -u -p --subnet --license-type --capacity --storage --edition --family
+        --collation --proxy-override --public-data-endpoint-enabled --assign-identity
+      User-Agent:
+      - python/3.6.6 (Windows-10-10.0.14393-SP0) msrest/0.6.18 msrest_azure/0.6.3
+        azure-mgmt-sql/0.20.0 Azure-SDK-For-Python AZURECLI/2.11.0
+      accept-language:
+      - en-US
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Sql/locations/westus/capabilities?include=supportedManagedInstanceVersions&api-version=2018-06-01-preview
+  response:
+    body:
+      string: '{"name":"West US","supportedManagedInstanceVersions":[{"name":"12.0","supportedEditions":[{"name":"GeneralPurpose","supportedFamilies":[{"name":"Gen5","sku":"GP_Gen5","supportedLicenseTypes":[{"name":"LicenseIncluded","status":"Default"},{"name":"BasePrice","status":"Available"}],"supportedVcoresValues":[{"name":"2","value":2,"includedMaxSize":{"limit":262144,"unit":"Megabytes"},"supportedStorageSizes":[{"minValue":{"limit":32,"unit":"Gigabytes"},"maxValue":{"limit":640,"unit":"Gigabytes"},"scaleSize":{"limit":32,"unit":"Gigabytes"},"status":"Available"}],"instancePoolSupported":true,"standaloneSupported":false,"status":"Available"},{"name":"4","value":4,"includedMaxSize":{"limit":262144,"unit":"Megabytes"},"supportedStorageSizes":[{"minValue":{"limit":32,"unit":"Gigabytes"},"maxValue":{"limit":2,"unit":"Terabytes"},"scaleSize":{"limit":32,"unit":"Gigabytes"},"status":"Available"}],"instancePoolSupported":true,"standaloneSupported":true,"status":"Available"},{"name":"8","value":8,"includedMaxSize":{"limit":262144,"unit":"Megabytes"},"supportedStorageSizes":[{"minValue":{"limit":32,"unit":"Gigabytes"},"maxValue":{"limit":8,"unit":"Terabytes"},"scaleSize":{"limit":32,"unit":"Gigabytes"},"status":"Available"}],"instancePoolSupported":true,"standaloneSupported":true,"status":"Default"},{"name":"16","value":16,"includedMaxSize":{"limit":262144,"unit":"Megabytes"},"supportedStorageSizes":[{"minValue":{"limit":32,"unit":"Gigabytes"},"maxValue":{"limit":8,"unit":"Terabytes"},"scaleSize":{"limit":32,"unit":"Gigabytes"},"status":"Available"}],"instancePoolSupported":true,"standaloneSupported":true,"status":"Available"},{"name":"24","value":24,"includedMaxSize":{"limit":262144,"unit":"Megabytes"},"supportedStorageSizes":[{"minValue":{"limit":32,"unit":"Gigabytes"},"maxValue":{"limit":8,"unit":"Terabytes"},"scaleSize":{"limit":32,"unit":"Gigabytes"},"status":"Available"}],"instancePoolSupported":true,"standaloneSupported":true,"status":"Available"},{"name":"32","value":32,"includedMaxSize":{"limit":262144,"unit":"Megabytes"},"supportedStorageSizes":[{"minValue":{"limit":32,"unit":"Gigabytes"},"maxValue":{"limit":8,"unit":"Terabytes"},"scaleSize":{"limit":32,"unit":"Gigabytes"},"status":"Available"}],"instancePoolSupported":true,"standaloneSupported":true,"status":"Available"},{"name":"40","value":40,"includedMaxSize":{"limit":262144,"unit":"Megabytes"},"supportedStorageSizes":[{"minValue":{"limit":32,"unit":"Gigabytes"},"maxValue":{"limit":8,"unit":"Terabytes"},"scaleSize":{"limit":32,"unit":"Gigabytes"},"status":"Available"}],"instancePoolSupported":true,"standaloneSupported":true,"status":"Available"},{"name":"64","value":64,"includedMaxSize":{"limit":262144,"unit":"Megabytes"},"supportedStorageSizes":[{"minValue":{"limit":32,"unit":"Gigabytes"},"maxValue":{"limit":8,"unit":"Terabytes"},"scaleSize":{"limit":32,"unit":"Gigabytes"},"status":"Available"}],"instancePoolSupported":true,"standaloneSupported":true,"status":"Available"},{"name":"80","value":80,"includedMaxSize":{"limit":262144,"unit":"Megabytes"},"supportedStorageSizes":[{"minValue":{"limit":32,"unit":"Gigabytes"},"maxValue":{"limit":8,"unit":"Terabytes"},"scaleSize":{"limit":32,"unit":"Gigabytes"},"status":"Available"}],"instancePoolSupported":true,"standaloneSupported":true,"status":"Available"}],"status":"Default"}],"supportedStorageCapabilities":[{"storageAccountType":"GRS","status":"Default"},{"storageAccountType":"LRS","status":"Available"},{"storageAccountType":"ZRS","status":"Visible","reason":"ZRS
+        is available in multi-az regions"}],"status":"Default"},{"name":"BusinessCritical","supportedFamilies":[{"name":"Gen5","sku":"BC_Gen5","supportedLicenseTypes":[{"name":"LicenseIncluded","status":"Default"},{"name":"BasePrice","status":"Available"}],"supportedVcoresValues":[{"name":"4","value":4,"includedMaxSize":{"limit":262144,"unit":"Megabytes"},"supportedStorageSizes":[{"minValue":{"limit":32,"unit":"Gigabytes"},"maxValue":{"limit":1,"unit":"Terabytes"},"scaleSize":{"limit":32,"unit":"Gigabytes"},"status":"Available"}],"instancePoolSupported":true,"standaloneSupported":true,"status":"Available"},{"name":"8","value":8,"includedMaxSize":{"limit":262144,"unit":"Megabytes"},"supportedStorageSizes":[{"minValue":{"limit":32,"unit":"Gigabytes"},"maxValue":{"limit":1,"unit":"Terabytes"},"scaleSize":{"limit":32,"unit":"Gigabytes"},"status":"Available"}],"instancePoolSupported":true,"standaloneSupported":true,"status":"Default"},{"name":"16","value":16,"includedMaxSize":{"limit":262144,"unit":"Megabytes"},"supportedStorageSizes":[{"minValue":{"limit":32,"unit":"Gigabytes"},"maxValue":{"limit":1,"unit":"Terabytes"},"scaleSize":{"limit":32,"unit":"Gigabytes"},"status":"Available"}],"instancePoolSupported":true,"standaloneSupported":true,"status":"Available"},{"name":"24","value":24,"includedMaxSize":{"limit":262144,"unit":"Megabytes"},"supportedStorageSizes":[{"minValue":{"limit":32,"unit":"Gigabytes"},"maxValue":{"limit":2,"unit":"Terabytes"},"scaleSize":{"limit":32,"unit":"Gigabytes"},"status":"Available"}],"instancePoolSupported":true,"standaloneSupported":true,"status":"Available"},{"name":"32","value":32,"includedMaxSize":{"limit":262144,"unit":"Megabytes"},"supportedStorageSizes":[{"minValue":{"limit":32,"unit":"Gigabytes"},"maxValue":{"limit":4,"unit":"Terabytes"},"scaleSize":{"limit":32,"unit":"Gigabytes"},"status":"Available"}],"instancePoolSupported":true,"standaloneSupported":true,"status":"Available"},{"name":"40","value":40,"includedMaxSize":{"limit":262144,"unit":"Megabytes"},"supportedStorageSizes":[{"minValue":{"limit":32,"unit":"Gigabytes"},"maxValue":{"limit":4,"unit":"Terabytes"},"scaleSize":{"limit":32,"unit":"Gigabytes"},"status":"Available"}],"instancePoolSupported":true,"standaloneSupported":true,"status":"Available"},{"name":"64","value":64,"includedMaxSize":{"limit":262144,"unit":"Megabytes"},"supportedStorageSizes":[{"minValue":{"limit":32,"unit":"Gigabytes"},"maxValue":{"limit":4,"unit":"Terabytes"},"scaleSize":{"limit":32,"unit":"Gigabytes"},"status":"Available"}],"instancePoolSupported":true,"standaloneSupported":true,"status":"Available"},{"name":"80","value":80,"includedMaxSize":{"limit":262144,"unit":"Megabytes"},"supportedStorageSizes":[{"minValue":{"limit":32,"unit":"Gigabytes"},"maxValue":{"limit":4,"unit":"Terabytes"},"scaleSize":{"limit":32,"unit":"Gigabytes"},"status":"Available"}],"instancePoolSupported":true,"standaloneSupported":true,"status":"Available"}],"status":"Default"}],"supportedStorageCapabilities":[{"storageAccountType":"GRS","status":"Default"},{"storageAccountType":"LRS","status":"Available"},{"storageAccountType":"ZRS","status":"Visible","reason":"ZRS
+        is available in multi-az regions"}],"status":"Available"}],"supportedInstancePoolEditions":[{"name":"GeneralPurpose","supportedFamilies":[{"name":"Gen5","supportedLicenseTypes":[{"name":"LicenseIncluded","status":"Default"},{"name":"BasePrice","status":"Available"}],"supportedVcoresValues":[{"name":"GP_Gen5_8","value":8,"storageLimit":{"limit":8388608,"unit":"Megabytes"},"status":"Default"},{"name":"GP_Gen5_16","value":16,"storageLimit":{"limit":8388608,"unit":"Megabytes"},"status":"Available"},{"name":"GP_Gen5_24","value":24,"storageLimit":{"limit":8388608,"unit":"Megabytes"},"status":"Available"},{"name":"GP_Gen5_32","value":32,"storageLimit":{"limit":8388608,"unit":"Megabytes"},"status":"Available"},{"name":"GP_Gen5_40","value":40,"storageLimit":{"limit":8388608,"unit":"Megabytes"},"status":"Available"},{"name":"GP_Gen5_64","value":64,"storageLimit":{"limit":8388608,"unit":"Megabytes"},"status":"Available"},{"name":"GP_Gen5_80","value":80,"storageLimit":{"limit":8388608,"unit":"Megabytes"},"status":"Available"}],"status":"Default"}],"status":"Default"}],"status":"Default"}],"status":"Visible","reason":"Microsoft
+        Internal subscriptions are restricted from provisioning in this region. Please
+        choose a different region. For exceptions to this rule please open a support
+        request with Issue type of ''Service and subscription limits''. See https://docs.microsoft.com/en-us/azure/sql-database/quota-increase-request
+        for more details."}'
+    headers:
+      cache-control:
+      - no-cache
+      content-length:
+      - '8122'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 30 Aug 2020 12:12:02 GMT
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Microsoft-HTTPAPI/2.0
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+    status:
+      code: 200
+      message: OK
+version: 1

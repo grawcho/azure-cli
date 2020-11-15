@@ -71,6 +71,13 @@ class AmsJobTests(ScenarioTest):
             self.check('outputs[0].label', '{outputLabel}')
         ])
 
+        nonexits_job_name = self.create_random_name(prefix='job', length=20)
+        self.kwargs.update({
+            'nonexits_job_name': nonexits_job_name
+        })
+        with self.assertRaisesRegexp(SystemExit, '3'):
+            self.cmd('az ams job show -a {amsname} -n{nonexits_job_name} -g {rg} -t {transformName}')
+
         list = self.cmd('az ams job list -a {amsname} -g {rg} -t {transformName}').get_output_in_json()
         assert len(list) > 0
 
@@ -95,12 +102,12 @@ class AmsJobTests(ScenarioTest):
         assert job['state'] == 'Canceled' or job['state'] == 'Canceling'
 
         _RETRY_TIMES = 5
-        for l in range(0, _RETRY_TIMES):
+        for retry_time in range(0, _RETRY_TIMES):
             try:
                 self.cmd('az ams job delete -n {jobName} -a {amsname} -g {rg} -t {transformName}')
                 break
             except Exception:  # pylint: disable=broad-except
-                if l < _RETRY_TIMES:
+                if retry_time < _RETRY_TIMES:
                     time.sleep(5)
                 else:
                     raise

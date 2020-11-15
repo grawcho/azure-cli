@@ -10,6 +10,11 @@ import re
 import json
 import isodate
 
+from knack.log import get_logger
+logger = get_logger(__name__)
+
+iso8601pattern = re.compile("^P(?!$)(\\d+Y)?(\\d+M)?(\\d+W)?(\\d+D)?(T(?=\\d)(\\d+H)?(\\d+M)?(\\d+.)?(\\d+S)?)?$")
+
 
 def _gen_guid():
     return uuid.uuid4()
@@ -24,11 +29,13 @@ def _is_guid(guid):
     return False
 
 
-def parse_iso_duration(str_duration):
-    iso_duration_format_value = None
+def parse_duration(str_duration):
     if str_duration:
-        iso_duration_format_value = isodate.duration_isoformat(parse_timedelta(str_duration))
-    return iso_duration_format_value
+        if iso8601pattern.match(str_duration):
+            return isodate.parse_duration(str_duration)
+
+        return parse_timedelta(str_duration)
+    return None
 
 
 def parse_timedelta(str_duration):
@@ -82,3 +89,35 @@ def create_ip_range(resource_name, ip):
     except ValueError:
         pass
     return IPRange(name=("{}_{}".format(resource_name, ip)), address=ip, subnet_prefix_length=subnet_prefix_length)
+
+
+# The Media Services SDK does not throw an exception for 404s.
+# This helper will make our 'not founds' look like other services.
+def show_resource_not_found_message(group, account, ams_type, name):
+    import sys
+    message = build_resource_not_found_message(group, account, ams_type, name)
+    from azure.cli.core.azlogging import CommandLoggerContext
+    with CommandLoggerContext(logger):
+        logger.error(message)
+        sys.exit(3)
+
+
+def build_resource_not_found_message(group, account, ams_type, name):
+    message = "The Resource 'Microsoft.Media/mediaServices/{}/{}/{}' under resource group '{}' was not found." \
+        .format(account, ams_type, name, group)
+    return message
+
+
+def show_child_resource_not_found_message(group, account, ams_type, name, ams_child_type, child_name):
+    import sys
+    message = build_child_resource_not_found_message(account, ams_type, name, ams_child_type, child_name, group)
+    from azure.cli.core.azlogging import CommandLoggerContext
+    with CommandLoggerContext(logger):
+        logger.error(message)
+        sys.exit(3)
+
+
+def build_child_resource_not_found_message(group, account, ams_type, name, ams_child_type, child_name):
+    message = "The Resource 'Microsoft.Media/mediaServices/{}/{}/{}/{}/{}' under resource group '{}' was not found." \
+        .format(account, ams_type, name, ams_child_type, child_name, group)
+    return message

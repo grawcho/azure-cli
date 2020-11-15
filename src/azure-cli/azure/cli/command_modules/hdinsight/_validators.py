@@ -9,7 +9,6 @@ from msrestazure.tools import is_valid_resource_id
 from azure.cli.core.commands.parameters import get_resources_in_subscription
 from .util import get_resource_id_by_name
 
-
 VALIDATION_TIME_OUT = 20
 
 
@@ -74,6 +73,29 @@ def validate_domain_service(cmd, namespace):
 
 # Validate workspace.
 def validate_workspace(cmd, namespace):
+    from uuid import UUID
+
+    try:
+        # check if the given workspace is a valid UUID
+        UUID(namespace.workspace, version=4)
+        namespace.workspace_type = 'workspace_id'
+
+        # A workspace name can also be in type of GUID
+        # if we can find the workspace by name,
+        # we will use the input value as workspace name
+        try:
+            namespace.workspace = HDInsightValidator(
+                resource_type='Microsoft.OperationalInsights/workspaces',
+                resource_name=namespace.workspace).validate(cmd, namespace)
+            namespace.workspace_type = 'resource_id'
+        except CLIError:
+            # This indicates the input is not a valid UUID.
+            # So we just ignore the error and treat it as workspace id
+            pass
+        return
+    except ValueError:
+        pass
+
     namespace.workspace = HDInsightValidator(
         resource_type='Microsoft.OperationalInsights/workspaces',
         resource_name=namespace.workspace).validate(cmd, namespace)
@@ -122,3 +144,33 @@ class HDInsightValidator():
                         self.resource_name)
         except CLIError as e:
             self.exception = e
+
+
+def validate_timezone_name(namespace):
+    if namespace.timezone:
+        from .util import AUTOSCALE_TIMEZONES
+        zone = next((x for x in AUTOSCALE_TIMEZONES if x.lower() == namespace.timezone.lower()), None)
+        if not zone:
+            raise CLIError(
+                "Invalid time zone: '{}'. Run 'az hdinsight autoscale list-timezones' for values.".format(
+                    namespace.timezone))
+        namespace.timezone = zone
+        return zone
+    return None
+
+
+def validate_time(namespace):
+    if namespace.time:
+        message = 'The time is 24-hour time and exactly in the form of xx:xx. ' \
+                  'For example it should be 09:00 instead of 9:00.'
+        if ':' not in namespace.time:
+            raise CLIError(message)
+        hour, minute = namespace.time.split(':')
+        if len(hour) != 2 or len(minute) != 2:
+            raise CLIError(message)
+        if not hour.isdigit() or not minute.isdigit():
+            raise CLIError('The hour part or minute part is not digit.')
+        if int(hour) > 23 or int(hour) < 0:
+            raise CLIError('The hour of time should be 00-23.')
+        if int(minute) > 59 or int(minute) < 0:
+            raise CLIError('The minute of time should be 00-59.')

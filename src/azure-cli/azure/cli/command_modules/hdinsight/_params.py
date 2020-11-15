@@ -5,19 +5,24 @@
 
 from azure.cli.core.commands.parameters import get_enum_type, name_type, tags_type, \
     get_generic_completion_list, get_three_state_flag, get_resource_name_completion_list
+from azure.cli.core.util import shell_safe_json_parse
 from ._validators import (validate_component_version,
                           validate_storage_account,
                           validate_msi,
                           validate_storage_msi,
                           validate_subnet,
                           validate_domain_service,
-                          validate_workspace)
+                          validate_workspace,
+                          validate_timezone_name, validate_time)
+from .util import AUTOSCALE_TIMEZONES
 
 # Cluster types may be added in the future. Therefore, this list can be used for completion, but not input validation.
 known_cluster_types = ["hadoop", "interactivehive", "hbase", "kafka", "storm", "spark", "rserver", "mlservices"]
 
 # Known role (node) types.
 known_role_types = ["headnode", "workernode", "zookeepernode", "edgenode"]
+week_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+known_autoscale_types = ["Load", "Schedule"]
 
 
 # pylint: disable=too-many-statements
@@ -26,41 +31,52 @@ def load_arguments(self, _):
         cluster_user_group_completion_list, get_resource_name_completion_list_under_subscription
     from knack.arguments import CLIArgumentType
     from azure.mgmt.hdinsight.models import Tier, JsonWebKeyEncryptionAlgorithm
+    from argcomplete.completers import FilesCompleter
     node_size_type = CLIArgumentType(arg_group='Node',
-                                     help='The size of the node. See also: https://docs.microsoft.com/en-us/azure/'
+                                     help='The size of the node. See also: https://docs.microsoft.com/azure/'
                                           'hdinsight/hdinsight-hadoop-provision-linux-clusters#configure-cluster-size')
 
     # cluster
     with self.argument_context('hdinsight') as c:
-
         # Cluster
         c.argument('cluster_name', arg_type=name_type,
                    completer=get_resource_name_completion_list('Microsoft.HDInsight/clusters'),
                    help='The name of the cluster.')
         c.argument('tags', tags_type)
-        c.argument('no_validation_timeout', arg_type=get_three_state_flag(),
-                   help='Do not report timeout error during argument validation phase.')
+        c.argument('no_validation_timeout', action='store_true',
+                   help='Permit timeout error during argument validation phase. If omitted, '
+                        'validation timeout error will be permitted.')
         c.argument('cluster_version', options_list=['--version', '-v'], arg_group='Cluster',
-                   help='The HDInsight cluster version. See also: https://docs.microsoft.com/en-us/azure/'
+                   help='The HDInsight cluster version. See also: https://docs.microsoft.com/azure/'
                         'hdinsight/hdinsight-component-versioning#supported-hdinsight-versions')
         c.argument('cluster_type', options_list=['--type', '-t'], arg_group='Cluster',
                    completer=get_generic_completion_list(known_cluster_types),
                    help='Type of HDInsight cluster, like: {}. '
-                        'See also: https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-'
+                        'See also: https://docs.microsoft.com/azure/hdinsight/hdinsight-'
                         'hadoop-provision-linux-clusters#cluster-types'.format(', '.join(known_cluster_types)))
         c.argument('component_version', arg_group='Cluster', nargs='*', validator=validate_component_version,
                    help='The versions of various Hadoop components, in space-'
                         'separated versions in \'component=version\' format. Example: '
                         'Spark=2.0 Hadoop=2.7.3 '
-                        'See also: https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight'
+                        'See also: https://docs.microsoft.com/azure/hdinsight/hdinsight'
                         '-component-versioning#hadoop-components-available-with-different-'
                         'hdinsight-versions')
-        c.argument('cluster_configurations', arg_group='Cluster',
-                   help='Extra configurations of various components, in JSON.')
+        c.argument('cluster_configurations', arg_group='Cluster', type=shell_safe_json_parse,
+                   completer=FilesCompleter(),
+                   help='Extra configurations of various components. '
+                        'Configurations may be supplied from a file using the `@{path}` syntax or a JSON string. '
+                        'See also: https://docs.microsoft.com/azure/hdinsight/'
+                        'hdinsight-hadoop-customize-cluster-bootstrap')
         c.argument('cluster_tier', arg_type=get_enum_type(Tier), arg_group='Cluster',
                    help='The tier of the cluster')
-        c.argument('esp', arg_group='Cluster', arg_type=get_three_state_flag(),
-                   help='Specify to create cluster with Enterprise Security Package')
+        c.argument('esp', arg_group='Cluster', action='store_true',
+                   help='Specify to create cluster with Enterprise Security Package. If omitted, '
+                        'creating cluster with Enterprise Security Package will not not allowed.')
+        c.argument('idbroker', arg_group='Cluster', action='store_true',
+                   help='Specify to create ESP cluster with HDInsight ID Broker. If omitted, '
+                        'creating ESP cluster with HDInsight ID Broker will not not allowed.')
+        c.argument('minimal_tls_version', arg_type=get_enum_type(['1.0', '1.1', '1.2']),
+                   arg_group='Cluster', help='The minimal supported TLS version.')
 
         # HTTP
         c.argument('http_username', options_list=['--http-user', '-u'], arg_group='HTTP',
@@ -88,8 +104,11 @@ def load_arguments(self, _):
                    help='The size of the data disk in GB, e.g. 1023.')
         c.argument('zookeepernode_size', arg_type=node_size_type)
         c.argument('edgenode_size', arg_type=node_size_type)
-        c.argument('workernode_count', options_list=['--size', '-s'], arg_group='Node',
+        c.argument('kafka_management_node_size', arg_type=node_size_type)
+        c.argument('workernode_count', options_list=['--workernode-count', '-c'], arg_group='Node',
                    help='The number of worker nodes in the cluster.')
+        c.argument('kafka_management_node_count', arg_group='Node',
+                   help='The number of kafka management node in the cluster')
 
         # Storage
         c.argument('storage_account', arg_group='Storage', validator=validate_storage_account,
@@ -98,11 +117,12 @@ def load_arguments(self, _):
         c.argument('storage_account_key', arg_group='Storage',
                    help='The storage account key. A key can be retrieved automatically '
                         'if the user has access to the storage account.')
-        c.argument('storage_default_container', arg_group='Storage',
+        c.argument('storage_default_container', arg_group='Storage', options_list=['--storage-container'],
                    help='The storage container the cluster will use. '
                         'Uses the cluster name if none was specified. (WASB only)')
-        c.argument('storage_default_filesystem', arg_group='Storage',
-                   help='The storage filesystem the cluster will use. (DFS only)')
+        c.argument('storage_default_filesystem', arg_group='Storage', options_list=['--storage-filesystem'],
+                   help='The storage filesystem the cluster will use. '
+                        'Uses the cluster name if none was specified. (DFS only)')
         c.argument('storage_account_managed_identity', arg_group='Storage', validator=validate_storage_msi,
                    completer=get_resource_name_completion_list_under_subscription(
                        'Microsoft.ManagedIdentity/userAssignedIdentities'),
@@ -152,48 +172,171 @@ def load_arguments(self, _):
         c.argument('encryption_algorithm', arg_type=get_enum_type(JsonWebKeyEncryptionAlgorithm),
                    arg_group='Customer Managed Key', help='Algorithm identifier for encryption.')
 
+        # Kafka Rest Proxy
+        c.argument('kafka_client_group_id', arg_group='Kafka Rest Proxy',
+                   help='The client AAD security group id for Kafka Rest Proxy')
+        c.argument('kafka_client_group_name', arg_group='Kafka Rest Proxy',
+                   help='The client AAD security group name for Kafka Rest Proxy')
+
         # Managed Service Identity
         c.argument('assign_identity', arg_group='Managed Service Identity', validator=validate_msi,
                    completer=get_resource_name_completion_list_under_subscription(
                        'Microsoft.ManagedIdentity/userAssignedIdentities'),
                    help="The name or ID of user assigned identity.")
 
-    # application
-    with self.argument_context('hdinsight application') as c:
-        c.argument('application_name', arg_group='Application', help='The constant value for the application name.')
-        c.argument('application_type', arg_group='Application', help='The application type.')
-        c.argument('marketplace_identifier', arg_group='Application', help='The marketplace identifier.')
-        c.argument('https_endpoint_access_mode', arg_group='HTTPS Endpoint',
-                   help='The access mode for the application.')
-        c.argument('https_endpoint_destination_port', arg_group='HTTPS Endpoint',
-                   help='The destination port to connect to.')
-        c.argument('https_endpoint_location', arg_group='HTTPS Endpoint', help='The location of the endpoint.')
-        c.argument('https_endpoint_public_port', arg_group='HTTPS Endpoint', help='The public port to connect to.')
-        c.argument('sub_domain_suffix', arg_group='HTTPS Endpoint', help='The subdomain suffix of the application.')
-        c.argument('disable_gateway_auth', arg_group='HTTPS Endpoint', arg_type=get_three_state_flag(),
-                   help='The flag of whether disabling gateway auth or not.')
-        c.argument('ssh_endpoint_destination_port', arg_group='SSH Endpoint',
-                   help='The destination port to connect to.')
-        c.argument('ssh_endpoint_location', arg_group='SSH Endpoint', help='The location of the endpoint.')
-        c.argument('ssh_endpoint_public_port', arg_group='SSH Endpoint', help='The public port to connect to.')
-        c.argument('tags', tags_type)
-        c.argument('ssh_password', options_list=['--ssh-password', '-P'], arg_group='SSH',
-                   help='SSH password for the cluster nodes.')
+        # Encryption In Transit
+        c.argument('encryption_in_transit', arg_group='Encryption In Transit', arg_type=get_three_state_flag(),
+                   help='Indicates whether enable encryption in transit.')
 
-    # script action
-    with self.argument_context('hdinsight script-action') as c:
-        c.argument('roles', arg_group='Script Action',
-                   completer=get_generic_completion_list(known_role_types),
-                   help='A comma-delimited list of roles (nodes) where the script will be executed. '
-                        'Valid roles are {}.'.format(', '.join(known_role_types)))
-        c.argument('persist_on_success', arg_group='Script Action', help='If the scripts needs to be persisted.')
-        c.argument('persisted', arg_group='Script Action', help='If only list persisted script actions.')
-        c.argument('script_name', options_list='--script-action-name', arg_group='Script Action',
-                   help='The name of the script action.')
+        # Encryption At Host
+        c.argument('encryption_at_host', arg_group='Encryption At Host', arg_type=get_three_state_flag(),
+                   help='Indicates whether enable encryption at host or not.')
 
-    # Monitoring
-    with self.argument_context('hdinsight monitor') as c:
-        c.argument('workspace', arg_group='Monitoring', validator=validate_workspace,
-                   completer=get_resource_name_completion_list_under_subscription(
-                       'Microsoft.OperationalInsights/workspaces'),
-                   help='The name or resource ID of Log Analytics workspace.')
+        # Autoscale Configuration
+        c.argument('autoscale_type', arg_group='Autoscale Configuration', arg_type=get_enum_type(known_autoscale_types),
+                   help='The autoscale type.')
+        c.argument('autoscale_min_workernode_count', type=int,
+                   options_list=['--autoscale-min-workernode-count', '--autoscale-min-count'],
+                   arg_group='Autoscale Configuration',
+                   help='The minimal workernode count for Load-based atuoscale.')
+        c.argument('autoscale_max_workernode_count', type=int,
+                   options_list=['--autoscale-max-workernode-count', '--autoscale-max-count'],
+                   arg_group='Autoscale Configuration',
+                   help='The max workernode count for Load-based atuoscale.')
+        c.argument('timezone', arg_group='Autoscale Configuration', validator=validate_timezone_name,
+                   completer=get_generic_completion_list(AUTOSCALE_TIMEZONES),
+                   help='The timezone for schedule autoscale type. Values from `az hdinsight autoscale list-timezones`')
+        c.argument('days', nargs='+', arg_group='Autoscale Configuration',
+                   arg_type=get_enum_type(week_days),
+                   completer=get_generic_completion_list(week_days),
+                   help='A space-delimited list of schedule day.')
+        c.argument('time', arg_group='Autoscale Configuration', validator=validate_time,
+                   help='The 24-hour time in the form of xx:xx in days.')
+        c.argument('autoscale_workernode_count', type=int,
+                   options_list=['--autoscale-workernode-count', '--autoscale-count'],
+                   arg_group='Autoscale Configuration',
+                   help='The scheduled workernode count.')
+
+        # resize
+        with self.argument_context('hdinsight resize') as c:
+            c.argument('target_instance_count', options_list=['--workernode-count', '-c'],
+                       help='The target worker node instance count for the operation.', required=True)
+
+        # application
+        with self.argument_context('hdinsight application') as c:
+            c.argument('cluster_name', options_list=['--cluster-name'],
+                       completer=get_resource_name_completion_list('Microsoft.HDInsight/clusters'),
+                       help='The name of the cluster.')
+            c.argument('application_name', arg_type=name_type,
+                       help='The constant value for the application name.')
+            c.argument('application_type', options_list=['--type', '-t'],
+                       arg_type=get_enum_type(['CustomApplication', 'RServer']),
+                       help='The application type.')
+            c.argument('marketplace_identifier', options_list=['--marketplace-id'],
+                       help='The marketplace identifier.')
+            c.argument('https_endpoint_access_mode', arg_group='HTTPS Endpoint',
+                       options_list=['--access-mode'],
+                       help='The access mode for the application.')
+            c.argument('https_endpoint_destination_port', arg_group='HTTPS Endpoint',
+                       options_list=['--destination-port'],
+                       help='The destination port to connect to.')
+            c.argument('sub_domain_suffix', arg_group='HTTPS Endpoint', help='The subdomain suffix of the application.')
+            c.argument('disable_gateway_auth', arg_group='HTTPS Endpoint', arg_type=get_three_state_flag(),
+                       help='Indicates whether to disable gateway authentication. '
+                            'Default is to enable gateway authentication. Default: false. ')
+            c.argument('tags', tags_type)
+            c.argument('ssh_password', options_list=['--ssh-password', '-P'], arg_group='SSH',
+                       help='SSH password for the cluster nodes.')
+
+        # script action
+        with self.argument_context('hdinsight script-action') as c:
+            c.argument('cluster_name', options_list=['--cluster-name'],
+                       completer=get_resource_name_completion_list('Microsoft.HDInsight/clusters'),
+                       help='The name of the cluster.')
+            c.argument('roles', nargs='+', completer=get_generic_completion_list(known_role_types),
+                       help='A space-delimited list of roles (nodes) where the script will be executed. '
+                            'Valid roles are {}.'.format(', '.join(known_role_types)))
+            c.argument('persist_on_success', help='If the scripts needs to be persisted.')
+            c.argument('script_action_name', arg_type=name_type, arg_group=None,
+                       help='The name of the script action.')
+            c.argument('script_uri', arg_group=None, help='The URI to the script.')
+            c.argument('script_parameters', arg_group=None, help='The parameters for the script.')
+            c.argument('script_execution_id', options_list=['--execution-id'], arg_group=None,
+                       help='The script execution id')
+
+        with self.argument_context('hdinsight script-action delete') as c:
+            c.argument('script_name', arg_type=name_type, arg_group=None, help='The name of the script.')
+
+        # Monitoring
+        with self.argument_context('hdinsight monitor') as c:
+            c.argument('workspace', validator=validate_workspace,
+                       completer=get_resource_name_completion_list_under_subscription(
+                           'Microsoft.OperationalInsights/workspaces'),
+                       help='The name, resource ID or workspace ID of Log Analytics workspace.')
+            c.argument('primary_key', help='The certificate for the Log Analytics workspace. '
+                                           'Required when workspace ID is provided.')
+            c.ignore('workspace_type')
+
+        with self.argument_context('hdinsight host') as c:
+            c.argument('cluster_name', options_list=['--cluster-name'],
+                       completer=get_resource_name_completion_list('Microsoft.HDInsight/clusters'),
+                       help='The name of the cluster.')
+            c.argument('hosts', options_list=['--host-names'], nargs='+',
+                       help='A space-delimited list of host names that need to be restarted.')
+
+        # autoscale
+        autoscale_commands = ['create', 'update', 'delete', 'show']
+        for command in autoscale_commands:
+            with self.argument_context('hdinsight autoscale ' + command) as c:
+                c.argument('cluster_name', options_list=['--cluster-name'],
+                           completer=get_resource_name_completion_list('Microsoft.HDInsight/clusters'),
+                           help='The name of the cluster.')
+
+        for command in ['create', 'update']:
+            with self.argument_context('hdinsight autoscale ' + command) as c:
+                c.argument('min_workernode_count', type=int, arg_group='Load-based Autoscale',
+                           help='The minimal workernode count for Load-based atuoscale.')
+                c.argument('max_workernode_count', type=int, arg_group='Load-based Autoscale',
+                           help='The max workernode count for Load-based atuoscale.')
+                c.argument('timezone', arg_group='Schedule-based Autoscale', validator=validate_timezone_name,
+                           completer=get_generic_completion_list(AUTOSCALE_TIMEZONES),
+                           help='The timezone for schedule autoscale type. '
+                                'Values from `az hdinsight autoscale list-timezones`')
+
+        with self.argument_context('hdinsight autoscale create') as c:
+            c.argument('type', arg_type=get_enum_type(known_autoscale_types), help='The autoscale type.')
+            c.argument('days', nargs='+', arg_group='Schedule-based Autoscale',
+                       arg_type=get_enum_type(week_days),
+                       completer=get_generic_completion_list(week_days),
+                       help='A space-delimited list of schedule day.')
+            c.argument('time', arg_group='Schedule-based Autoscale', validator=validate_time,
+                       help='The 24-hour time in the form xx:xx in days.')
+            c.argument('workernode_count', type=int, options_list=['--workernode-count'],
+                       arg_group='Schedule-based Autoscale',
+                       help='The schedule workernode count.')
+            c.argument('yes', options_list=['--yes', '-y'], help='Do not prompt for confirmation.', action='store_true')
+
+        # autoscale condition
+        autoscale_condition_commands = ['create', 'update', 'delete', 'list']
+        for command in autoscale_condition_commands:
+            with self.argument_context('hdinsight autoscale condition ' + command) as c:
+                c.argument('cluster_name', options_list=['--cluster-name'],
+                           completer=get_resource_name_completion_list('Microsoft.HDInsight/clusters'),
+                           help='The name of the cluster.')
+
+        for command in ['create', 'update']:
+            with self.argument_context('hdinsight autoscale condition ' + command) as c:
+                c.argument('days', nargs='+', arg_group=None, arg_type=get_enum_type(week_days),
+                           completer=get_generic_completion_list(week_days),
+                           help='A space-delimited list of schedule day.')
+                c.argument('time', arg_group=None, validator=validate_time,
+                           help='The 24-hour time in the form xx:xx in days.')
+                c.argument('workernode_count', type=int, options_list=['--workernode-count'], arg_group=None,
+                           help='The schedule workernode count.')
+        for command in ['create', 'update']:
+            with self.argument_context('hdinsight autoscale condition ' + command) as c:
+                c.argument('index', type=int, help='The schedule condition index which starts with 0.')
+
+        with self.argument_context('hdinsight autoscale condition delete') as c:
+            c.argument('index', nargs='+', type=int,
+                       help='The Space-separated list of condition indices which starts with 0 to delete.')

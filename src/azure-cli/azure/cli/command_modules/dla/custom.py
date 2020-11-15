@@ -300,7 +300,7 @@ def wait_adla_job(client, account_name, job_id, wait_interval_sec=5, max_wait_ti
     job = client.get(account_name, job_id)
     time_waited_sec = 0
     while job.state != JobState.ended:
-        if max_wait_time_sec > 0 and time_waited_sec >= max_wait_time_sec:
+        if 0 < time_waited_sec >= max_wait_time_sec:
             # pylint: disable=line-too-long
             raise CLIError('Data Lake Analytics Job with ID: {0} has not completed in {1} seconds. Check job runtime or increase the value of --max-wait-time-sec'.format(job_id, time_waited_sec))
         logger.info('Job is not yet done. Current job state: \'%s\'', job.state)
@@ -317,7 +317,7 @@ def _get_uuid_str():
 
 
 def _get_resource_group_location(cli_ctx, resource_group_name):
-    from azure.mgmt.resource import ResourceManagementClient
-    client = get_mgmt_service_client(cli_ctx, ResourceManagementClient)
+    from azure.cli.core.profiles import ResourceType
+    client = get_mgmt_service_client(cli_ctx, ResourceType.MGMT_RESOURCE_RESOURCES)
     # pylint: disable=no-member
     return client.resource_groups.get(resource_group_name).location

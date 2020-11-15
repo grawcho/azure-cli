@@ -19,13 +19,15 @@ from azure.cli.core.profiles import ResourceType, get_sdk
 class BatchMgmtScenarioTests(ScenarioTest):  # pylint: disable=too-many-instance-attributes
 
     @ResourceGroupPreparer(location='northeurope')
-    def test_batch_account_cmd(self, resource_group):
+    def test_batch_general_arm_cmd(self, resource_group):
 
         self.kwargs.update({
             'rg': resource_group,
             'str_n': 'clibatchteststorage1',
             'loc': 'northeurope',
-            'acc': 'clibatchtest1'
+            'acc': 'clibatchtest1',
+            'ip': resource_group + 'ip',
+            'poolname': 'batch_account_cmd_pool'
         })
 
         # test create storage account with default set
@@ -123,7 +125,7 @@ class BatchMgmtApplicationScenarioTests(ScenarioTest):  # pylint: disable=too-ma
 
         self.cmd('batch application package create -g {rg} -n {acc} --application-name {app}'
                  ' --version {app_p} --package-file "{app_f}"').assert_with_checks([
-                     self.check('name', '{app}'),
+                     self.check('name', '{app_p}'),
                      self.check('storageUrl != null', True),
                      self.check('state', 'Active')])
 
@@ -132,7 +134,7 @@ class BatchMgmtApplicationScenarioTests(ScenarioTest):  # pylint: disable=too-ma
 
         self.cmd('batch application package show -g {rg} -n {acc} '
                  '--application-name {app} --version {app_p}').assert_with_checks([
-                     self.check('name', '{app}'),
+                     self.check('name', '{app_p}'),
                      self.check('format', 'zip'),
                      self.check('state', 'Active')])
 
@@ -156,9 +158,9 @@ class BatchMgmtLiveScenarioTests(LiveScenarioTest):
     @ResourceGroupPreparer(location='northeurope')
     def test_batch_byos_account_cmd(self, resource_group):
         SecretPermissions = get_sdk(self.cli_ctx, ResourceType.MGMT_KEYVAULT,
-                                    'models.key_vault_management_client_enums#SecretPermissions')
+                                    'models._key_vault_management_client_enums#SecretPermissions')
         KeyPermissions = get_sdk(self.cli_ctx, ResourceType.MGMT_KEYVAULT,
-                                 'models.key_vault_management_client_enums#KeyPermissions')
+                                 'models._key_vault_management_client_enums#KeyPermissions')
         ALL_SECRET_PERMISSIONS = ' '.join(
             [perm.value for perm in SecretPermissions])
         ALL_KEY_PERMISSIONS = ' '.join([perm.value for perm in KeyPermissions])
@@ -168,8 +170,8 @@ class BatchMgmtLiveScenarioTests(LiveScenarioTest):
             'str_n': 'clibatchteststorage1',
             'byos_n': 'clibatchtestuser1',
             'byos_l': 'southindia',
-            'kv': 'clibatchtestkeyvault1',
-            'obj_id': 'f520d84c-3fd3-4cc8-88d4-2ed25b00d27a',
+            'kv': self.create_random_name('clibatchtestkv', 24),
+            'obj_id': 'a74e6464-e4c7-4475-8048-50c410f91351',  # object id for Microsoft Azure Batch
             'perm_k': ALL_KEY_PERMISSIONS,
             'perm_s': ALL_SECRET_PERMISSIONS
         })

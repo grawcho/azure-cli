@@ -4,11 +4,9 @@
 # --------------------------------------------------------------------------------------------
 
 import argparse
-import antlr4
 
 from azure.cli.command_modules.monitor.util import (
-    get_aggregation_map, get_operator_map, get_autoscale_operator_map,
-    get_autoscale_aggregation_map, get_autoscale_scale_direction_map)
+    get_aggregation_map, get_operator_map, get_autoscale_scale_direction_map)
 
 from knack.util import CLIError
 
@@ -35,11 +33,11 @@ def timezone_offset_type(value):
     if hour > 14 or hour < -12:
         raise CLIError('Offset out of range: -12 to +14')
 
-    if hour >= 0 and hour < 10:
+    if 0 <= hour < 10:
         value = '+0{}'.format(hour)
     elif hour >= 10:
         value = '+{}'.format(hour)
-    elif hour < 0 and hour > -10:
+    elif -10 < hour < 0:
         value = '-0{}'.format(-1 * hour)
     else:
         value = str(hour)
@@ -63,7 +61,7 @@ def get_period_type(as_timedelta=False):
         match = re.match(regex, value.lower())
         match_len = match.span(0)
         if match_len != tuple([0, len(value)]):
-            raise ValueError
+            raise ValueError('PERIOD should be of the form "##h##m##s" or ISO8601')
         # simply return value if a valid ISO8601 string is supplied
         if match.span(1) != tuple([-1, -1]) and match.span(5) != tuple([-1, -1]):
             return value
@@ -92,7 +90,11 @@ def get_period_type(as_timedelta=False):
 class MetricAlertConditionAction(argparse._AppendAction):
 
     def __call__(self, parser, namespace, values, option_string=None):
-        from azure.cli.command_modules.monitor.grammar import (
+        # antlr4 is not available everywhere, restrict the import scope so that commands
+        # that do not need it don't fail when it is absent
+        import antlr4
+
+        from azure.cli.command_modules.monitor.grammar.metric_alert import (
             MetricAlertConditionLexer, MetricAlertConditionParser, MetricAlertConditionValidator)
 
         usage = 'usage error: --condition {avg,min,max,total,count} [NAMESPACE.]METRIC {=,!=,>,>=,<,<=} THRESHOLD\n' \
@@ -126,7 +128,7 @@ class MetricAlertAddAction(argparse._AppendAction):
         from azure.mgmt.monitor.models import MetricAlertAction
         action = MetricAlertAction(
             action_group_id=values[0],
-            webhook_properties=dict(x.split('=', 1) for x in values[1:]) if len(values) > 1 else None
+            web_hook_properties=dict(x.split('=', 1) for x in values[1:]) if len(values) > 1 else None
         )
         action.odatatype = 'Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.Microsoft.AppInsights.Nexus.' \
                            'DataContracts.Resources.ScheduledQueryRules.Action'
@@ -232,32 +234,37 @@ class AutoscaleRemoveAction(argparse._AppendAction):
 
 class AutoscaleConditionAction(argparse.Action):  # pylint: disable=protected-access
     def __call__(self, parser, namespace, values, option_string=None):
-        from azure.mgmt.monitor.models import MetricTrigger
-        if len(values) == 1:
-            # workaround because CMD.exe eats > character... Allows condition to be
-            # specified as a quoted expression
-            values = values[0].split(' ')
-        name_offset = 0
+        # antlr4 is not available everywhere, restrict the import scope so that commands
+        # that do not need it don't fail when it is absent
+        import antlr4
+
+        from azure.cli.command_modules.monitor.grammar.autoscale import (
+            AutoscaleConditionLexer, AutoscaleConditionParser, AutoscaleConditionValidator)
+
+        # pylint: disable=line-too-long
+        usage = 'usage error: --condition ["NAMESPACE"] METRIC {==,!=,>,>=,<,<=} THRESHOLD {avg,min,max,total,count} PERIOD\n' \
+                '                         [where DIMENSION {==,!=} VALUE [or VALUE ...]\n' \
+                '                         [and   DIMENSION {==,!=} VALUE [or VALUE ...] ...]]'
+
+        string_val = ' '.join(values)
+
+        lexer = AutoscaleConditionLexer(antlr4.InputStream(string_val))
+        stream = antlr4.CommonTokenStream(lexer)
+        parser = AutoscaleConditionParser(stream)
+        tree = parser.expression()
+
         try:
-            metric_name = ' '.join(values[name_offset:-4])
-            operator = get_autoscale_operator_map()[values[-4]]
-            threshold = int(values[-3])
-            aggregation = get_autoscale_aggregation_map()[values[-2].lower()]
-            window = get_period_type()(values[-1])
-        except (IndexError, KeyError):
-            raise CLIError('usage error: --condition METRIC {==,!=,>,>=,<,<=} '
-                           'THRESHOLD {avg,min,max,total,count} PERIOD')
-        condition = MetricTrigger(
-            metric_name=metric_name,
-            metric_resource_uri=None,  # will be filled in later
-            time_grain=None,  # will be filled in later
-            statistic=None,  # will be filled in later
-            time_window=window,
-            time_aggregation=aggregation,
-            operator=operator,
-            threshold=threshold
-        )
-        namespace.condition = condition
+            validator = AutoscaleConditionValidator()
+            walker = antlr4.ParseTreeWalker()
+            walker.walk(validator, tree)
+            autoscale_condition = validator.result()
+            for item in ['time_aggregation', 'metric_name', 'threshold', 'operator', 'time_window']:
+                if not getattr(autoscale_condition, item, None):
+                    raise CLIError(usage)
+        except (AttributeError, TypeError, KeyError):
+            raise CLIError(usage)
+
+        namespace.condition = autoscale_condition
 
 
 class AutoscaleScaleAction(argparse.Action):  # pylint: disable=protected-access
@@ -315,26 +322,79 @@ class MultiObjectsDeserializeAction(argparse._AppendAction):  # pylint: disable=
 
 class ActionGroupReceiverParameterAction(MultiObjectsDeserializeAction):
     def deserialize_object(self, type_name, type_properties):
-        from azure.mgmt.monitor.models import EmailReceiver, SmsReceiver, WebhookReceiver
+        from azure.mgmt.monitor.models import EmailReceiver, SmsReceiver, WebhookReceiver, \
+            ArmRoleReceiver, AzureAppPushReceiver, ItsmReceiver, AutomationRunbookReceiver, \
+            VoiceReceiver, LogicAppReceiver, AzureFunctionReceiver
+        syntax = {
+            'email': 'NAME EMAIL_ADDRESS [usecommonalertschema]',
+            'sms': 'NAME COUNTRY_CODE PHONE_NUMBER',
+            'webhook': 'NAME URI [useaadauth OBJECT_ID IDENTIFIER URI] [usecommonalertschema]',
+            'armrole': 'NAME ROLE_ID [usecommonalertschema]',
+            'azureapppush': 'NAME EMAIL_ADDRESS',
+            'itsm': 'NAME WORKSPACE_ID CONNECTION_ID TICKET_CONFIG REGION',
+            'automationrunbook': 'NAME AUTOMATION_ACCOUNT_ID RUNBOOK_NAME WEBHOOK_RESOURCE_ID '
+                                 'SERVICE_URI [isglobalrunbook] [usecommonalertschema]',
+            'voice': 'NAME COUNTRY_CODE PHONE_NUMBER',
+            'logicapp': 'NAME RESOURCE_ID CALLBACK_URL [usecommonalertschema]',
+            'azurefunction': 'NAME FUNCTION_APP_RESOURCE_ID '
+                             'FUNCTION_NAME HTTP_TRIGGER_URL [usecommonalertschema]'
+        }
 
-        if type_name == 'email':
-            try:
-                return EmailReceiver(name=type_properties[0], email_address=type_properties[1])
-            except IndexError:
-                raise CLIError('usage error: --action email NAME EMAIL_ADDRESS')
-        elif type_name == 'sms':
-            try:
-                return SmsReceiver(
+        receiver = None
+        useCommonAlertSchema = 'usecommonalertschema' in (property.lower() for property in type_properties)
+        try:
+            if type_name == 'email':
+                receiver = EmailReceiver(name=type_properties[0], email_address=type_properties[1],
+                                         use_common_alert_schema=useCommonAlertSchema)
+            elif type_name == 'sms':
+                receiver = SmsReceiver(
                     name=type_properties[0],
                     country_code=type_properties[1],
                     phone_number=type_properties[2]
                 )
-            except IndexError:
-                raise CLIError('usage error: --action sms NAME COUNTRY_CODE PHONE_NUMBER')
-        elif type_name == 'webhook':
-            try:
-                return WebhookReceiver(name=type_properties[0], service_uri=type_properties[1])
-            except IndexError:
-                raise CLIError('usage error: --action webhook NAME URI')
-        else:
-            raise ValueError('usage error: the type "{}" is not recognizable.'.format(type_name))
+            elif type_name == 'webhook':
+                useAadAuth = len(type_properties) >= 3 and type_properties[2] == 'useaadauth'
+                object_id = type_properties[3] if useAadAuth else None
+                identifier_uri = type_properties[4] if useAadAuth else None
+                receiver = WebhookReceiver(name=type_properties[0], service_uri=type_properties[1],
+                                           use_common_alert_schema=useCommonAlertSchema,
+                                           use_aad_auth=useAadAuth, object_id=object_id,
+                                           identifier_uri=identifier_uri)
+            elif type_name == 'armrole':
+                receiver = ArmRoleReceiver(name=type_properties[0], role_id=type_properties[1],
+                                           use_common_alert_schema=useCommonAlertSchema)
+            elif type_name == 'azureapppush':
+                receiver = AzureAppPushReceiver(name=type_properties[0], email_address=type_properties[1])
+            elif type_name == 'itsm':
+                receiver = ItsmReceiver(name=type_properties[0], workspace_id=type_properties[1],
+                                        connection_id=type_properties[2], ticket_configuration=type_properties[3],
+                                        region=type_properties[4])
+            elif type_name == 'automationrunbook':
+                isGlobalRunbook = 'isglobalrunbook' in (property.lower() for property in type_properties)
+                receiver = AutomationRunbookReceiver(name=type_properties[0], automation_account_id=type_properties[1],
+                                                     runbook_name=type_properties[2],
+                                                     webhook_resource_id=type_properties[3],
+                                                     service_uri=type_properties[4],
+                                                     is_global_runbook=isGlobalRunbook,
+                                                     use_common_alert_schema=useCommonAlertSchema)
+            elif type_name == 'voice':
+                receiver = VoiceReceiver(
+                    name=type_properties[0],
+                    country_code=type_properties[1],
+                    phone_number=type_properties[2]
+                )
+            elif type_name == 'logicapp':
+                receiver = LogicAppReceiver(name=type_properties[0], resource_id=type_properties[1],
+                                            callback_url=type_properties[2],
+                                            use_common_alert_schema=useCommonAlertSchema)
+            elif type_name == 'azurefunction':
+                receiver = AzureFunctionReceiver(name=type_properties[0], function_app_resource_id=type_properties[1],
+                                                 function_name=type_properties[2],
+                                                 http_trigger_url=type_properties[3],
+                                                 use_common_alert_schema=useCommonAlertSchema)
+            else:
+                raise ValueError('usage error: the type "{}" is not recognizable.'.format(type_name))
+
+        except IndexError:
+            raise CLIError('usage error: --action {}'.format(syntax[type_name]))
+        return receiver

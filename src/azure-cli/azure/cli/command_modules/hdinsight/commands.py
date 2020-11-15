@@ -4,7 +4,7 @@
 # --------------------------------------------------------------------------------------------
 
 
-def load_command_table(self, _):
+def load_command_table(self, _):  # pylint: disable=too-many-statements
     from azure.cli.core.commands import CliCommandType
     from ._client_factory import cf_hdinsight_applications
     from ._client_factory import cf_hdinsight_clusters
@@ -12,6 +12,7 @@ def load_command_table(self, _):
     from ._client_factory import cf_hdinsight_locations
     from ._client_factory import cf_hdinsight_script_execution_history
     from ._client_factory import cf_hdinsight_script_actions
+    from ._client_factory import cf_hdinsight_virtual_machines
 
     hdinsight_clusters_sdk = CliCommandType(
         operations_tmpl='azure.mgmt.hdinsight.operations#ClustersOperations.{}',
@@ -43,6 +44,11 @@ def load_command_table(self, _):
         client_factory=cf_hdinsight_script_execution_history
     )
 
+    hdinsight_virtual_machines_sdk = CliCommandType(
+        operations_tmpl='azure.mgmt.hdinsight.operations#VirtualMachinesOperations.{}',
+        client_factory=cf_hdinsight_virtual_machines
+    )
+
     # cluster operations
     with self.command_group('hdinsight', hdinsight_clusters_sdk, client_factory=cf_hdinsight_clusters) as g:
         g.custom_command('create', 'create_cluster', supports_no_wait=True)
@@ -62,13 +68,17 @@ def load_command_table(self, _):
     with self.command_group('hdinsight script-action',
                             hdinsight_script_actions_sdk,
                             client_factory=cf_hdinsight_script_actions) as g:
-        g.show_command('show', 'get_execution_detail')
-        g.custom_command('list', 'list_hdi_script_actions')
+        g.show_command('show-execution-details', 'get_execution_detail')
+        g.command('list', 'list_by_cluster')
         g.command('delete', 'delete')
         g.custom_command('execute',
                          'execute_hdi_script_action',
                          command_type=hdinsight_clusters_sdk,
                          client_factory=cf_hdinsight_clusters)
+        g.command('list-execution-history',
+                  'list_by_cluster',
+                  command_type=hdinsight_script_execution_history_sdk,
+                  client_factory=cf_hdinsight_script_execution_history)
         g.command('promote',
                   'promote',
                   command_type=hdinsight_script_execution_history_sdk,
@@ -89,5 +99,25 @@ def load_command_table(self, _):
         g.custom_command('enable', 'enable_hdi_monitoring')
         g.command('disable', 'disable_monitoring')
 
-    with self.command_group('hdinsight', is_preview=True):
-        pass
+    # VirtualMachine operations
+    with self.command_group('hdinsight host', hdinsight_virtual_machines_sdk,
+                            client_factory=cf_hdinsight_virtual_machines) as g:
+        g.command('list', 'list_hosts')
+        g.command('restart', 'restart_hosts', confirmation=True)
+
+    # Autoscale operations
+    with self.command_group('hdinsight autoscale', hdinsight_clusters_sdk, client_factory=cf_hdinsight_clusters) as g:
+        g.custom_command('create', 'create_autoscale', supports_no_wait=True)
+        g.custom_command('update', 'update_autoscale', supports_no_wait=True)
+        g.custom_show_command('show', 'show_autoscale')
+        g.custom_command('delete', 'delete_autoscale', supports_no_wait=True, confirmation=True)
+        g.custom_command('list-timezones', 'list_timezones')
+        g.wait_command('wait')
+
+    with self.command_group('hdinsight autoscale condition', hdinsight_clusters_sdk,
+                            client_factory=cf_hdinsight_clusters) as g:
+        g.custom_command('create', 'create_autoscale_condition', supports_no_wait=True)
+        g.custom_command('update', 'update_autoscale_condition', supports_no_wait=True)
+        g.custom_command('list', 'list_autoscale_condition')
+        g.custom_command('delete', 'delete_autoscale_condition', supports_no_wait=True, confirmation=True)
+        g.wait_command('wait')

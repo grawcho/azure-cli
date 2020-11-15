@@ -51,16 +51,28 @@ def vaults_cf(cli_ctx, *_):
 
 
 def backup_storage_configs_cf(cli_ctx, *_):
-    return _common_client_factory(cli_ctx).backup_storage_configs
+    return _backup_client_factory(cli_ctx).backup_resource_storage_configs
 
 
 # Protection Client Factories
+def protection_intent_cf(cli_ctx, *_):
+    return _backup_client_factory(cli_ctx).protection_intent
+
+
 def protection_policies_cf(cli_ctx, *_):
     return _backup_client_factory(cli_ctx).protection_policies
 
 
 def protection_containers_cf(cli_ctx, *_):
     return _backup_client_factory(cli_ctx).protection_containers
+
+
+def protectable_containers_cf(cli_ctx, *_):
+    return _backup_client_factory(cli_ctx).protectable_containers
+
+
+def protection_container_operation_results_cf(cli_ctx, *_):
+    return _backup_client_factory(cli_ctx).protection_container_operation_results
 
 
 def protection_container_refresh_operation_results_cf(cli_ctx, *_):
@@ -100,6 +112,10 @@ def backup_jobs_cf(cli_ctx, *_):
     return _backup_client_factory(cli_ctx).backup_jobs
 
 
+def backup_workload_items_cf(cli_ctx, *_):
+    return _backup_client_factory(cli_ctx).backup_workload_items
+
+
 # Job Client Factories
 def job_details_cf(cli_ctx, *_):
     return _backup_client_factory(cli_ctx).job_details
@@ -120,3 +136,7 @@ def restores_cf(cli_ctx, *_):
 
 def item_level_recovery_connections_cf(cli_ctx, *_):
     return _backup_client_factory(cli_ctx).item_level_recovery_connections
+
+
+def backup_resource_vault_config_cf(cli_ctx, *_):
+    return _backup_client_factory(cli_ctx).backup_resource_vault_configs
